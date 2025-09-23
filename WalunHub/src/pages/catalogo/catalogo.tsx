@@ -59,7 +59,7 @@ export default function Catalogo() {
                 <span className="text-gray-400 uppercase text-xs">WaunGranel</span>
                 <p className="text-lg font-bold text-black truncate block capitalize">{producto.nombre}</p>
                 <div className="flex items-center">
-                  <p className="text-lg font-semibold text-black my-3">${producto.precio}</p>
+                  <p className="text-lg font-semibold text-black my-3">${producto.precio}/kg</p>
                   <div className="ml-auto text-green-600">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-bag-plus" viewBox="0 0 16 16">
                       <path fillRule="evenodd" d="M8 7.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0v-1.5H6a.5.5 0 0 1 0-1h1.5V8a.5.5 0 0 1 .5-.5z" />
