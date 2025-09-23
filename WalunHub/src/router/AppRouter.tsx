@@ -3,6 +3,10 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import TopBar from '../components/layout/topbar';
 import MainNav from '../components/layout/mainnav';
 import Home from '../pages/Home/home';
+import Footer from '../components/layout/footer';
+import Catalogo from '../pages/catalogo/catalogo';
+import Nosotros from '../pages/Nosotros/nosotros';
+import Contacto from '../pages/Contacto/contacto';
 
 // Layout wrapper con lógica para ocultar MainNav
 function Layout({ children }: { children: React.ReactNode }) {
@@ -14,6 +18,7 @@ function Layout({ children }: { children: React.ReactNode }) {
       <TopBar />
       {!hideMainNav && <MainNav />}
       <main>{children}</main>
+      {!hideMainNav && <Footer />}
     </>
   );
 }
@@ -24,6 +29,10 @@ export default function AppRouter() {
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/catalogo" element={<Catalogo />} />
+          <Route path="/nosotros" element={<Nosotros />} />
+          <Route path="/contacto" element={<Contacto />} />
+
           {/* Agrega más rutas aquí */}
         </Routes>
       </Layout>

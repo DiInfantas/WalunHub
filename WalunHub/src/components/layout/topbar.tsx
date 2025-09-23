@@ -7,7 +7,7 @@ export default function TopBar() {
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         {/* Marca */}
         <Link to="/" className="text-2xl font-bold">
-          WaunGranel
+          WalunGranel
         </Link>
 
         {/* Íconos */}
