@@ -35,7 +35,7 @@ export default function Nosotros() {
                     <div className="text-center md:text-right">
                         <span className="w-20 h-2 bg-gray-800 dark:bg-white mb-6 inline-block" />
                         <h1 className="uppercase text-6xl sm:text-7xl font-black leading-none text-gray-800 dark:text-white">
-                            WaunGranel
+                            WalunGranel
                             <span className="text-4xl sm:text-5xl block">Frutos Secos</span>
                         </h1>
                         <p className="mt-4 text-base sm:text-lg text-gray-700 dark:text-gray-300">
