@@ -1,21 +1,33 @@
-import { useState } from 'react';
-import castana from '../../assets/img/castañas.png';
-import variado from '../../assets/img/variado.png';
+import { useEffect, useState } from 'react';
+import { API_BASE_URL } from '../../config/api';
+
+interface ImagenProducto {
+  imagen: string;
+}
+
+interface Producto {
+  id: number;
+  nombre: string;
+  precio: number;
+  categoria: string;
+  descripcion: string;
+  imagenes: ImagenProducto[];
+}
 
 export default function Catalogo() {
   const [categoria, setCategoria] = useState('todos');
   const [orden, setOrden] = useState('asc');
+  const [productos, setProductos] = useState<Producto[]>([]);
 
-  const productos = [
-    { nombre: 'Castañas de Cajú', precio: 10000, categoria: 'frutos secos', imagen:castana  },
-    { nombre: 'Almendras', precio: 10000, categoria: 'frutos secos', imagen: variado },
-    { nombre: 'Nueces', precio: 15000, categoria: 'frutos secos', imagen:castana },
-    { nombre: 'Damasco seco', precio: 8000, categoria: 'deshidratados', imagen: variado },
-  ];
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/productos/`)
+      .then(res => res.json())
+      .then(data => setProductos(data))
+      .catch(err => console.error('Error al cargar productos:', err));
+  }, []);
 
-  // Filtrar y ordenar productos
   const productosFiltrados = productos
-    .filter(p => categoria === 'todos' || p.categoria === categoria)
+    .filter(p => categoria === 'todos' || p.categoria.trim().toLowerCase() === categoria.trim().toLowerCase())
     .sort((a, b) => orden === 'asc' ? a.precio - b.precio : b.precio - a.precio);
 
   return (
@@ -51,10 +63,18 @@ export default function Catalogo() {
 
       {/* Tarjetas de productos */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-20 gap-x-10 justify-items-center">
-        {productosFiltrados.map((producto, index) => (
-          <div key={index} className="w-72 bg-white shadow-md rounded-xl duration-500 hover:scale-105 hover:shadow-xl">
+        {productosFiltrados.map(producto => (
+          <div key={producto.id} className="w-72 bg-white shadow-md rounded-xl duration-500 hover:scale-105 hover:shadow-xl">
             <a href="#">
-              <img src={producto.imagen} alt={producto.nombre} className="h-80 w-72 object-cover rounded-t-xl" />
+              <img
+                src={
+                  producto.imagenes[0]?.imagen
+                    ? producto.imagenes[0].imagen
+                    : '/img/default.jpg'
+                }
+                alt={producto.nombre}
+                className="h-80 w-72 object-cover rounded-t-xl"
+              />
               <div className="px-4 py-3 w-72">
                 <span className="text-gray-400 uppercase text-xs">WaunGranel</span>
                 <p className="text-lg font-bold text-black truncate block capitalize">{producto.nombre}</p>
