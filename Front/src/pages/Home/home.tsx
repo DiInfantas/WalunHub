@@ -1,8 +1,20 @@
+import { useEffect, useState } from 'react';
+import { API_BASE_URL } from '../../config/api';
 import fotohero from '../../assets/img/Hero.png';
-import castana from '../../assets/img/castañas.png';
-import variado from '../../assets/img/variado.png';
 
 export default function Home() {
+  const [destacados, setDestacados] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/productos/`)
+      .then(res => res.json())
+      .then(data => {
+        const filtrados = data.filter((p: any) => p.destacado);
+        setDestacados(filtrados);
+      })
+      .catch(err => console.error('Error al cargar productos destacados:', err));
+  }, []);
+
   return (
     <main className="bg-white min-h-screen">
       {/* Hero Section */}
@@ -51,45 +63,17 @@ export default function Home() {
       <section className="px-8 py-12">
         <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Productos destacados</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="bg-green-50 rounded-lg shadow p-4 text-center">
-            <img
-              src={castana}
-              alt="Cashews"
-              className="w-full h-40 object-cover rounded mb-4 transform transition-transform duration-300 hover:scale-105"
-            />
-            <h3 className="text-lg font-semibold text-gray-800">Castañas de Cajú</h3>
-            <p className="text-green-700 font-bold mt-2">$10.000</p>
-          </div>
-
-          <div className="bg-green-50 rounded-lg shadow p-4 text-center">
-            <img
-              src={variado}
-              alt="Almendras"
-              className="w-full h-40 object-cover rounded mb-4 transform transition-transform duration-300 hover:scale-105"
-            />
-            <h3 className="text-lg font-semibold text-gray-800">Almendras</h3>
-            <p className="text-green-700 font-bold mt-2">$10.000</p>
-          </div>
-
-          <div className="bg-green-50 rounded-lg shadow p-4 text-center">
-            <img
-              src={castana}
-              alt="Nueces"
-              className="w-full h-40 object-cover rounded mb-4 transform transition-transform duration-300 hover:scale-105"
-            />
-            <h3 className="text-lg font-semibold text-gray-800">Nueces</h3>
-            <p className="text-green-700 font-bold mt-2">$15.000</p>
-          </div>
-
-          <div className="bg-green-50 rounded-lg shadow p-4 text-center">
-            <img
-              src={variado}
-              alt="Damasco seco"
-              className="w-full h-40 object-cover rounded mb-4 transform transition-transform duration-300 hover:scale-105"
-            />
-            <h3 className="text-lg font-semibold text-gray-800">Damasco seco</h3>
-            <p className="text-green-700 font-bold mt-2">$8.000</p>
-          </div>
+          {destacados.map((producto: any) => (
+            <div key={producto.id} className="bg-green-50 rounded-lg shadow p-4 text-center">
+              <img
+                src={producto.imagenes[0]?.imagen || '/img/default.jpg'}
+                alt={producto.nombre}
+                className="w-full h-40 object-cover rounded mb-4 transform transition-transform duration-300 hover:scale-105"
+              />
+              <h3 className="text-lg font-semibold text-gray-800">{producto.nombre}</h3>
+              <p className="text-green-700 font-bold mt-2">${producto.precio}</p>
+            </div>
+          ))}
         </div>
       </section>
     </main>
