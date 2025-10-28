@@ -9,6 +9,7 @@ import Nosotros from '../pages/Nosotros/nosotros';
 import Contacto from '../pages/Contacto/contacto';
 import ProductoDetalle from '../pages/catalogo/productodetalle';
 import Login from '../pages/usuario/login';
+import Registro from '../pages/usuario/registro';
 
 // Layout wrapper con lógica para ocultar MainNav
 function Layout({ children }: { children: React.ReactNode }) {
@@ -36,8 +37,8 @@ export default function AppRouter() {
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/producto/:id" element={<ProductoDetalle />} />
           <Route path="/login" element={<Login />} />
-
-          {/* Agrega más rutas aquí */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/registro" element={<Registro />} />
         </Routes>
       </Layout>
     </Router>
