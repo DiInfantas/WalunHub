@@ -1,22 +1,10 @@
 import { useEffect, useState } from 'react';
 import { API_BASE_URL } from '../../config/api';
-
-interface ImagenProducto {
-  imagen: string;
-}
-
-interface Producto {
-  id: number;
-  nombre: string;
-  precio: number;
-  categoria: string;
-  descripcion: string;
-  imagenes: ImagenProducto[];
-}
+import type { Producto } from '../../interfaces/producto'; 
 
 export default function Catalogo() {
   const [categoria, setCategoria] = useState('todos');
-  const [orden, setOrden] = useState('asc');
+  const [orden, setOrden] = useState<'asc' | 'desc'>('asc');
   const [productos, setProductos] = useState<Producto[]>([]);
 
   useEffect(() => {
@@ -52,7 +40,7 @@ export default function Catalogo() {
           <label className="font-semibold mr-2">Ordenar por precio:</label>
           <select
             value={orden}
-            onChange={e => setOrden(e.target.value)}
+            onChange={e => setOrden(e.target.value as 'asc' | 'desc')}
             className="border rounded px-3 py-2"
           >
             <option value="asc">Menor a mayor</option>
@@ -65,18 +53,14 @@ export default function Catalogo() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-20 gap-x-10 justify-items-center">
         {productosFiltrados.map(producto => (
           <div key={producto.id} className="w-72 bg-white shadow-md rounded-xl duration-500 hover:scale-105 hover:shadow-xl">
-            <a href="#">
+            <a href={`/producto/${producto.id}`}>
               <img
-                src={
-                  producto.imagenes[0]?.imagen
-                    ? producto.imagenes[0].imagen
-                    : '/img/default.jpg'
-                }
+                src={producto.imagenes[0]?.imagen || '/img/default.jpg'}
                 alt={producto.nombre}
                 className="h-80 w-72 object-cover rounded-t-xl"
               />
               <div className="px-4 py-3 w-72">
-                <span className="text-gray-400 uppercase text-xs">WaunGranel</span>
+                <span className="text-gray-400 uppercase text-xs">WalunGranel</span>
                 <p className="text-lg font-bold text-black truncate block capitalize">{producto.nombre}</p>
                 <div className="flex items-center">
                   <p className="text-lg font-semibold text-black my-3">${producto.precio}/kg</p>
