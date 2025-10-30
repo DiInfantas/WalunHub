@@ -23,13 +23,13 @@ export default function Footer() {
         <div>
           <h4 className="font-semibold mb-2">Síguenos</h4>
           <div className="flex justify-center md:justify-start gap-4 text-xl">
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
+            <a href="https://www.facebook.com/people/_walungranel/100063572944042/" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
               <FaFacebook />
             </a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
+            <a href="https://www.instagram.com/_walungranel/" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
               <FaInstagram />
             </a>
-            <a href="https://wa.me/56912345678" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
+            <a href="https://wa.me/56986525272" target="_blank" rel="noopener noreferrer" className="hover:text-green-300">
               <FaWhatsapp />
             </a>
           </div>
