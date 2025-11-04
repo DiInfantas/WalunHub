@@ -1,5 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import User
 
+# Categoría
 class Categoria(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
     descripcion = models.TextField(blank=True)
@@ -7,6 +9,7 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre
 
+# Producto
 class Producto(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True)
@@ -19,9 +22,81 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre
 
+# Imagen de producto
 class ImagenProducto(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='imagenes')
     imagen = models.ImageField(upload_to='productos/', default='productos/default.jpg')
 
     def __str__(self):
         return f"Imagen de {self.producto.nombre}"
+
+# Estado del pedido
+class EstadoPedido(models.Model):
+    nombre = models.CharField(max_length=20, unique=True)
+
+    def __str__(self):
+        return self.nombre
+
+# Método de pago
+class MetodoPago(models.Model):
+    nombre = models.CharField(max_length=20, unique=True)
+
+    def __str__(self):
+        return self.nombre
+
+# Pedido
+class Pedido(models.Model):
+    cliente = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    fecha = models.DateTimeField(auto_now_add=True)
+    estado = models.ForeignKey(EstadoPedido, on_delete=models.PROTECT)
+    metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.PROTECT)
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+    tipo_entrega = models.CharField(max_length=10, choices=[('envio', 'Envío'), ('retiro', 'Retiro')], default='envio')
+
+    def __str__(self):
+        return f'Pedido #{self.id}'
+
+# Detalle del pedido
+class ItemPedido(models.Model):
+    pedido = models.ForeignKey(Pedido, related_name='items', on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
+    cantidad = models.PositiveIntegerField()
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f'{self.producto.nombre} x {self.cantidad}'
+
+# Estado del envío
+class EstadoEnvio(models.Model):
+    nombre = models.CharField(max_length=30, unique=True)
+
+    def __str__(self):
+        return self.nombre
+
+# Envío
+class Envio(models.Model):
+    pedido = models.OneToOneField(Pedido, on_delete=models.CASCADE)
+    direccion = models.CharField(max_length=200, blank=True, null=True)
+    ciudad = models.CharField(max_length=100, blank=True, null=True)
+    comuna = models.CharField(max_length=100, blank=True, null=True)
+    codigo_postal = models.CharField(max_length=20, blank=True, null=True)
+    codigo_seguimiento = models.CharField(max_length=50, unique=True, blank=True, null=True)
+    estado_envio = models.ForeignKey(EstadoEnvio, on_delete=models.PROTECT)
+    costo_envio = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    fecha_envio = models.DateTimeField(blank=True, null=True)
+    fecha_entrega = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return f'Envío #{self.id}'
+
+# Contacto
+class Contacto(models.Model):
+    cliente = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    nombre = models.CharField(max_length=100)
+    email = models.EmailField()
+    mensaje = models.TextField(max_length=1000)
+    fecha = models.DateTimeField(auto_now_add=True)
+    respondido = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'Mensaje de {self.nombre}'
