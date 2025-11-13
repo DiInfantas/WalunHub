@@ -12,6 +12,8 @@ import Login from '../pages/usuario/login';
 import Registro from '../pages/usuario/registro';
 import Carrito from '../pages/carrito/carrito';
 import Checkout from '../pages/checkout/checkout';
+import Perfil from '../pages/usuario/perfil';
+import Dashboard from '../pages/dashboard/dashboard';
 
 // Layout wrapper con lógica para ocultar MainNav
 function Layout({ children }: { children: React.ReactNode }) {
@@ -43,6 +45,8 @@ export default function AppRouter() {
           <Route path="/registro" element={<Registro />} />
           <Route path="/carrito" element={<Carrito />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/perfil" element={<Perfil />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </Layout>
     </Router>
