@@ -1,67 +1,72 @@
-import { useState } from 'react';
+import { useState } from "react";
+import { api } from "../../config/api";  // 👈 ruta corregida
 
 export default function Registro() {
-  const [nombre, setNombre] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Registro con:', { nombre, email, password });
+    try {
+      await api.post("/usuarios/registro/", { username, email, password });
+      alert("Cuenta creada con éxito");
+      window.location.href = "/login";
+    } catch (err: any) {
+      console.error(err.response?.data);
+      alert("Error al crear la cuenta");
+    }
   };
 
   return (
     <div className="container px-4 mx-auto py-12">
       <div className="max-w-lg mx-auto bg-white shadow-lg rounded-lg p-8">
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold text-green-700">Crear cuenta</h2>
-        </div>
+        <h2 className="text-3xl font-bold text-green-700 text-center mb-6">
+          Crear cuenta
+        </h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label className="block mb-2 font-semibold text-gray-700">Nombre completo</label>
+            <label className="block mb-2 font-semibold text-gray-700">
+              Nombre completo
+            </label>
             <input
               type="text"
-              placeholder="Juan Pérez"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full p-4 border-2 border-green-600 rounded"
               required
             />
           </div>
           <div className="mb-6">
-            <label className="block mb-2 font-semibold text-gray-700">Correo electrónico</label>
+            <label className="block mb-2 font-semibold text-gray-700">
+              Correo electrónico
+            </label>
             <input
               type="email"
-              placeholder="correo@ejemplo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="w-full p-4 border-2 border-green-600 rounded"
               required
             />
           </div>
           <div className="mb-6">
-            <label className="block mb-2 font-semibold text-gray-700">Contraseña</label>
+            <label className="block mb-2 font-semibold text-gray-700">
+              Contraseña
+            </label>
             <input
               type="password"
-              placeholder="********"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="w-full p-4 border-2 border-green-600 rounded"
               required
             />
           </div>
           <button
             type="submit"
-            className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded transition duration-200"
+            className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded"
           >
             Registrarse
           </button>
-          <p className="text-center mt-6 text-sm text-gray-600">
-            ¿Ya tienes cuenta?{' '}
-            <a href="/login" className="text-green-600 hover:underline font-semibold">
-              Inicia sesión
-            </a>
-          </p>
         </form>
       </div>
     </div>

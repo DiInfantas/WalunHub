@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings   # 👈 en vez de importar User
 
 # Categoría
 class Categoria(models.Model):
@@ -46,7 +46,7 @@ class MetodoPago(models.Model):
 
 # Pedido
 class Pedido(models.Model):
-    cliente = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    cliente = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)  # 👈 cambiado
     fecha = models.DateTimeField(auto_now_add=True)
     estado = models.ForeignKey(EstadoPedido, on_delete=models.PROTECT)
     metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.PROTECT)
@@ -91,7 +91,7 @@ class Envio(models.Model):
 
 # Contacto
 class Contacto(models.Model):
-    cliente = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    cliente = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)  # 👈 cambiado
     nombre = models.CharField(max_length=100)
     email = models.EmailField()
     mensaje = models.TextField(max_length=1000)
