@@ -1,4 +1,4 @@
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, permissions
 from .models import (
     Producto, Categoria, Pedido, Contacto
 )
@@ -11,11 +11,14 @@ from .serializers import (
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.filter(activo=True)
     serializer_class = ProductoSerializer
+    permission_classes = [permissions.AllowAny]
+    
 
 # Vista pública: lista de productos activos
 class ProductoListView(generics.ListAPIView):
     queryset = Producto.objects.filter(activo=True)
     serializer_class = ProductoSerializer
+    permission_classes = [permissions.AllowAny]
 
 # Vista pública: detalle de producto por ID
 class ProductoDetailView(generics.RetrieveAPIView):
@@ -27,6 +30,7 @@ class ProductoDetailView(generics.RetrieveAPIView):
 class CategoriaListView(generics.ListAPIView):
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
+    permission_classes = [permissions.AllowAny]
 
 # Vista protegida: crear pedido
 class PedidoCreateView(generics.CreateAPIView):

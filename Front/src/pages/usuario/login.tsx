@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { api } from "../../config/api";  // 👈 ruta corregida
+import { api } from "../../config/api";
 
 export default function Login() {
   const [email, setEmail] = useState("");

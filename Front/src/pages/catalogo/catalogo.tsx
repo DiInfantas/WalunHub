@@ -1,17 +1,33 @@
 import { useEffect, useState } from 'react';
 import { API_BASE_URL } from '../../config/api';
-import type { Producto } from '../../interfaces/producto'; 
+import type { Producto } from '../../interfaces/producto';
+
+interface Categoria {
+  id: number;
+  nombre: string;
+  descripcion: string;
+}
 
 export default function Catalogo() {
   const [categoria, setCategoria] = useState('todos');
   const [orden, setOrden] = useState<'asc' | 'desc'>('asc');
   const [productos, setProductos] = useState<Producto[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
 
+  // Cargar productos
   useEffect(() => {
     fetch(`${API_BASE_URL}/productos/`)
       .then(res => res.json())
       .then(data => setProductos(data))
       .catch(err => console.error('Error al cargar productos:', err));
+  }, []);
+
+  // Cargar categorías
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/categorias/`)
+      .then(res => res.json())
+      .then(data => setCategorias(data))
+      .catch(err => console.error('Error al cargar categorías:', err));
   }, []);
 
   const productosFiltrados = productos
@@ -32,8 +48,11 @@ export default function Catalogo() {
             className="border rounded px-3 py-2"
           >
             <option value="todos">Todos</option>
-            <option value="frutos secos">Frutos secos</option>
-            <option value="deshidratados">Deshidratados</option>
+            {categorias.map(c => (
+              <option key={c.id} value={c.nombre.toLowerCase()}>
+                {c.nombre}
+              </option>
+            ))}
           </select>
         </div>
         <div>
