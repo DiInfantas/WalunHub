@@ -9,11 +9,10 @@ import Nosotros from '../pages/Nosotros/nosotros';
 import Contacto from '../pages/Contacto/contacto';
 import ProductoDetalle from '../pages/catalogo/productodetalle';
 import Login from '../pages/usuario/login';
+import Dashboard from '../pages/usuario/perfil';
 import Registro from '../pages/usuario/registro';
 import Carrito from '../pages/carrito/carrito';
 import Checkout from '../pages/checkout/checkout';
-import Perfil from '../pages/usuario/perfil';
-import Dashboard from '../pages/dashboard/dashboard';
 
 // Layout wrapper con lógica para ocultar MainNav
 function Layout({ children }: { children: React.ReactNode }) {
@@ -42,11 +41,10 @@ export default function AppRouter() {
           <Route path="/producto/:id" element={<ProductoDetalle />} />
           <Route path="/login" element={<Login />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/perfilusuario" element={<Dashboard />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/carrito" element={<Carrito />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/perfil" element={<Perfil />} />
-          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </Layout>
     </Router>
