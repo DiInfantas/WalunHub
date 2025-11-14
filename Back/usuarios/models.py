@@ -15,6 +15,8 @@ class CustomUser(AbstractUser):
     ciudad = models.CharField(max_length=100, blank=True, null=True)
     codigo_postal = models.CharField(max_length=20, blank=True, null=True)
     es_vendedor = models.BooleanField(default=False)
+    key = models.IntegerField(blank=True, null=True)
+
 
     USERNAME_FIELD = 'email'          # login con correo
     REQUIRED_FIELDS = ['username']    # nombre completo requerido al registrar
