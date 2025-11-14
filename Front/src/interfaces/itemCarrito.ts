@@ -4,4 +4,5 @@ export interface ItemCarrito {
   precio: number;
   imagen: string;
   cantidad: number;
+  stock: number;
 }

@@ -22,6 +22,7 @@ class ProductoListView(generics.ListAPIView):
 
 # Vista pública: detalle de producto por ID
 class ProductoDetailView(generics.RetrieveAPIView):
+    permission_classes = [permissions.AllowAny]
     queryset = Producto.objects.filter(activo=True)
     serializer_class = ProductoSerializer
     lookup_field = 'id'

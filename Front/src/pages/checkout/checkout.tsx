@@ -95,10 +95,18 @@ export default function Checkout() {
         <h3 className="text-xl font-bold mb-4">Resumen del pedido</h3>
         <ul className="divide-y">
           {carrito.map((item) => (
-            <li key={item.id} className="py-2 flex justify-between">
-              <span>
-                {item.nombre} x {item.cantidad}
-              </span>
+            <li key={item.id} className="py-2 flex justify-between items-center gap-3">
+              <div className="flex items-center gap-3">
+                <img
+                  src={item.imagen || "/img/default.jpg"}
+                  alt={item.nombre}
+                  className="w-12 h-12 rounded object-cover"
+                />
+                <span>
+                  {item.nombre} x {item.cantidad}
+                </span>
+              </div>
+
               <span>${item.precio * item.cantidad}</span>
             </li>
           ))}

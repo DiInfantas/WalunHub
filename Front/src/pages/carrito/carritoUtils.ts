@@ -15,7 +15,12 @@ export const agregarAlCarrito = (producto: ItemCarrito) => {
   if (existe) {
     existe.cantidad += 1;
   } else {
-    carrito.push({ ...producto, cantidad: 1 });
+          carrito.push({ 
+        ...producto, 
+        cantidad: 1,
+        stock: producto.stock 
+      });
+
   }
 
   guardarCarrito(carrito);

@@ -17,7 +17,9 @@ export default function Carrito() {
 
   const actualizarCantidad = (id: number, cantidad: number) => {
     const actualizado = carrito.map((item) =>
-      item.id === id ? { ...item, cantidad: Math.max(1, cantidad) } : item
+      item.id === id 
+        ? { ...item, cantidad: Math.max(1, Math.min(item.stock, cantidad)) } 
+        : item
     );
     setCarrito(actualizado);
     guardarCarrito(actualizado);
@@ -60,13 +62,15 @@ export default function Carrito() {
                 <button
                   onClick={() => actualizarCantidad(item.id, item.cantidad - 1)}
                   className="px-2 py-1 bg-gray-200 rounded"
+                  disabled={item.cantidad <= 1}
                 >
                   −
                 </button>
                 <span className="px-3">{item.cantidad}</span>
                 <button
                   onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}
-                  className="px-2 py-1 bg-gray-200 rounded"
+                  className="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
+                  disabled={item.cantidad >= item.stock}
                 >
                   +
                 </button>
