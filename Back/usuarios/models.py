@@ -22,4 +22,4 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = ['username']    # nombre completo requerido al registrar
 
     def __str__(self):
-        return f"{self.username or ''} ({self.email})"
+        return f"{self.username or ''} ({self.email}) ({self.es_vendedor and 'Vendedor' or 'Cliente'}) ([self.telefono or 'Sin teléfono'])"
