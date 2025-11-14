@@ -40,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({ active, setActive }) => {
   );
 };
 
-const Dashboard: React.FC = () => {
+const Perfil: React.FC = () => {
   const [active, setActive] = useState("info");
 
   const user = {
@@ -185,5 +185,5 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default Perfil;
 
