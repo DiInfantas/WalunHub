@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaShoppingCart, FaUser } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { api } from "../../config/api";
-import { FaChevronDown } from "react-icons/fa"; 
+import { FaChevronDown } from "react-icons/fa";
 import Logo from "../../assets/img/logo.png";
 
 export default function TopBar() {
@@ -23,7 +23,7 @@ export default function TopBar() {
 
     try {
       await api.post("/usuarios/logout/");
-    } catch {}
+    } catch { }
 
     localStorage.removeItem("token");
     setUsername(null);
@@ -31,29 +31,25 @@ export default function TopBar() {
   };
 
   return (
-    <div className="bg-green-700 text-white px-6 py-3 shadow-md">
+    <div className="bg-white text-green-800 px-6 py-3 shadow-md">
       <div className="max-w-7xl mx-auto flex justify-between items-center relative">
-
         <Link to="/" className="flex items-center gap-2">
           <img
             src={Logo}
             alt="WalunGranel Logo"
-            className="h-16 w-auto rounded-full border-2 border-white shadow-md"
+            className="h-16 w-auto rounded-full border-2 border-green-800 shadow-md"
           />
           <span className="text-2xl font-bold">WalunGranel</span>
         </Link>
 
         <div className="flex gap-6 items-center">
-
           {username && (
-            <span className="font-semibold hidden sm:block">
-              Hola, {username}
-            </span>
+            <span className="font-semibold hidden sm:block">Hola, {username}</span>
           )}
 
           <Link
             to="/carrito"
-            className="flex items-center gap-2 hover:text-green-300 transition"
+            className="flex items-center gap-2 hover:text-green-600 transition"
           >
             <FaShoppingCart size={20} />
             <span className="text-sm font-medium">Carrito</span>
@@ -62,20 +58,18 @@ export default function TopBar() {
           <div className="relative">
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="flex items-center gap-1 hover:text-green-300 transition"
+              className="flex items-center gap-1 hover:text-green-600 transition"
             >
               <FaUser size={20} />
               <FaChevronDown
-                className={`transition-transform duration-200 ${
-                  menuOpen ? "rotate-180" : "rotate-0"
-                }`}
+                className={`transition-transform duration-200 ${menuOpen ? "rotate-180" : "rotate-0"
+                  }`}
                 size={14}
               />
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white text-gray-700 rounded-lg shadow-lg border border-gray-200 z-20">
-
+              <div className="absolute right-0 mt-2 w-48 bg-white text-green-800 rounded-lg shadow-lg border border-green-200 z-20">
                 {!username ? (
                   <>
                     <Link
@@ -85,7 +79,6 @@ export default function TopBar() {
                     >
                       Crear cuenta
                     </Link>
-
                     <Link
                       to="/login"
                       className="block px-4 py-2 hover:bg-green-100"
@@ -103,7 +96,6 @@ export default function TopBar() {
                     >
                       Gestionar cuenta
                     </Link>
-
                     <button
                       onClick={() => {
                         setMenuOpen(false);
@@ -118,7 +110,6 @@ export default function TopBar() {
               </div>
             )}
           </div>
-
         </div>
       </div>
     </div>
