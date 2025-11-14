@@ -79,7 +79,7 @@ export default function TopBar() {
                 {!username ? (
                   <>
                     <Link
-                      to="/register"
+                      to="/registro"
                       className="block px-4 py-2 hover:bg-green-100"
                       onClick={() => setMenuOpen(false)}
                     >

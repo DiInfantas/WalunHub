@@ -20,7 +20,7 @@ function ProductoDetalle() {
   const handleAddToCart = () => {
     if (!producto) return;
 
-    // validar token
+    // validar token GOD shiet 
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -59,7 +59,6 @@ function ProductoDetalle() {
           <p className="text-xl font-semibold text-green-700 mb-2">${producto.precio}</p>
           <p className="text-sm text-gray-600 mb-4">Stock disponible: {producto.stock}</p>
 
-          {/* Selector de cantidad */}
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={() => setCantidad(Math.max(1, cantidad - 1))}

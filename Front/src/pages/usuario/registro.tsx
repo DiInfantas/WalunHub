@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { api } from "../../config/api";  // 👈 ruta corregida
+import { api } from "../../config/api";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function Registro() {
   const [username, setUsername] = useState("");
@@ -7,83 +8,105 @@ export default function Registro() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
       await api.post("/usuarios/registro/", { username, email, password });
-      alert("Cuenta creada con éxito");
-      window.location.href = "/login";
+
+      toast.success("Cuenta creada con éxito", {
+        duration: 15000,
+        position: "top-center",
+      });
+
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1200);
+
     } catch (err: any) {
       console.error(err.response?.data);
-      alert("Error al crear la cuenta");
+
+      const msg = "Error al crear la cuenta";
+
+      alert(msg);
+
+      toast.error(msg, {
+        duration: 3000,
+        position: "top-center",
+      });
     }
   };
 
-return (
-    <div className="container px-4 mx-auto py-12">
-      <div className="max-w-lg mx-auto bg-white shadow-lg rounded-lg p-8">
-        <h2 className="text-3xl font-bold text-green-700 text-center mb-6">
-          Crear cuenta
-        </h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <label className="block mb-2 font-semibold text-gray-700">
-              Nombre completo
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-4 border-2 border-green-600 rounded"
-              required
-            />
-          </div>
+  return (
+    <>
+      <div className="container px-4 mx-auto py-12">
+        <div className="max-w-lg mx-auto bg-white shadow-lg rounded-lg p-8">
+          <h2 className="text-3xl font-bold text-green-700 text-center mb-6">
+            Crear cuenta
+          </h2>
 
-          <div className="mb-6">
-            <label className="block mb-2 font-semibold text-gray-700">
-              Correo electrónico
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-4 border-2 border-green-600 rounded"
-              required
-            />
-          </div>
-
-          <div className="mb-6">
-            <label className="block mb-2 font-semibold text-gray-700">
-              Contraseña
-            </label>
-
-            <div className="relative">
+          <form onSubmit={handleSubmit}>
+            <div className="mb-6">
+              <label className="block mb-2 font-semibold text-gray-700">
+                Nombre completo
+              </label>
               <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-4 border-2 border-green-600 rounded pr-12"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full p-4 border-2 border-green-600 rounded"
                 required
               />
-              <button
-                type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? "👁️" : "👁️‍🗨️"}
-              </button>
             </div>
-          </div>
 
-          <button
-            type="submit"
-            className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded"
-          >
-            Registrarse
-          </button>
-        </form>
+            <div className="mb-6">
+              <label className="block mb-2 font-semibold text-gray-700">
+                Correo electrónico
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-4 border-2 border-green-600 rounded"
+                required
+              />
+            </div>
+
+            <div className="mb-6">
+              <label className="block mb-2 font-semibold text-gray-700">
+                Contraseña
+              </label>
+
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full p-4 border-2 border-green-600 rounded pr-12"
+                  required
+                />
+
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "👁️" : "👁️‍🗨️"}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded"
+            >
+              Registrarse
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+
+      <Toaster position="top-center" />
+    </>
   );
 }
