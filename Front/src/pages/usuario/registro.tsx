@@ -5,6 +5,8 @@ export default function Registro() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +20,7 @@ export default function Registro() {
     }
   };
 
-  return (
+return (
     <div className="container px-4 mx-auto py-12">
       <div className="max-w-lg mx-auto bg-white shadow-lg rounded-lg p-8">
         <h2 className="text-3xl font-bold text-green-700 text-center mb-6">
@@ -37,6 +39,7 @@ export default function Registro() {
               required
             />
           </div>
+
           <div className="mb-6">
             <label className="block mb-2 font-semibold text-gray-700">
               Correo electrónico
@@ -49,18 +52,30 @@ export default function Registro() {
               required
             />
           </div>
+
           <div className="mb-6">
             <label className="block mb-2 font-semibold text-gray-700">
               Contraseña
             </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-4 border-2 border-green-600 rounded"
-              required
-            />
+
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-4 border-2 border-green-600 rounded pr-12"
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "👁️" : "👁️‍🗨️"}
+              </button>
+            </div>
           </div>
+
           <button
             type="submit"
             className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded"

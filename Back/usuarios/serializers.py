@@ -19,3 +19,33 @@ class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("id", "username", "email")
+
+
+
+
+from django.contrib.auth.hashers import make_password
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.IntegerField()
+    new_password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        try:
+            user = User.objects.get(email=data["email"], key=data["code"])
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Correo o código inválido")
+        data["user"] = user
+        return data
+
+    def save(self, **kwargs):
+        user = self.validated_data["user"]
+        user.password = make_password(self.validated_data["new_password"])
+        user.key = None
+        user.save()
+        return user
+

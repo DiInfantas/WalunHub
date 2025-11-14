@@ -14,3 +14,23 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+
+export const requestResetCode = async (email: string) => {
+  const res = await api.post("/usuarios/send-reset-code/", { email });
+  return res.data;
+};
+
+// Confirmar código y actualizar contraseña
+export const resetPassword = async (
+  email: string,
+  code: string,
+  newPassword: string
+) => {
+  const res = await api.post("/usuarios/reset-password/", {
+    email,
+    code,
+    new_password: newPassword,
+  });
+  return res.data;
+};

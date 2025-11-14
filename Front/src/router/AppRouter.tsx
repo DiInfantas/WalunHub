@@ -16,11 +16,13 @@ import Checkout from '../pages/checkout/checkout';
 import PagoAprobado from '../pages/checkout/pagook';
 import PagoRechazado from '../pages/checkout/pagofail';
 import Perfil from '../pages/usuario/perfil';
+import ForgotPassword from '../pages/usuario/passmailto';
+import ResetPassword from '../pages/usuario/recuperar';
 
 // Layout wrapper con lógica para ocultar MainNav
 function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const hideMainNav = location.pathname.startsWith('/login') || location.pathname.startsWith('/gestion');
+  const hideMainNav = location.pathname.startsWith('/login') || location.pathname.startsWith('/gestion') || location.pathname.startsWith('/recuperarpass1') || location.pathname.startsWith('/recuperarpass2');
 
   return (
     <>
@@ -39,6 +41,8 @@ export default function AppRouter() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/catalogo" element={<Catalogo />} />
+          <Route path="/recuperarpass1" element={<ForgotPassword />} />
+          <Route path="/recuperarpass2" element={<ResetPassword />} />
           <Route path="/nosotros" element={<Nosotros />} />
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/producto/:id" element={<ProductoDetalle />} />

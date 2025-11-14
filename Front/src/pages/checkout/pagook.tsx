@@ -11,7 +11,7 @@ export default function PagoAprobado() {
         setProgress((prev) => {
           if (prev >= 100) {
             clearInterval(timer);
-            window.location.href = "/perfilusuario";
+            window.location.href = "/perfil";
             return 100;
           }
           return prev + 5;
