@@ -2,6 +2,7 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
+from .permissions import EsVendedor
 from django.contrib.auth import authenticate
 from .models import CustomUser
 from .serializers import RegistroUsuarioSerializer, UsuarioSerializer
@@ -60,6 +61,15 @@ class SendResetCodeView(APIView):
             return Response({"message": "Código enviado correctamente"})
         except User.DoesNotExist:
             return Response({"error": "Correo no encontrado"}, status=404)
+
+
+
+class PanelGestionView(APIView):
+    permission_classes = [EsVendedor]
+
+    def get(self, request):
+        return Response({"message": "Bienvenido al panel de gestión"})
+
 
 # Reestablecer Contraseña
 class ResetPasswordView(APIView):

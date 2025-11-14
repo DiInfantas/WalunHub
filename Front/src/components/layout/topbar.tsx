@@ -1,20 +1,26 @@
 import { Link, useNavigate } from "react-router-dom";
-import { FaShoppingCart, FaUser } from "react-icons/fa";
+import { FaShoppingCart, FaUser, FaChevronDown } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { api } from "../../config/api";
-import { FaChevronDown } from "react-icons/fa";
 import Logo from "../../assets/img/logo.png";
 
 export default function TopBar() {
   const [username, setUsername] = useState<string | null>(null);
+  const [esVendedor, setEsVendedor] = useState<boolean>(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     api
       .get("/usuarios/perfil/")
-      .then((res) => setUsername(res.data.username))
-      .catch(() => setUsername(null));
+      .then((res) => {
+        setUsername(res.data.username);
+        setEsVendedor(res.data.es_vendedor); // 👈 nuevo campo
+      })
+      .catch(() => {
+        setUsername(null);
+        setEsVendedor(false);
+      });
   }, []);
 
   const handleLogout = async () => {
@@ -23,10 +29,11 @@ export default function TopBar() {
 
     try {
       await api.post("/usuarios/logout/");
-    } catch { }
+    } catch {}
 
     localStorage.removeItem("token");
     setUsername(null);
+    setEsVendedor(false);
     navigate("/login");
   };
 
@@ -62,8 +69,9 @@ export default function TopBar() {
             >
               <FaUser size={20} />
               <FaChevronDown
-                className={`transition-transform duration-200 ${menuOpen ? "rotate-180" : "rotate-0"
-                  }`}
+                className={`transition-transform duration-200 ${
+                  menuOpen ? "rotate-180" : "rotate-0"
+                }`}
                 size={14}
               />
             </button>
@@ -96,6 +104,17 @@ export default function TopBar() {
                     >
                       Gestionar cuenta
                     </Link>
+
+                    {esVendedor && (
+                      <Link
+                        to="/dashboard"
+                        className="block px-4 py-2 hover:bg-green-100 font-semibold"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Panel de gestión
+                      </Link>
+                    )}
+
                     <button
                       onClick={() => {
                         setMenuOpen(false);
@@ -115,5 +134,3 @@ export default function TopBar() {
     </div>
   );
 }
-
-

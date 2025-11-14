@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { api } from "../../config/api";
 
 interface SidebarProps {
   active: string;
@@ -43,6 +45,17 @@ const Sidebar: React.FC<SidebarProps> = ({ active, setActive }) => {
 
 const DashboardDueña: React.FC = () => {
   const [active, setActive] = useState("productos");
+  const [autorizado, setAutorizado] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    api.get("/usuarios/panel/")
+      .then(() => setAutorizado(true))
+      .catch(() => {
+        alert("Acceso restringido: solo para cuentas de gestión");
+        navigate("/");
+      });
+  }, []);
 
   const cardClass =
     "bg-white p-8 rounded-lg shadow-lg border-2 border-green-600";
@@ -54,30 +67,7 @@ const DashboardDueña: React.FC = () => {
           <div className={cardClass}>
             <h2 className="text-2xl font-bold text-green-700 mb-6">Gestión de Productos</h2>
             <p>Aquí la dueña puede ver, crear, editar y eliminar productos.</p>
-            {/* Ejemplo: tabla de productos */}
-            <table className="min-w-full border-2 border-green-600 rounded mt-4">
-              <thead className="bg-green-100">
-                <tr>
-                  <th className="px-4 py-2 text-green-700">ID</th>
-                  <th className="px-4 py-2 text-green-700">Nombre</th>
-                  <th className="px-4 py-2 text-green-700">Precio</th>
-                  <th className="px-4 py-2 text-green-700">Stock</th>
-                  <th className="px-4 py-2 text-green-700">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-t">
-                  <td className="px-4 py-2">1</td>
-                  <td className="px-4 py-2">Harina Integral</td>
-                  <td className="px-4 py-2">$2.500</td>
-                  <td className="px-4 py-2">30</td>
-                  <td className="px-4 py-2">
-                    <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2">Editar</button>
-                    <button className="bg-red-500 text-white px-2 py-1 rounded">Eliminar</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            {/* Aquí irá la tabla conectada al backend */}
           </div>
         );
       case "pedidos":
@@ -124,6 +114,8 @@ const DashboardDueña: React.FC = () => {
         return null;
     }
   };
+
+  if (!autorizado) return null;
 
   return (
     <div className="flex h-screen bg-gray-100">
