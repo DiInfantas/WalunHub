@@ -2,6 +2,8 @@ from rest_framework import generics, permissions, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from .serializers import ContactoSerializer
+from .models import Contacto
 import mercadopago # type: ignore
 from django.conf import settings
 
@@ -42,10 +44,16 @@ class PedidoCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
 
-class ContactoCreateView(generics.CreateAPIView):
+class EnviarContactoView(generics.CreateAPIView):
     queryset = Contacto.objects.all()
     serializer_class = ContactoSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.AllowAny]
+
+
+    def perform_create(self, serializer):
+        user = self.request.user if self.request.user.is_authenticated else None
+        serializer.save(cliente=user)
+
 
 
 @api_view(["POST"])

@@ -18,7 +18,7 @@ urlpatterns = [
     path("api/pedidos/mis/", PedidoListView.as_view()),
     path("api/pedidos/<int:pk>/", PedidoDetailView.as_view()),
 
-    path("api/contacto/", ContactoCreateView.as_view()),
+    path("api/contacto/enviar/", EnviarContactoView.as_view(), name="enviar-contacto"),
 
     path("api/create_preference/", create_payment_preference),
     path("api/update_pedido_pago/", actualizar_estado_pago),

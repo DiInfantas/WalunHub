@@ -9,13 +9,18 @@ export const api = axios.create({
 // Interceptor para añadir token automáticamente
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-  if (token) {
+  if (token && token !== "null" && token !== "undefined") {
     config.headers.Authorization = `Token ${token}`;
+  } else {
+    // 👇 elimina el header si no hay token válido
+    delete config.headers.Authorization;
   }
   return config;
 });
 
+// --- Funciones auxiliares ---
 
+// Solicitar código de reseteo de contraseña
 export const requestResetCode = async (email: string) => {
   const res = await api.post("/usuarios/send-reset-code/", { email });
   return res.data;
@@ -35,7 +40,7 @@ export const resetPassword = async (
   return res.data;
 };
 
-
+// Crear preferencia de pago
 export const createPreference = async (pedidoId: number, items: any[]) => {
   const res = await api.post("/create_preference/", {
     pedido_id: pedidoId,
@@ -44,6 +49,7 @@ export const createPreference = async (pedidoId: number, items: any[]) => {
   return res.data;
 };
 
+// Actualizar estado de pago de pedido
 export const updatePedidoPago = async (
   pedidoId: number,
   estado: string,
@@ -57,6 +63,7 @@ export const updatePedidoPago = async (
   return res.data;
 };
 
+// Crear pedido
 export const crearPedido = async (pedido: any) => {
   const res = await api.post("/pedidos/", pedido);
   return res.data;

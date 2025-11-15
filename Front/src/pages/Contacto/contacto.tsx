@@ -1,6 +1,29 @@
+import { useState } from "react";
+import { api } from "../../config/api";
+import toast, { Toaster } from "react-hot-toast";
+
 export default function Contacto() {
+  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
+  const [mensaje, setMensaje] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.post("/contacto/enviar/", { nombre, email, mensaje });
+      toast.success("Mensaje enviado correctamente");
+      setNombre("");
+      setEmail("");
+      setMensaje("");
+    } catch (err) {
+      toast.error("Error al enviar el mensaje");
+    }
+  };
+
   return (
     <main>
+      <Toaster position="top-right" />
+
       {/* Encabezado */}
       <header className="bg-green-700 text-white text-center py-12">
         <h1 className="text-4xl font-bold mt-16">Contáctanos</h1>
@@ -31,12 +54,15 @@ export default function Contacto() {
       {/* Formulario */}
       <section className="bg-gray-100 py-12 px-4">
         <h2 className="text-2xl font-bold text-center">Envíanos un mensaje</h2>
-        <form className="max-w-2xl mx-auto mt-8 space-y-8">
+        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto mt-8 space-y-8">
           <div>
             <label htmlFor="name" className="block text-gray-700 font-bold">Nombre</label>
             <input
               type="text"
               id="name"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              required
               className="w-full mt-2 p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition"
             />
           </div>
@@ -45,6 +71,9 @@ export default function Contacto() {
             <input
               type="email"
               id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
               className="w-full mt-2 p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition"
             />
           </div>
@@ -53,6 +82,9 @@ export default function Contacto() {
             <textarea
               id="message"
               rows={5}
+              value={mensaje}
+              onChange={(e) => setMensaje(e.target.value)}
+              required
               className="w-full mt-2 p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition"
             ></textarea>
           </div>
