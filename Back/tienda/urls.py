@@ -1,30 +1,27 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import (
-    ProductoViewSet,
-    ProductoListView, ProductoDetailView,
-    CategoriaListView,
-    PedidoCreateView,
-    ContactoCreateView
-)
+from .views import *
 
-# Router para ViewSet (productos con CRUD completo si lo usas)
 router = DefaultRouter()
-router.register(r'productos-admin', ProductoViewSet)  # solo si usas ViewSet para admin
+router.register(r'productos-admin', ProductoViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
 
-    # Productos públicos
-    path('api/productos/', ProductoListView.as_view(), name='producto-list'),
-    path('api/productos/<int:id>/', ProductoDetailView.as_view(), name='producto-detail'),
+    path('api/productos/', ProductoListView.as_view()),
+    path('api/productos/<int:id>/', ProductoDetailView.as_view()),
 
-    # Categorías
-    path('api/categorias/', CategoriaListView.as_view(), name='categoria-list'),
+    path('api/categorias/', CategoriaListView.as_view()),
 
-    # Pedidos
-    path('api/pedidos/', PedidoCreateView.as_view(), name='pedido-create'),
+    path('api/pedidos/', PedidoCreateView.as_view()),
 
-    # Contacto
-    path('api/contacto/', ContactoCreateView.as_view(), name='contacto-create'),
+    path("api/pedidos/mis/", PedidoListView.as_view()),
+    path("api/pedidos/<int:pk>/", PedidoDetailView.as_view()),
+
+    path("api/contacto/", ContactoCreateView.as_view()),
+
+    path("api/create_preference/", create_payment_preference),
+    path("api/update_pedido_pago/", actualizar_estado_pago),
 ]
+
+

@@ -74,9 +74,15 @@ MIDDLEWARE = [
 ]
 
 
-#CORS_ALLOWED_ORIGINS = [
-#    "http://localhost:5173",
-#]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://api.mercadopago.com"
+]
+
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 
@@ -157,3 +163,5 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MERCADOPAGO_ACCESS_TOKEN = "APP_USR-2812130830835704-111420-b8b02ced6dc065f09171b64d4428a14c-2991324132"

@@ -1,5 +1,5 @@
 from django.db import models
-from django.conf import settings   # 👈 en vez de importar User
+from django.conf import settings  
 
 # Categoría
 class Categoria(models.Model):
@@ -47,14 +47,26 @@ class MetodoPago(models.Model):
 # Pedido
 class Pedido(models.Model):
     cliente = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)  # 👈 cambiado
+
+
+    nombre = models.CharField(max_length=100, null=True, blank=True, default="")
+    direccion = models.CharField(max_length=255, null=True, blank=True, default="")
+    comuna = models.CharField(max_length=100, null=True, blank=True, default="")
+    telefono = models.CharField(max_length=20, null=True, blank=True, default="")
+    email = models.EmailField(null=True, blank=True, default="")
+
+    estado = models.ForeignKey(EstadoPedido, on_delete=models.SET_NULL, null=True)
+    metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.SET_NULL, null=True)
+    total = models.IntegerField()
+    tipo_entrega = models.CharField(max_length=30, default="delivery")
+
+    payment_id = models.CharField(max_length=200, null=True, blank=True)
     fecha = models.DateTimeField(auto_now_add=True)
-    estado = models.ForeignKey(EstadoPedido, on_delete=models.PROTECT)
-    metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.PROTECT)
-    total = models.DecimalField(max_digits=10, decimal_places=2)
-    tipo_entrega = models.CharField(max_length=10, choices=[('envio', 'Envío'), ('retiro', 'Retiro')], default='envio')
 
     def __str__(self):
-        return f'Pedido #{self.id}'
+        return f"Pedido #{self.id} - {self.nombre or 'Sin nombre'}"
+
+
 
 # Detalle del pedido
 class ItemPedido(models.Model):

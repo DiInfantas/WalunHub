@@ -34,3 +34,30 @@ export const resetPassword = async (
   });
   return res.data;
 };
+
+
+export const createPreference = async (pedidoId: number, items: any[]) => {
+  const res = await api.post("/create_preference/", {
+    pedido_id: pedidoId,
+    items: items,
+  });
+  return res.data;
+};
+
+export const updatePedidoPago = async (
+  pedidoId: number,
+  estado: string,
+  paymentId: string
+) => {
+  const res = await api.post("/update_pedido_pago/", {
+    pedido_id: pedidoId,
+    estado: estado,
+    payment_id: paymentId,
+  });
+  return res.data;
+};
+
+export const crearPedido = async (pedido: any) => {
+  const res = await api.post("/pedidos/", pedido);
+  return res.data;
+};

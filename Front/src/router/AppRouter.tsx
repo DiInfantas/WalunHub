@@ -18,6 +18,10 @@ import PagoRechazado from '../pages/checkout/pagofail';
 import Perfil from '../pages/usuario/perfil';
 import ForgotPassword from '../pages/usuario/passmailto';
 import ResetPassword from '../pages/usuario/recuperar';
+import Success from '../pages/pago/Success';
+import Failure from '../pages/pago/Failure';
+import Pending from '../pages/pago/Pending';
+
 
 // Layout wrapper con lógica para ocultar MainNav
 function Layout({ children }: { children: React.ReactNode }) {
@@ -55,6 +59,10 @@ export default function AppRouter() {
           <Route path="/pagoaprobado" element={<PagoAprobado />} />
           <Route path="/perfil" element={<Perfil/>} />
           <Route path="/pagorechazado" element={<PagoRechazado />} />
+          <Route path="/success" element={<Success />} />
+          <Route path="/failure" element={<Failure />} />
+          <Route path="/pending" element={<Pending />} />
+
         </Routes>
       </Layout>
     </Router>

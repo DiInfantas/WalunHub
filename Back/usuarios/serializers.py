@@ -21,8 +21,6 @@ class UsuarioSerializer(serializers.ModelSerializer):
         fields = ("id", "username", "email",  "es_vendedor")
 
 
-
-
 from django.contrib.auth.hashers import make_password
 
 
