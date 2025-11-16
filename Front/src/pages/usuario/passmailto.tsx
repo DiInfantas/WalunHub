@@ -19,38 +19,20 @@ export default function ForgotPassword() {
 
       setMessage(fullMessage);
 
-      toast.custom(
-        (t) => (
-          <div className="bg-white shadow-lg border border-gray-300 p-4 rounded-md flex flex-col items-center gap-2">
-            <p className="font-semibold text-green-700 text-center">
-              Código enviado correctamente
-            </p>
-            <p className="text-sm text-gray-600 text-center">
-              Revisa tu bandeja de entrada.
-            </p>
+      toast.success("Código enviado correctamente. Revisa tu correo.", {
+        duration: 5000,
+        position: "top-center",
+      });
 
-            <button
-              onClick={() => {
-                toast.dismiss(t.id); 
-                window.location.href = "/";
-              }}
-              className="mt-2 px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-            >
-              Aceptar
-            </button>
-          </div>
-        ),
-        { duration: 5000, position: "top-center" }
-      );
-
+      setTimeout(() => {
+        // Guarda el correo en localStorage para usarlo en la siguiente pantalla
+        localStorage.setItem("reset_email", email);
+        window.location.href = "/recuperarpass2";
+      }, 2000);
     } catch (err: any) {
       const errorMsg = err.response?.data?.error || "Error al enviar código";
       setMessage(errorMsg);
-
-      alert(errorMsg);
-
       toast.error(errorMsg, { duration: 4000, position: "top-center" });
-
     } finally {
       setLoading(false);
     }
@@ -60,6 +42,10 @@ export default function ForgotPassword() {
     <>
       <div className="flex flex-col items-center gap-4 p-6">
         <h1 className="text-xl font-bold">Recuperar contraseña</h1>
+
+        <p className="text-sm text-gray-600 text-center max-w-xs">
+          Ingresa tu correo electrónico y te enviaremos un código para que puedas restablecer tu contraseña.
+        </p>
 
         <input
           type="email"

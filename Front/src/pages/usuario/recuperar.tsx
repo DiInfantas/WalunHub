@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { resetPassword } from "../../config/api";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -9,6 +9,13 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("reset_email");
+    if (storedEmail) {
+      setEmail(storedEmail);
+    }
+  }, []);
 
   const handleSubmit = async () => {
     const confirmChange = confirm(
@@ -21,7 +28,6 @@ export default function ResetPassword() {
 
     try {
       const data = await resetPassword(email, code, newPassword);
-
       setMessage(data.message || "Contraseña actualizada correctamente");
 
       toast.success("Tu contraseña ha sido cambiada exitosamente.", {
@@ -30,22 +36,17 @@ export default function ResetPassword() {
       });
 
       setTimeout(() => {
+        localStorage.removeItem("reset_email");
         window.location.href = "/login";
       }, 1500);
-
     } catch (err: any) {
       const errorMsg =
         err.response?.data?.error || "Error al actualizar contraseña";
-
       setMessage(errorMsg);
-
-      alert(errorMsg);
-
       toast.error(errorMsg, {
         duration: 3000,
         position: "top-center",
       });
-
     } finally {
       setLoading(false);
     }
@@ -55,6 +56,10 @@ export default function ResetPassword() {
     <>
       <div className="flex flex-col items-center gap-4 p-6">
         <h1 className="text-xl font-bold">Reestablecer contraseña</h1>
+
+        <p className="text-sm text-gray-600 text-center max-w-xs">
+          Ingresa el código que recibiste por correo y tu nueva contraseña para completar el proceso.
+        </p>
 
         <input
           type="text"
@@ -66,10 +71,9 @@ export default function ResetPassword() {
 
         <input
           type="email"
-          placeholder="Correo"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 rounded w-64"
+          readOnly
+          className="border p-2 rounded w-64 bg-gray-100 text-gray-500"
         />
 
         <div className="relative w-64">

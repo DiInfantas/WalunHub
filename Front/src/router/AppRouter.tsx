@@ -52,7 +52,6 @@ export default function AppRouter() {
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/producto/:id" element={<ProductoDetalle />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/carrito" element={<Carrito />} />
@@ -70,4 +69,6 @@ export default function AppRouter() {
       </Layout>
     </Router>
   );
+
+  
 }

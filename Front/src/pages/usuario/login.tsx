@@ -13,18 +13,14 @@ export default function Login() {
       const res = await api.post("/usuarios/login/", { email, password });
       localStorage.setItem("token", res.data.token);
 
-      toast.success("Login exitoso");
+      toast.success("Login exitoso", { position: "top-center" });
 
       setTimeout(() => {
         window.location.href = "/";
-      }, 3000);
-
+      }, 2000);
     } catch (err: any) {
       console.error(err.response?.data);
-
-      alert("Credenciales inválidas");
-
-      toast.error("Credenciales inválidas");
+      toast.error("Credenciales inválidas", { position: "top-center" });
     }
   };
 
@@ -63,7 +59,6 @@ export default function Login() {
                   className="w-full p-4 border-2 border-green-600 rounded pr-12"
                   required
                 />
-
                 <button
                   type="button"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600"
@@ -81,6 +76,18 @@ export default function Login() {
               Ingresar
             </button>
           </form>
+
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-600">
+              ¿Olvidaste tu contraseña?{" "}
+              <a
+                href="/recuperarpass1"
+                className="text-green-600 font-semibold hover:underline"
+              >
+                Recuperar contraseña
+              </a>
+            </p>
+          </div>
         </div>
       </div>
 

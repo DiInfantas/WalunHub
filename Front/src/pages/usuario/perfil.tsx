@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { actualizarPerfil, getPerfil } from "../../config/api"; // Ajusta la ruta si es necesario
+import { actualizarPerfil, getPerfil, requestResetCode, resetPassword } from "../../config/api"; // Ajusta la ruta si es necesario
 
 interface SidebarProps {
   active: string;
@@ -99,14 +99,69 @@ const Perfil: React.FC = () => {
         return (
           <div className={cardClass}>
             <h2 className="text-2xl font-bold text-green-700 mb-6">Cambiar Clave</h2>
-            <form className="space-y-4">
+            <p className="mb-6 text-gray-700">
+              Para cambiar tu contraseña, primero debes solicitar un código de verificación que será enviado a tu correo electrónico. Luego, ingresa ese código junto con tu nueva contraseña.
+            </p>
+
+            <div className="space-y-4 mb-8">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Correo electrónico</label>
               <input
                 type="email"
-                placeholder="Correo (username)"
-                className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+                value={user.email}
+                readOnly
+                className="w-full p-4 bg-gray-100 border-2 border-green-600 rounded text-gray-500"
               />
-              <button className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded transition duration-200">
-                Enviar
+              <button
+                type="button"
+                onClick={() => {
+                  requestResetCode(user.email)
+                    .then(() => alert("Código enviado a tu correo"))
+                    .catch(() => alert("Error al enviar el código"));
+                }}
+                className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded transition duration-200"
+              >
+                Solicitar Código
+              </button>
+            </div>
+
+            <form
+              className="space-y-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const datos = {
+                  email: user.email,
+                  code: formData.get("code"),
+                  new_password: formData.get("new_password"),
+                };
+                resetPassword(datos.email, datos.code as string, datos.new_password as string)
+                  .then(() => alert("Contraseña actualizada correctamente"))
+                  .catch(() => alert("Error al actualizar la contraseña"));
+              }}
+            >
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Código de verificación</label>
+                <input
+                  name="code"
+                  type="text"
+                  placeholder="Ingresa el código recibido por correo"
+                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Nueva contraseña</label>
+                <input
+                  name="new_password"
+                  type="password"
+                  placeholder="Ingresa tu nueva contraseña"
+                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded transition duration-200"
+              >
+                Cambiar Clave
               </button>
             </form>
           </div>
