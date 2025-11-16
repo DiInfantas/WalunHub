@@ -12,13 +12,18 @@ api.interceptors.request.use((config) => {
   if (token && token !== "null" && token !== "undefined") {
     config.headers.Authorization = `Token ${token}`;
   } else {
-    // 👇 elimina el header si no hay token válido
     delete config.headers.Authorization;
   }
   return config;
 });
 
 // --- Funciones auxiliares ---
+
+// Obtener perfil del usuario autenticado
+export const getPerfil = async () => {
+  const res = await api.get("/usuarios/perfil/");
+  return res.data;
+};
 
 // Solicitar código de reseteo de contraseña
 export const requestResetCode = async (email: string) => {
@@ -69,8 +74,8 @@ export const crearPedido = async (pedido: any) => {
   return res.data;
 };
 
-export async function getPedido(pedidoId: number) {
+// Obtener un pedido específico
+export const getPedido = async (pedidoId: number) => {
   const res = await api.get(`/pedidos/${pedidoId}/`);
   return res.data;
-}
-
+};

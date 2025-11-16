@@ -18,7 +18,17 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "username", "email",  "es_vendedor")
+        fields = (
+            "id",
+            "username",
+            "email",
+            "telefono",
+            "direccion",
+            "comuna",
+            "ciudad",
+            "codigo_postal",
+            "es_vendedor",
+        )
 
 
 from django.contrib.auth.hashers import make_password

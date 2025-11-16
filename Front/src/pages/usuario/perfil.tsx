@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getPerfil } from "../../config/api"; // Ajusta la ruta si es necesario
 
 interface SidebarProps {
   active: string;
@@ -25,11 +26,10 @@ const Sidebar: React.FC<SidebarProps> = ({ active, setActive }) => {
             <button
               key={item.id}
               onClick={() => setActive(item.id)}
-              className={`w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                active === item.id
+              className={`w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${active === item.id
                   ? "bg-green-600 text-white"
                   : "text-green-100 hover:bg-green-500 hover:text-white"
-              }`}
+                }`}
             >
               {item.label}
             </button>
@@ -42,14 +42,13 @@ const Sidebar: React.FC<SidebarProps> = ({ active, setActive }) => {
 
 const Perfil: React.FC = () => {
   const [active, setActive] = useState("info");
+  const [user, setUser] = useState<any>(null);
 
-  const user = {
-    nombre: "Juan",
-    apellido: "Pérez",
-    correo: "juanperez@mail.com",
-    telefono: "+56 9 1234 5678",
-    direccion: "Av. Siempre Viva 123",
-  };
+  useEffect(() => {
+    getPerfil()
+      .then((data) => setUser(data))
+      .catch((err) => console.error("Error al cargar perfil", err));
+  }, []);
 
   const pedidos = [
     {
@@ -75,6 +74,10 @@ const Perfil: React.FC = () => {
   const cardClass =
     "bg-white p-8 rounded-lg shadow-lg border-2 border-green-600";
 
+  if (!user) {
+    return <div className="p-8 text-center">Cargando perfil...</div>;
+  }
+
   const renderContent = () => {
     switch (active) {
       case "info":
@@ -83,10 +86,13 @@ const Perfil: React.FC = () => {
             <h2 className="text-2xl font-bold text-green-700 mb-6">
               Tu Información
             </h2>
-            <p><strong>Nombre:</strong> {user.nombre} {user.apellido}</p>
-            <p><strong>Correo:</strong> {user.correo}</p>
+            <p><strong>Nombre:</strong> {user.username}</p>
+            <p><strong>Correo:</strong> {user.email}</p>
             <p><strong>Teléfono:</strong> {user.telefono}</p>
             <p><strong>Dirección:</strong> {user.direccion}</p>
+            <p><strong>Comuna:</strong> {user.comuna}</p>
+            <p><strong>Ciudad:</strong> {user.ciudad}</p>
+            <p><strong>Código Postal:</strong> {user.codigo_postal}</p>
           </div>
         );
       case "password":
@@ -110,11 +116,34 @@ const Perfil: React.FC = () => {
           <div className={cardClass}>
             <h2 className="text-2xl font-bold text-green-700 mb-6">Editar Información</h2>
             <form className="space-y-4">
-              <input type="text" defaultValue={user.nombre} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
-              <input type="text" defaultValue={user.apellido} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
-              <input type="email" defaultValue={user.correo} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
-              <input type="text" defaultValue={user.telefono} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
-              <input type="text" defaultValue={user.direccion} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre</label>
+                <input type="text" defaultValue={user.username} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Correo electrónico</label>
+                <input type="email" defaultValue={user.email} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Teléfono</label>
+                <input type="text" defaultValue={user.telefono} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Dirección</label>
+                <input type="text" defaultValue={user.direccion} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Comuna</label>
+                <input type="text" defaultValue={user.comuna} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Ciudad</label>
+                <input type="text" defaultValue={user.ciudad} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Código Postal</label>
+                <input type="text" defaultValue={user.codigo_postal} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+              </div>
               <button className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded transition duration-200">
                 Guardar Cambios
               </button>
@@ -177,7 +206,7 @@ const Perfil: React.FC = () => {
       <Sidebar active={active} setActive={setActive} />
       <main className="flex-1 p-8">
         <h1 className="text-3xl font-bold text-green-700 mb-8">
-          Bienvenido, {user.nombre} a tu panel de gestión de cuenta!
+          Bienvenido, {user.username} a tu panel de gestión de cuenta!
         </h1>
         {renderContent()}
       </main>
@@ -186,4 +215,3 @@ const Perfil: React.FC = () => {
 };
 
 export default Perfil;
-
