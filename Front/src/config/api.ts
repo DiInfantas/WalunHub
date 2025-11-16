@@ -68,3 +68,9 @@ export const crearPedido = async (pedido: any) => {
   const res = await api.post("/pedidos/", pedido);
   return res.data;
 };
+
+export async function getPedido(pedidoId: number) {
+  const res = await api.get(`/pedidos/${pedidoId}/`);
+  return res.data;
+}
+

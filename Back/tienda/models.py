@@ -62,6 +62,7 @@ class Pedido(models.Model):
 
     payment_id = models.CharField(max_length=200, null=True, blank=True)
     fecha = models.DateTimeField(auto_now_add=True)
+    ticket_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return f"Pedido #{self.id} - {self.nombre or 'Sin nombre'}"

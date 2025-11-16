@@ -29,11 +29,11 @@ export default function Checkout() {
   const procesarPago = async () => {
     try {
       const pedido = await crearPedido({
-        cliente_nombre: form.nombre,
-        cliente_direccion: form.direccion,
-        cliente_comuna: form.comuna,
-        cliente_telefono: form.telefono,
-        cliente_email: form.email,
+        nombre: form.nombre,
+        direccion: form.direccion,
+        comuna: form.comuna,
+        telefono: form.telefono,
+        email: form.email,
 
         estado: 1,
         metodo_pago: 1,
@@ -46,6 +46,8 @@ export default function Checkout() {
         })),
       });
 
+      localStorage.setItem("ultimo_pedido_id", pedido.id);
+      
       console.log("PEDIDO CREADO =>", pedido);
 
       const pref = await createPreference(

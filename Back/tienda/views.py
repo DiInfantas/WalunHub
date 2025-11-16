@@ -1,3 +1,5 @@
+import json
+from django.http import JsonResponse
 from rest_framework import generics, permissions, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -6,6 +8,10 @@ from .serializers import ContactoSerializer
 from .models import Contacto
 import mercadopago # type: ignore
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+
+
+
 
 from .models import *
 from .serializers import (
@@ -41,7 +47,7 @@ class CategoriaListView(generics.ListAPIView):
 class PedidoCreateView(generics.CreateAPIView):
     queryset = Pedido.objects.all()
     serializer_class = PedidoCreateSerializer     
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
 
 
 class EnviarContactoView(generics.CreateAPIView):
@@ -61,7 +67,7 @@ def create_payment_preference(request):
     sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
 
     items = request.data.get("items", [])
-    pedido_id = request.data.get("pedido_id")
+    pedido_id = str(request.data.get("pedido_id"))  # SIEMPRE STRING
 
     preference_data = {
         "items": [
@@ -73,12 +79,19 @@ def create_payment_preference(request):
             }
             for item in items
         ],
+
         "back_urls": {
-            "success": "https://www.google.com",  # cambiar luego a ngrok o dominio real
-            "failure": "https://www.google.com",
-            "pending": "https://www.google.com",
+            "success": "https://26jw2jkc-5173.brs.devtunnels.ms/pago/success",
+            "failure":  "https://26jw2jkc-5173.brs.devtunnels.ms/pago/failure",
+            "pending":  "https://26jw2jkc-5173.brs.devtunnels.ms/pago/pending",
         },
+
         "auto_return": "approved",
+
+        "notification_url": "https://26jw2jkc-8000.brs.devtunnels.ms/api/mp/webhook/",
+
+        "external_reference": pedido_id,
+
         "metadata": {
             "pedido_id": pedido_id
         }
@@ -88,6 +101,71 @@ def create_payment_preference(request):
     return Response(preference["response"])
 
 
+@api_view(["POST"])
+def mp_webhook(request):
+    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+
+    payment_id = None
+
+    if "data" in request.data and "id" in request.data["data"]:
+        payment_id = request.data["data"]["id"]
+    elif "id" in request.data and str(request.data["id"]).isdigit():
+        payment_id = request.data["id"]
+    elif "resource" in request.data:
+        res = request.data["resource"]
+        if isinstance(res, str) and res.isdigit():
+            payment_id = res
+
+    if not payment_id:
+        return Response({"error": "payment_id requerido"}, status=400)
+
+    pago = sdk.payment().get(payment_id)
+    info_pago = pago.get("response", {})
+
+    if not info_pago:
+        return Response({"error": "pago no encontrado"}, status=404)
+
+    if info_pago.get("status") != "approved":
+        return Response({"message": "OK, esperando aprobación"}, status=200)
+
+    metadata = info_pago.get("metadata", {})
+    pedido_id = metadata.get("pedido_id")
+
+    if not pedido_id:
+        return Response({"error": "metadata.pedido_id es requerido"}, status=400)
+
+    try:
+        pedido = Pedido.objects.get(id=pedido_id)
+    except Pedido.DoesNotExist:
+        return Response({"error": "pedido no existe"}, status=404)
+
+    if pedido.payment_id:
+        return Response({"message": "pago ya procesado"}, status=200)
+
+    pedido.payment_id = payment_id
+    estado_pagado, _ = EstadoPedido.objects.get_or_create(nombre="Pagado")
+    pedido.estado = estado_pagado
+
+    ticket_url = (
+        info_pago.get("transaction_details", {}).get("external_resource_url")
+        or info_pago.get("receipt_url")
+        or None
+    )
+    pedido.ticket_url = ticket_url
+
+    pedido.save()
+
+    for item in pedido.items.all():
+        producto = item.producto
+        producto.stock = max(0, producto.stock - item.cantidad)
+        producto.save()
+
+    return Response({"message": "OK"}, status=200)
+
+# El webhook recibe las notificaciones de MercadoPago, extrae el ID del pago y consulta a MP para confirmar si está aprobado; 
+# si lo está, obtiene el pedido usando el pedido_id enviado en la metadata, evita procesarlo dos veces, 
+# guarda el payment_id, cambia su estado a “Pagado” y descuenta del stock real la cantidad de cada producto comprado, 
+# asegurando que el pedido quede correctamente actualizado incluso si el usuario no vuelve al sitio.
 
 @api_view(["POST"])
 def actualizar_estado_pago(request):

@@ -13,7 +13,7 @@ class ProductoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Producto
-        fields = "__all__"
+        fields = "__all__"        
 
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,15 +31,29 @@ class MetodoPagoSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ItemPedidoSerializer(serializers.ModelSerializer):
-    producto = serializers.StringRelatedField()
+    producto = ProductoSerializer(read_only=True)  
+    subtotal = serializers.SerializerMethodField()
 
     class Meta:
         model = ItemPedido
-        fields = "__all__"
+        fields = [
+            "id",
+            "producto",
+            "cantidad",
+            "precio_unitario",
+            "subtotal",
+        ]
+
+    def get_subtotal(self, obj):
+        return obj.cantidad * obj.precio_unitario
+
 
 class PedidoSerializer(serializers.ModelSerializer):
     cliente = serializers.StringRelatedField()
     items = ItemPedidoSerializer(many=True)
+    estado = serializers.StringRelatedField()
+    metodo_pago = serializers.StringRelatedField()   
+
 
     class Meta:
         model = Pedido
@@ -79,12 +93,12 @@ class PedidoCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pedido
         fields = [
+            "id",
             "nombre",
             "direccion",
             "comuna",
             "telefono",
             "email",
-
             "estado",
             "metodo_pago",
             "total",

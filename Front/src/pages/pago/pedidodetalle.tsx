@@ -1,0 +1,93 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { getPedido } from "../../config/api";
+
+export default function PedidoDetalle() {
+  const { id } = useParams();
+  const [pedido, setPedido] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function cargarPedido() {
+      try {
+        const data = await getPedido(Number(id));
+        setPedido(data);
+      } catch (error) {
+        console.error("Error cargando pedido:", error);
+      }
+      setLoading(false);
+    }
+
+    cargarPedido();
+  }, [id]);
+
+  if (loading) {
+    return <p className="p-6 text-center text-lg">Cargando pedido...</p>;
+  }
+
+  if (!pedido) {
+    return <p className="p-6 text-center text-red-500">Pedido no encontrado.</p>;
+  }
+
+  return (
+    <section className="max-w-4xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Pedido #{pedido.id}</h1>
+
+      <div className="bg-white shadow-md rounded-lg p-5 mb-6">
+        <h2 className="text-xl font-semibold mb-3">Datos del cliente</h2>
+
+        <p><strong>Nombre:</strong> {pedido.nombre}</p>
+        <p><strong>Dirección:</strong> {pedido.direccion}</p>
+        <p><strong>Comuna:</strong> {pedido.comuna}</p>
+        <p><strong>Email:</strong> {pedido.email}</p>
+        <p><strong>Teléfono:</strong> {pedido.telefono}</p>
+      </div>
+
+      <div className="bg-white shadow-md rounded-lg p-5 mb-6">
+        <h2 className="text-xl font-semibold mb-3">Estado del pedido</h2>
+
+        <p><strong>Estado:</strong> {pedido.estado}</p>
+        <p><strong>Método de pago:</strong> {pedido.metodo_pago}</p>
+        <p><strong>Payment ID:</strong> {pedido.payment_id}</p>
+        <p><strong>Fecha:</strong> {new Date(pedido.fecha).toLocaleString()}</p>
+      </div>
+
+      <div className="bg-white shadow-md rounded-lg p-5">
+        <h2 className="text-2xl font-semibold mb-4">Productos del pedido</h2>
+
+        <div className="space-y-4">
+          {pedido.items.map((item: any) => (
+            <div
+              key={item.id}
+              className="flex items-center gap-4 border-b pb-4"
+            >
+              <img
+                src={item.producto.imagenes?.[0]?.imagen || "/no-image.png"}
+                alt={item.producto.nombre}
+                className="w-20 h-20 object-cover rounded"
+              />
+
+              <div className="flex-1">
+                <p className="text-lg font-semibold">{item.producto.nombre}</p>
+                <p className="text-gray-600">
+                  {item.cantidad} × ${item.precio_unitario}
+                </p>
+              </div>
+
+              <p className="text-lg font-bold">
+                ${item.subtotal}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-right mt-6 text-xl font-bold">
+          Total: ${pedido.total}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+
