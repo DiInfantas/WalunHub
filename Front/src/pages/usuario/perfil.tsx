@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getPerfil } from "../../config/api"; // Ajusta la ruta si es necesario
+import { actualizarPerfil, getPerfil } from "../../config/api"; // Ajusta la ruta si es necesario
 
 interface SidebarProps {
   active: string;
@@ -27,8 +27,8 @@ const Sidebar: React.FC<SidebarProps> = ({ active, setActive }) => {
               key={item.id}
               onClick={() => setActive(item.id)}
               className={`w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${active === item.id
-                  ? "bg-green-600 text-white"
-                  : "text-green-100 hover:bg-green-500 hover:text-white"
+                ? "bg-green-600 text-white"
+                : "text-green-100 hover:bg-green-500 hover:text-white"
                 }`}
             >
               {item.label}
@@ -115,36 +115,54 @@ const Perfil: React.FC = () => {
         return (
           <div className={cardClass}>
             <h2 className="text-2xl font-bold text-green-700 mb-6">Editar Información</h2>
-            <form className="space-y-4">
+            <form
+              className="space-y-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const datos = {
+                  username: formData.get("username"),
+                  email: formData.get("email"),
+                  telefono: formData.get("telefono"),
+                  direccion: formData.get("direccion"),
+                  comuna: formData.get("comuna"),
+                  ciudad: formData.get("ciudad"),
+                  codigo_postal: formData.get("codigo_postal"),
+                };
+                actualizarPerfil(datos)
+                  .then(() => alert("Información actualizada correctamente"))
+                  .catch(() => alert("Error al actualizar la información"));
+              }}
+            >
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre</label>
-                <input type="text" defaultValue={user.username} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+                <input name="username" type="text" defaultValue={user.username} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Correo electrónico</label>
-                <input type="email" defaultValue={user.email} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+                <input name="email" type="email" defaultValue={user.email} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Teléfono</label>
-                <input type="text" defaultValue={user.telefono} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+                <input name="telefono" type="text" defaultValue={user.telefono} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Dirección</label>
-                <input type="text" defaultValue={user.direccion} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+                <input name="direccion" type="text" defaultValue={user.direccion} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Comuna</label>
-                <input type="text" defaultValue={user.comuna} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+                <input name="comuna" type="text" defaultValue={user.comuna} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Ciudad</label>
-                <input type="text" defaultValue={user.ciudad} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+                <input name="ciudad" type="text" defaultValue={user.ciudad} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Código Postal</label>
-                <input type="text" defaultValue={user.codigo_postal} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+                <input name="codigo_postal" type="text" defaultValue={user.codigo_postal} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
               </div>
-              <button className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded transition duration-200">
+              <button type="submit" className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded transition duration-200">
                 Guardar Cambios
               </button>
             </form>

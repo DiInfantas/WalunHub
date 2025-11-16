@@ -126,3 +126,10 @@ class PerfilView(APIView):
     def get(self, request):
         serializer = UsuarioSerializer(request.user)
         return Response(serializer.data)
+
+class ActualizarPerfilView(generics.UpdateAPIView):
+    serializer_class = UsuarioSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user

@@ -79,3 +79,8 @@ export const getPedido = async (pedidoId: number) => {
   const res = await api.get(`/pedidos/${pedidoId}/`);
   return res.data;
 };
+
+export const actualizarPerfil = async (datos: any) => {
+  const res = await api.put("/usuarios/perfil/actualizar/", datos);
+  return res.data;
+};
