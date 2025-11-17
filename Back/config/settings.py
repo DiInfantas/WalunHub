@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'tienda',
+    # 'tienda',
+    'tienda.apps.TiendaConfig',
     'corsheaders',
     'usuarios',
 ]

@@ -69,6 +69,7 @@ class Pedido(models.Model):
         choices=TIPO_ENTREGA_CHOICES,
         default="delivery",
     )
+    blue_code = models.IntegerField(null=True, blank=True)
     costo_envio = models.IntegerField(default=0)
     peso_total = models.DecimalField(max_digits=10, decimal_places=3, default=Decimal("0.000"))
     payment_id = models.CharField(max_length=200, null=True, blank=True)
@@ -97,21 +98,6 @@ class EstadoEnvio(models.Model):
     def __str__(self):
         return self.nombre
 
-# Envío
-class Envio(models.Model):
-    pedido = models.OneToOneField(Pedido, on_delete=models.CASCADE)
-    direccion = models.CharField(max_length=200, blank=True, null=True)
-    ciudad = models.CharField(max_length=100, blank=True, null=True)
-    comuna = models.CharField(max_length=100, blank=True, null=True)
-    codigo_postal = models.CharField(max_length=20, blank=True, null=True)
-    codigo_seguimiento = models.CharField(max_length=50, unique=True, blank=True, null=True)
-    estado_envio = models.ForeignKey(EstadoEnvio, on_delete=models.PROTECT)
-    costo_envio = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    fecha_envio = models.DateTimeField(blank=True, null=True)
-    fecha_entrega = models.DateField(blank=True, null=True)
-
-    def __str__(self):
-        return f'Envío #{self.id}'
 
 # Contacto
 class Contacto(models.Model):

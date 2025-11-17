@@ -59,12 +59,6 @@ class PedidoSerializer(serializers.ModelSerializer):
         model = Pedido
         fields = "__all__"
 
-class EnvioSerializer(serializers.ModelSerializer):
-    pedido = serializers.StringRelatedField()
-
-    class Meta:
-        model = Envio
-        fields = '__all__'
 
 class ContactoSerializer(serializers.ModelSerializer):
     cliente = serializers.StringRelatedField()

@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import (
     Categoria, Producto, ImagenProducto,
     EstadoPedido, MetodoPago, Pedido, ItemPedido,
-    EstadoEnvio, Envio, Contacto
+    EstadoEnvio, Contacto
 )
 
 # Imágenes en línea dentro del producto
@@ -49,11 +49,6 @@ class EstadoEnvioAdmin(admin.ModelAdmin):
     list_display = ('nombre',)
     search_fields = ('nombre',)
 
-@admin.register(Envio)
-class EnvioAdmin(admin.ModelAdmin):
-    list_display = ('pedido', 'comuna', 'estado_envio', 'codigo_seguimiento', 'fecha_envio', 'fecha_entrega')
-    list_filter = ('estado_envio',)
-    search_fields = ('pedido__id', 'comuna', 'codigo_seguimiento')
 
 @admin.register(Contacto)
 class ContactoAdmin(admin.ModelAdmin):
