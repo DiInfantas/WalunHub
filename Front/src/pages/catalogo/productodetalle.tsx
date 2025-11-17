@@ -13,16 +13,26 @@ function ProductoDetalle() {
 
   useEffect(() => {
     api.get(`/productos/${id}/`)
-      .then(res => setProducto(res.data))
+      .then(res => {
+        setProducto(res.data);
+
+        // Si el stock es 0, establecer cantidad en 0
+        if (res.data.stock === 0) {
+          setCantidad(0);
+        }
+      })
       .catch(() => setError("Producto no encontrado"));
   }, [id]);
 
   const handleAddToCart = () => {
     if (!producto) return;
 
+    if (producto.stock === 0) {
+      toast.error("No hay stock disponible");
+      return;
+    }
     // validar token GOD shiet 
     const token = localStorage.getItem("token");
-
     if (!token) {
       toast.error("Debes iniciar sesión para agregar al carrito");
       return;
@@ -58,12 +68,15 @@ function ProductoDetalle() {
           <h1 className="text-3xl font-bold mb-2">{producto.nombre}</h1>
           <p className="text-gray-700 mb-4">{producto.descripcion}</p>
           <p className="text-xl font-semibold text-green-700 mb-2">${producto.precio}</p>
-          <p className="text-sm text-gray-600 mb-4">Stock disponible: {producto.stock}</p>
+          <p className="text-sm text-gray-600 mb-4">
+            {producto.stock > 0 ? `Stock disponible: ${producto.stock}` : "Sin stock"}
+          </p>
 
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={() => setCantidad(Math.max(1, cantidad - 1))}
-              className="px-3 py-1 bg-gray-200 rounded"
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+              disabled={cantidad <= 1 || producto.stock === 0}
             >
               −
             </button>
@@ -73,7 +86,7 @@ function ProductoDetalle() {
             <button
               onClick={() => setCantidad(Math.min(producto.stock, cantidad + 1))}
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-              disabled={cantidad >= producto.stock}
+              disabled={cantidad >= producto.stock || producto.stock === 0}
             >
               +
             </button>
@@ -81,9 +94,14 @@ function ProductoDetalle() {
 
           <button
             onClick={handleAddToCart}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+            disabled={producto.stock === 0}
+            className={`px-4 py-2 rounded text-white transition ${
+              producto.stock === 0
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700"
+            }`}
           >
-            Agregar al carrito
+            {producto.stock === 0 ? "Sin stock" : "Agregar al carrito"}
           </button>
         </div>
       </div>

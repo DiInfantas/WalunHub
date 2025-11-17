@@ -36,15 +36,16 @@ export const agregarAlCarrito = (producto: ItemCarrito) => {
   const peso_kg = isNaN(pesoParseado) ? 0 : pesoParseado;
 
   if (existe) {
-    existe.cantidad += 1;
+    existe.cantidad += producto.cantidad;
   } else {
     carrito.push({
       ...producto,
-      cantidad: 1,
+      cantidad: producto.cantidad,
       stock: producto.stock,
       peso_kg,
     });
   }
+
 
   guardarCarrito(carrito);
 };

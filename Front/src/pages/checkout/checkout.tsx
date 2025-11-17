@@ -120,7 +120,7 @@ export default function Checkout() {
         Confirmar pedido
       </h2>
 
-      {/* formulario */}
+      
       <form className="grid md:grid-cols-2 gap-6 mb-10">
         <div>
           <label className="block font-semibold mb-1">Nombre completo</label>
@@ -196,7 +196,7 @@ export default function Checkout() {
         </div>
       </form>
 
-      {/* Resumen */}
+      
       <div className="bg-white shadow rounded p-6">
         <h3 className="text-xl font-bold mb-4">Resumen del pedido</h3>
         <ul className="divide-y">
