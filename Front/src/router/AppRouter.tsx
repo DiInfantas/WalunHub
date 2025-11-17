@@ -22,6 +22,7 @@ import Success from "../pages/pago/Success";
 import Failure from "../pages/pago/Failure";
 import Pending from "../pages/pago/Pending";
 import PedidoDetalle from "../pages/pago/pedidodetalle";
+import NotFoundPage from '../components/layout/404';
 
 
 // Layout wrapper con lógica para ocultar MainNav
@@ -63,6 +64,9 @@ export default function AppRouter() {
           <Route path="/pago/failure" element={<Failure />} />
           <Route path="/pago/pending" element={<Pending />} />
           <Route path="/pedido/:id" element={<PedidoDetalle />} />
+          <Route path="404" element={<NotFoundPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+
 
 
         </Routes>
