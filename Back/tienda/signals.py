@@ -32,7 +32,7 @@ def enviar_email_cuando_blue_code_cambie(sender, instance, **kwargs):
                 f"Ya registramos tu código de seguimiento en nuestro sistema.\n\n"
                 f"📦 Código BlueExpress: {new_code}\n\n"
                 f"Puedes ingresar a tu panel de usuario para ver todos tus pedidos:\n"
-                f"https://tusitioweb.cl/login\n\n"
+                f"[-Tushar Cargar Web cuando este en Producción el Login-]\n\n"
                 f"Rastrear directamente tu envío:\n"
                 f"https://www.blue.cl/enviar/seguimiento?n_seguimiento={new_code}\n\n"
                 f"Gracias por comprar con nosotros 😎"
