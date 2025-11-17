@@ -34,7 +34,8 @@ function ProductoDetalle() {
       precio: producto.precio,
       imagen: producto.imagenes[0]?.imagen || "/img/default.jpg",
       cantidad: cantidad,
-      stock: producto.stock
+      stock: producto.stock,
+      peso_kg: producto.peso_kg,
     });
 
     toast.success("Producto agregado al carrito");

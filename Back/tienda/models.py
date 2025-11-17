@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings  
+from decimal import Decimal
 
 # Categoría
 class Categoria(models.Model):
@@ -14,6 +15,7 @@ class Producto(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
+    peso_kg = models.DecimalField(max_digits=8, decimal_places=3, default=Decimal("0.000"))
     stock = models.PositiveIntegerField(default=0)
     categoria = models.ForeignKey(Categoria, on_delete=models.RESTRICT, related_name='productos')
     destacado = models.BooleanField(default=False)
@@ -58,8 +60,17 @@ class Pedido(models.Model):
     estado = models.ForeignKey(EstadoPedido, on_delete=models.SET_NULL, null=True)
     metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.SET_NULL, null=True)
     total = models.IntegerField()
-    tipo_entrega = models.CharField(max_length=30, default="delivery")
-
+    TIPO_ENTREGA_CHOICES = (
+        ("delivery", "Delivery"),
+        ("retiro", "Retiro en tienda"),
+    )
+    tipo_entrega = models.CharField(
+        max_length=20,
+        choices=TIPO_ENTREGA_CHOICES,
+        default="delivery",
+    )
+    costo_envio = models.IntegerField(default=0)
+    peso_total = models.DecimalField(max_digits=10, decimal_places=3, default=Decimal("0.000"))
     payment_id = models.CharField(max_length=200, null=True, blank=True)
     fecha = models.DateTimeField(auto_now_add=True)
     ticket_url = models.URLField(null=True, blank=True)

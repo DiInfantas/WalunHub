@@ -103,12 +103,12 @@ class PedidoCreateSerializer(serializers.ModelSerializer):
             "metodo_pago",
             "total",
             "tipo_entrega",
+            "costo_envio",
+            "peso_total",
             "items",
             "payment_id",
         ]
-        extra_kwargs = {
-            "payment_id": {"required": False},
-        }
+        read_only_fields = ["costo_envio", "peso_total", "payment_id"]
 
     def create(self, validated_data):
         items_data = validated_data.pop("items")

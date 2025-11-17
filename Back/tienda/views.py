@@ -46,8 +46,38 @@ class CategoriaListView(generics.ListAPIView):
 
 class PedidoCreateView(generics.CreateAPIView):
     queryset = Pedido.objects.all()
-    serializer_class = PedidoCreateSerializer     
+    serializer_class = PedidoCreateSerializer
     permission_classes = []
+
+    def perform_create(self, serializer):
+        pedido = serializer.save()
+
+        if pedido.tipo_entrega == "retiro":
+            pedido.costo_envio = 0
+            pedido.total = pedido.total 
+            pedido.save()
+            return
+
+        peso_total = 0
+        for item in pedido.items.all():
+            peso_total += (item.producto.peso_kg or 0) * item.cantidad
+
+        pedido.peso_total = peso_total
+
+        if peso_total <= 0.5:
+            costo = 3100
+        elif peso_total <= 3:
+            costo = 4200
+        elif peso_total <= 6:
+            costo = 4800
+        elif peso_total <= 20:
+            costo = 5400
+        else:
+            costo = 9999
+
+        pedido.costo_envio = costo
+        pedido.total = pedido.total + costo
+        pedido.save()
 
 
 class EnviarContactoView(generics.CreateAPIView):
@@ -67,33 +97,41 @@ def create_payment_preference(request):
     sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
 
     items = request.data.get("items", [])
-    pedido_id = str(request.data.get("pedido_id"))  # SIEMPRE STRING
+    pedido_id = str(request.data.get("pedido_id"))
+
+    pedido = Pedido.objects.filter(id=pedido_id).first()
+
+    preference_items = [
+        {
+            "title": item["title"],
+            "quantity": int(item["quantity"]),
+            "unit_price": float(item["unit_price"]),
+            "currency_id": "CLP",
+        }
+        for item in items
+    ]
+
+    if pedido and pedido.costo_envio and pedido.costo_envio > 0:
+        preference_items.append({
+            "title": "Despacho BlueExpress",
+            "quantity": 1,
+            "unit_price": float(pedido.costo_envio),
+            "currency_id": "CLP",
+        })
 
     preference_data = {
-        "items": [
-            {
-                "title": item["title"],
-                "quantity": int(item["quantity"]),
-                "unit_price": float(item["unit_price"]),
-                "currency_id": "CLP",
-            }
-            for item in items
-        ],
-
+        "items": preference_items,
         "back_urls": {
             "success": "https://26jw2jkc-5173.brs.devtunnels.ms/pago/success",
-            "failure":  "https://26jw2jkc-5173.brs.devtunnels.ms/pago/failure",
-            "pending":  "https://26jw2jkc-5173.brs.devtunnels.ms/pago/pending",
+            "failure": "https://26jw2jkc-5173.brs.devtunnels.ms/pago/failure",
+            "pending": "https://26jw2jkc-5173.brs.devtunnels.ms/pago/pending",
         },
-
         "auto_return": "approved",
-
         "notification_url": "https://26jw2jkc-8000.brs.devtunnels.ms/api/mp/webhook/",
-
         "external_reference": pedido_id,
-
         "metadata": {
-            "pedido_id": pedido_id
+            "pedido_id": pedido_id,
+            "shipping_weight": str(pedido.peso_total) if pedido else None,
         }
     }
 
