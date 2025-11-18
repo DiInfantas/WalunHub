@@ -4,8 +4,8 @@ from rest_framework import generics, permissions, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .serializers import ContactoSerializer
-from .models import Contacto
+from .serializers import ContactoSerializer, ImagenProductoSerializer
+from .models import Contacto, ImagenProducto
 import mercadopago # type: ignore
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
@@ -241,3 +241,8 @@ class PedidoDetailView(generics.RetrieveAPIView):
     serializer_class = PedidoSerializer
     permission_classes = [IsAuthenticated]
 
+
+class ImagenProductoViewSet(viewsets.ModelViewSet):
+    queryset = ImagenProducto.objects.all()
+    serializer_class = ImagenProductoSerializer
+    permission_classes = [IsAuthenticated]

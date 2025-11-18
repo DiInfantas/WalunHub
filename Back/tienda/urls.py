@@ -5,6 +5,7 @@ from .views import *
 
 router = DefaultRouter()
 router.register(r'productos-admin', ProductoViewSet)
+router.register(r'imagenes-producto', ImagenProductoViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),

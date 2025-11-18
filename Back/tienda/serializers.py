@@ -5,15 +5,15 @@ from django.contrib.auth.models import User
 class ImagenProductoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImagenProducto
-        fields = ["id", "imagen"]
+        fields = ["id", "producto", "imagen"]
 
 class ProductoSerializer(serializers.ModelSerializer):
-    categoria = serializers.StringRelatedField()
+    categoria = serializers.PrimaryKeyRelatedField(queryset=Categoria.objects.all())
     imagenes = ImagenProductoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Producto
-        fields = "__all__"        
+        fields = "__all__"
 
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
