@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../config/api";
 import ProductosPanel from "../dashboard/productospanel";
+import CategoriasPanel from "./categoriaspanel";
 
 interface SidebarProps {
   active: string;
@@ -30,8 +31,8 @@ const Sidebar: React.FC<SidebarProps> = ({ active, setActive }) => {
               key={item.id}
               onClick={() => setActive(item.id)}
               className={`w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${active === item.id
-                  ? "bg-green-600 text-white"
-                  : "text-green-100 hover:bg-green-500 hover:text-white"
+                ? "bg-green-600 text-white"
+                : "text-green-100 hover:bg-green-500 hover:text-white"
                 }`}
             >
               {item.label}
@@ -82,14 +83,7 @@ const DashboardDueña: React.FC = () => {
           </div>
         );
       case "categorias":
-        return (
-          <div className={cardClass}>
-            <h2 className="text-2xl font-bold text-green-700 mb-6">
-              Gestión de Categorías
-            </h2>
-            <p>Aquí la dueña puede crear y editar categorías de productos.</p>
-          </div>
-        );
+        return <CategoriasPanel />;
       case "cuentas":
         return (
           <div className={cardClass}>

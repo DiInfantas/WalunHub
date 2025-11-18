@@ -1,11 +1,12 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import *
+from .views import CategoriaListView, CategoriaViewSet, EnviarContactoView, ImagenProductoViewSet, PedidoCreateView, PedidoDetailView, PedidoListView, ProductoDetailView, ProductoListView, ProductoViewSet, actualizar_estado_pago, create_payment_preference, mp_webhook 
 
 
 router = DefaultRouter()
 router.register(r'productos-admin', ProductoViewSet)
 router.register(r'imagenes-producto', ImagenProductoViewSet)
+router.register(r'categorias-admin', CategoriaViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),

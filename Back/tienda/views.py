@@ -43,6 +43,10 @@ class CategoriaListView(generics.ListAPIView):
     serializer_class = CategoriaSerializer
     permission_classes = [AllowAny]
 
+class CategoriaViewSet(viewsets.ModelViewSet):
+    queryset = Categoria.objects.all()
+    serializer_class = CategoriaSerializer
+    permission_classes = [IsAuthenticated]
 
 class PedidoCreateView(generics.CreateAPIView):
     queryset = Pedido.objects.all()
