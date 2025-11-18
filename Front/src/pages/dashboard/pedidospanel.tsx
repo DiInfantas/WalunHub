@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../../config/api";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 interface Pedido {
   id: number;
@@ -18,16 +18,31 @@ export default function PedidosPanel() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    cargarPedidos();
+  }, []);
+
+  const cargarPedidos = () => {
     api
-      .get("/pedidos/")
+      .get("/pedidos-admin/")
       .then((res) => setPedidos(res.data))
       .catch(() => toast.error("Error al cargar pedidos"))
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  const cambiarEstado = async (id: number, nuevoEstado: string) => {
+    try {
+      await api.patch(`/pedidos/${id}/`, { estado: nuevoEstado });
+      toast.success("Estado actualizado");
+      cargarPedidos();
+    } catch {
+      toast.error("Error al actualizar estado");
+    }
+  };
 
   return (
     <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-blue-600">
       <h2 className="text-2xl font-bold text-blue-700 mb-6">Gestión de Pedidos</h2>
+
       {loading ? (
         <p className="text-gray-600">Cargando pedidos...</p>
       ) : (
@@ -39,6 +54,7 @@ export default function PedidosPanel() {
               <th className="px-4 py-2 text-left">Total</th>
               <th className="px-4 py-2 text-left">Estado</th>
               <th className="px-4 py-2 text-left">Pago</th>
+              <th className="px-4 py-2 text-left">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -49,11 +65,24 @@ export default function PedidosPanel() {
                 <td className="px-4 py-2">${p.total}</td>
                 <td className="px-4 py-2">{p.estado}</td>
                 <td className="px-4 py-2">{p.metodo_pago}</td>
+                <td className="px-4 py-2 space-x-2">
+                  <select
+                    value={p.estado}
+                    onChange={(e) => cambiarEstado(p.id, e.target.value)}
+                    className="border border-gray-300 rounded px-2 py-1"
+                  >
+                    <option value="pendiente">Pendiente</option>
+                    <option value="enviado">Enviado</option>
+                    <option value="entregado">Entregado</option>
+                  </select>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
+
+      <Toaster position="top-center" />
     </div>
   );
 }

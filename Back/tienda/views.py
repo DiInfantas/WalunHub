@@ -245,6 +245,10 @@ class PedidoDetailView(generics.RetrieveAPIView):
     serializer_class = PedidoSerializer
     permission_classes = [IsAuthenticated]
 
+class PedidoAdminListView(generics.ListAPIView):
+    queryset = Pedido.objects.all().order_by("-id")
+    serializer_class = PedidoSerializer
+    permission_classes = [IsAuthenticated]
 
 class ImagenProductoViewSet(viewsets.ModelViewSet):
     queryset = ImagenProducto.objects.all()

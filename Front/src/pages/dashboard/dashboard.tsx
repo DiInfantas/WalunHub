@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../../config/api";
 import ProductosPanel from "../dashboard/productospanel";
 import CategoriasPanel from "./categoriaspanel";
+import PedidosPanel from "./pedidospanel";
 
 interface SidebarProps {
   active: string;
@@ -74,14 +75,7 @@ const DashboardDueña: React.FC = () => {
       case "productos":
         return <ProductosPanel />;
       case "pedidos":
-        return (
-          <div className={cardClass}>
-            <h2 className="text-2xl font-bold text-green-700 mb-6">
-              Gestión de Pedidos
-            </h2>
-            <p>Aquí la dueña puede revisar y actualizar el estado de los pedidos.</p>
-          </div>
-        );
+        return <PedidosPanel />;
       case "categorias":
         return <CategoriasPanel />;
       case "cuentas":

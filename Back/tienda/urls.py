@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import CategoriaListView, CategoriaViewSet, EnviarContactoView, ImagenProductoViewSet, PedidoCreateView, PedidoDetailView, PedidoListView, ProductoDetailView, ProductoListView, ProductoViewSet, actualizar_estado_pago, create_payment_preference, mp_webhook 
+from .views import CategoriaListView, CategoriaViewSet, EnviarContactoView, ImagenProductoViewSet, PedidoAdminListView, PedidoCreateView, PedidoDetailView, PedidoListView, ProductoDetailView, ProductoListView, ProductoViewSet, actualizar_estado_pago, create_payment_preference, mp_webhook 
 
 
 router = DefaultRouter()
@@ -20,6 +20,7 @@ urlpatterns = [
 
     path("api/pedidos/mis/", PedidoListView.as_view()),
     path("api/pedidos/<int:pk>/", PedidoDetailView.as_view()),
+    path("api/pedidos-admin/", PedidoAdminListView.as_view()),
 
     path("api/contacto/enviar/", EnviarContactoView.as_view(), name="enviar-contacto"),
     # mercadopago_tushar
