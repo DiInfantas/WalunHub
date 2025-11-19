@@ -1,5 +1,13 @@
-from django.urls import path
-from .views import RegistroView, PanelGestionView, LoginView, LogoutView, PerfilView, SendResetCodeView, ActualizarPerfilView, ResetPasswordView
+from django.urls import path, include
+from .views import (
+  RegistroView, PanelGestionView, LoginView, LogoutView,
+  PerfilView, SendResetCodeView, ActualizarPerfilView,
+  ResetPasswordView, UsuarioAdminViewSet
+)
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'usuarios-admin', UsuarioAdminViewSet)
 
 urlpatterns = [
     path("registro/", RegistroView.as_view(), name="registro"),
@@ -12,4 +20,4 @@ urlpatterns = [
     path("perfil/actualizar/", ActualizarPerfilView.as_view(), name="actualizar-perfil"),
 ]
 
-
+urlpatterns += router.urls  # ← esto es lo que faltaba

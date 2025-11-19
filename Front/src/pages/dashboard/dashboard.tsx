@@ -4,6 +4,7 @@ import { api } from "../../config/api";
 import ProductosPanel from "../dashboard/productospanel";
 import CategoriasPanel from "./categoriaspanel";
 import PedidosPanel from "./pedidospanel";
+import CuentasPanel from "./cuentaspanel";
 
 interface SidebarProps {
   active: string;
@@ -16,7 +17,7 @@ const Sidebar: React.FC<SidebarProps> = ({ active, setActive }) => {
     { id: "pedidos", label: "Pedidos" },
     { id: "categorias", label: "Categorías" },
     { id: "cuentas", label: "Cuentas de clientes" },
-    { id: "reportes", label: "Reportes" },
+    { id: "reportes", label: "Reportes (Proximamente)" },
     { id: "logout", label: "Cerrar Sesión" },
   ];
 
@@ -79,18 +80,11 @@ const DashboardDueña: React.FC = () => {
       case "categorias":
         return <CategoriasPanel />;
       case "cuentas":
-        return (
-          <div className={cardClass}>
-            <h2 className="text-2xl font-bold text-green-700 mb-6">
-              Gestión de Cuentas
-            </h2>
-            <p>Aquí la dueña puede administrar las cuentas de clientes.</p>
-          </div>
-        );
+        return <CuentasPanel />;
       case "reportes":
         return (
           <div className={cardClass}>
-            <h2 className="text-2xl font-bold text-green-700 mb-6">Reportes</h2>
+            <h2 className="text-2xl font-bold text-green-700 mb-6">Reportes (Proximamente)</h2>
             <p>Aquí la dueña puede ver estadísticas de ventas y actividad.</p>
           </div>
         );

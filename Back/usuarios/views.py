@@ -14,6 +14,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
+from rest_framework import viewsets
 
 # views.py
 import random
@@ -133,3 +134,8 @@ class ActualizarPerfilView(generics.UpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+class UsuarioAdminViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by("username")
+    serializer_class = UsuarioSerializer
+    permission_classes = [permissions.IsAuthenticated]
