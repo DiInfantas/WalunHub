@@ -24,16 +24,30 @@ export default function CuentasPanel() {
 
   const cargarUsuarios = () => {
     api
-      .get("usuarios/usuarios-admin/")
+      .get("/usuarios/usuarios-admin/")
       .then((res) => setUsuarios(res.data))
       .catch(() => toast.error("Error al cargar usuarios"))
       .finally(() => setLoading(false));
   };
 
   const actualizarVendedor = async (id: number, es_vendedor: boolean) => {
+    const nombre = usuarios.find((u) => u.id === id)?.username || "este usuario";
+
+    const confirmar = window.confirm(
+      `¿Estás seguro de que quieres ${es_vendedor ? "dar acceso a" : "revocar acceso de"} ${nombre}?`
+    );
+
+    if (!confirmar) return;
+
     try {
-      await api.put(`/usuarios-admin/${id}/`, { es_vendedor });
-      toast.success("Permiso actualizado");
+      await api.patch(`/usuarios/usuarios-admin/${id}/`, { es_vendedor });
+
+      toast.success(
+        es_vendedor
+          ? `Acceso otorgado a ${nombre}`
+          : `Acceso revocado de ${nombre}`
+      );
+
       cargarUsuarios();
     } catch {
       toast.error("Error al actualizar permiso");
