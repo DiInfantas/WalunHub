@@ -1,6 +1,3 @@
----
-
-````md
 # Guía de Despliegue – Proyecto WalunHub (Django + React) usando Docker en un VPS
 
 Este documento describe el proceso de despliegue de un proyecto compuesto por **Django (backend)** y **React + TypeScript (frontend)** utilizando **Docker y Docker Compose** en un servidor VPS.  
@@ -252,12 +249,3 @@ docker-compose down
 ```
 
 ---
-
-## Fin del documento
-
-```
-
----
-
-Si querés, también puedo generarte una **versión más corta**, o una **versión con emojis**, o incluso **un PDF**.
-```
