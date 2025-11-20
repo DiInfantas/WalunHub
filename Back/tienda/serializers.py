@@ -52,8 +52,8 @@ class PedidoSerializer(serializers.ModelSerializer):
     cliente = serializers.StringRelatedField()
     items = ItemPedidoSerializer(many=True)
     estado = serializers.StringRelatedField()
-    metodo_pago = serializers.StringRelatedField()   
-
+    estado_pago = serializers.StringRelatedField()  # ✅ este campo faltaba
+    metodo_pago = serializers.StringRelatedField()
 
     class Meta:
         model = Pedido
@@ -94,6 +94,7 @@ class PedidoCreateSerializer(serializers.ModelSerializer):
             "telefono",
             "email",
             "estado",
+            "estado_pago", 
             "metodo_pago",
             "total",
             "tipo_entrega",

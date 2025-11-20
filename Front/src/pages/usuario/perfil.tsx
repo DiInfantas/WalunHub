@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { actualizarPerfil, getPerfil, requestResetCode, resetPassword } from "../../config/api"; // Ajusta la ruta si es necesario
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { actualizarPerfil, getPerfil, requestResetCode, resetPassword, api } from "../../config/api"; // Ajusta la ruta si es necesario
 
 interface SidebarProps {
   active: string;
@@ -27,8 +29,8 @@ const Sidebar: React.FC<SidebarProps> = ({ active, setActive }) => {
               key={item.id}
               onClick={() => setActive(item.id)}
               className={`w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${active === item.id
-                ? "bg-green-600 text-white"
-                : "text-green-100 hover:bg-green-500 hover:text-white"
+                  ? "bg-green-600 text-white"
+                  : "text-green-100 hover:bg-green-500 hover:text-white"
                 }`}
             >
               {item.label}
@@ -43,6 +45,8 @@ const Sidebar: React.FC<SidebarProps> = ({ active, setActive }) => {
 const Perfil: React.FC = () => {
   const [active, setActive] = useState("info");
   const [user, setUser] = useState<any>(null);
+  const [pedidos, setPedidos] = useState<any[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getPerfil()
@@ -50,29 +54,14 @@ const Perfil: React.FC = () => {
       .catch((err) => console.error("Error al cargar perfil", err));
   }, []);
 
-  const pedidos = [
-    {
-      id: 1,
-      cliente: "Juan Pérez",
-      fecha: "2025-11-12",
-      estado: "Entregado",
-      metodoPago: "Tarjeta",
-      total: "$50.000",
-      entrega: "Domicilio",
-    },
-    {
-      id: 2,
-      cliente: "Juan Pérez",
-      fecha: "2025-11-10",
-      estado: "Pendiente",
-      metodoPago: "Transferencia",
-      total: "$30.000",
-      entrega: "Retiro en tienda",
-    },
-  ];
+  useEffect(() => {
+    api
+      .get("/pedidos/mis/")
+      .then((res) => setPedidos(res.data))
+      .catch(() => toast.error("Error al cargar tus pedidos"));
+  }, []);
 
-  const cardClass =
-    "bg-white p-8 rounded-lg shadow-lg border-2 border-green-600";
+  const cardClass = "bg-white p-8 rounded-lg shadow-lg border-2 border-green-600";
 
   if (!user) {
     return <div className="p-8 text-center">Cargando perfil...</div>;
@@ -232,24 +221,31 @@ const Perfil: React.FC = () => {
                 <thead className="bg-green-100">
                   <tr>
                     <th className="px-4 py-2 text-green-700">ID</th>
-                    <th className="px-4 py-2 text-green-700">Cliente</th>
                     <th className="px-4 py-2 text-green-700">Fecha</th>
                     <th className="px-4 py-2 text-green-700">Estado</th>
                     <th className="px-4 py-2 text-green-700">Método Pago</th>
                     <th className="px-4 py-2 text-green-700">Total</th>
                     <th className="px-4 py-2 text-green-700">Entrega</th>
+                    <th className="px-4 py-2 text-green-700">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pedidos.map((p) => (
                     <tr key={p.id} className="border-t">
                       <td className="px-4 py-2">{p.id}</td>
-                      <td className="px-4 py-2">{p.cliente}</td>
-                      <td className="px-4 py-2">{p.fecha}</td>
+                      <td className="px-4 py-2">{new Date(p.fecha).toLocaleDateString()}</td>
                       <td className="px-4 py-2">{p.estado}</td>
-                      <td className="px-4 py-2">{p.metodoPago}</td>
-                      <td className="px-4 py-2">{p.total}</td>
-                      <td className="px-4 py-2">{p.entrega}</td>
+                      <td className="px-4 py-2">{p.metodo_pago}</td>
+                      <td className="px-4 py-2">${p.total}</td>
+                      <td className="px-4 py-2">{p.tipo_entrega}</td>
+                      <td className="px-4 py-2">
+                        <button
+                          onClick={() => navigate(`/perfil/pedido/${p.id}`)}
+                          className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                        >
+                          Ver detalle
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
