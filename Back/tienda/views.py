@@ -120,12 +120,12 @@ def create_payment_preference(request):
     preference_data = {
         "items": preference_items,
         "back_urls": {
-            "success": "https://google.com",
-            "failure": "https://youtube.com",
-            "pending": "https://youtube.com",
+            "success": "https://2rpnc6bk-5173.brs.devtunnels.ms/pago/success",
+            "failure": "https://2rpnc6bk-5173.brs.devtunnels.ms/pago/failure",
+            "pending": "https://2rpnc6bk-5173.brs.devtunnels.ms/pago/pending",
         },
         "auto_return": "approved",
-        "notification_url": "http://tcx3w432-8000.brs.devtunnels.ms/api/mp/webhook/",
+        "notification_url": "https://2rpnc6bk-8000.brs.devtunnels.ms/api/mp/webhook/",
         "external_reference": pedido_id,
         "metadata": {
             "pedido_id": pedido_id,
