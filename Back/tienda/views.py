@@ -1,26 +1,21 @@
 import json
+from decimal import Decimal
 from django.http import JsonResponse
 from rest_framework import generics, permissions, viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .serializers import ContactoSerializer, ImagenProductoSerializer
-from .models import Contacto, ImagenProducto
-import mercadopago # type: ignore
-from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt
-
-
-
-
-from .models import *
 from .serializers import (
     ProductoSerializer, CategoriaSerializer,
     PedidoSerializer, PedidoCreateSerializer,
-    ContactoSerializer
+    ContactoSerializer, ImagenProductoSerializer
 )
+from .models import *
+import mercadopago  # type: ignore
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 
-
+# Productos
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.filter(activo=True)
     serializer_class = ProductoSerializer
@@ -37,7 +32,7 @@ class ProductoDetailView(generics.RetrieveAPIView):
     lookup_field = "id"
     permission_classes = [AllowAny]
 
-
+# Categorías
 class CategoriaListView(generics.ListAPIView):
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
@@ -48,6 +43,7 @@ class CategoriaViewSet(viewsets.ModelViewSet):
     serializer_class = CategoriaSerializer
     permission_classes = [IsAuthenticated]
 
+# Crear pedido
 class PedidoCreateView(generics.CreateAPIView):
     queryset = Pedido.objects.all()
     serializer_class = PedidoCreateSerializer
@@ -58,7 +54,7 @@ class PedidoCreateView(generics.CreateAPIView):
 
         if pedido.tipo_entrega == "retiro":
             pedido.costo_envio = 0
-            pedido.total = pedido.total 
+            pedido.total = pedido.total
             pedido.save()
             return
 
@@ -83,26 +79,23 @@ class PedidoCreateView(generics.CreateAPIView):
         pedido.total = pedido.total + costo
         pedido.save()
 
-
+# Contacto
 class EnviarContactoView(generics.CreateAPIView):
     queryset = Contacto.objects.all()
     serializer_class = ContactoSerializer
     permission_classes = [permissions.AllowAny]
 
-
     def perform_create(self, serializer):
         user = self.request.user if self.request.user.is_authenticated else None
         serializer.save(cliente=user)
 
-
-
+# MercadoPago
 @api_view(["POST"])
 def create_payment_preference(request):
     sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
 
     items = request.data.get("items", [])
     pedido_id = str(request.data.get("pedido_id"))
-
     pedido = Pedido.objects.filter(id=pedido_id).first()
 
     preference_items = [
@@ -126,12 +119,12 @@ def create_payment_preference(request):
     preference_data = {
         "items": preference_items,
         "back_urls": {
-            "success": "https://26jw2jkc-5173.brs.devtunnels.ms/pago/success",
-            "failure": "https://26jw2jkc-5173.brs.devtunnels.ms/pago/failure",
-            "pending": "https://26jw2jkc-5173.brs.devtunnels.ms/pago/pending",
+            "success": "https://tu-url.com/pago/success",
+            "failure": "https://tu-url.com/pago/failure",
+            "pending": "https://tu-url.com/pago/pending",
         },
         "auto_return": "approved",
-        "notification_url": "https://26jw2jkc-8000.brs.devtunnels.ms/api/mp/webhook/",
+        "notification_url": "https://tu-url.com/api/mp/webhook/",
         "external_reference": pedido_id,
         "metadata": {
             "pedido_id": pedido_id,
@@ -142,11 +135,9 @@ def create_payment_preference(request):
     preference = sdk.preference().create(preference_data)
     return Response(preference["response"])
 
-
 @api_view(["POST"])
 def mp_webhook(request):
     sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
-
     payment_id = None
 
     if "data" in request.data and "id" in request.data["data"]:
@@ -194,7 +185,6 @@ def mp_webhook(request):
         or None
     )
     pedido.ticket_url = ticket_url
-
     pedido.save()
 
     for item in pedido.items.all():
@@ -202,12 +192,7 @@ def mp_webhook(request):
         producto.stock = max(0, producto.stock - item.cantidad)
         producto.save()
 
-    return Response({"message": "OK"}, status=200)
-
-# El webhook recibe las notificaciones de MercadoPago, extrae el ID del pago y consulta a MP para confirmar si está aprobado; 
-# si lo está, obtiene el pedido usando el pedido_id enviado en la metadata, evita procesarlo dos veces, 
-# guarda el payment_id, cambia su estado a “Pagado” y descuenta del stock real la cantidad de cada producto comprado, 
-# asegurando que el pedido quede correctamente actualizado incluso si el usuario no vuelve al sitio.
+    return Response({"message": "OK"})
 
 @api_view(["POST"])
 def actualizar_estado_pago(request):
@@ -232,7 +217,7 @@ def actualizar_estado_pago(request):
     except Pedido.DoesNotExist:
         return Response({"error": "Pedido no encontrado"}, status=404)
 
-
+# Pedidos
 class PedidoListView(generics.ListAPIView):
     serializer_class = PedidoSerializer
     permission_classes = [IsAuthenticated]
@@ -246,10 +231,36 @@ class PedidoDetailView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
 class PedidoAdminListView(generics.ListAPIView):
-    queryset = Pedido.objects.all().order_by("-id")
     serializer_class = PedidoSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        queryset = Pedido.objects.all().order_by("-id")
+
+        estado = self.request.query_params.get("estado")
+        email = self.request.query_params.get("email")
+        nombre = self.request.query_params.get("nombre")
+        tipo_entrega = self.request.query_params.get("tipo_entrega")
+
+        if estado:
+            queryset = queryset.filter(estado__nombre__icontains=estado)
+        if email:
+            queryset = queryset.filter(cliente__email__icontains=email)
+        if nombre:
+            queryset = queryset.filter(cliente__username__icontains=nombre)
+        if tipo_entrega:
+            queryset = queryset.filter(tipo_entrega__iexact=tipo_entrega)
+
+        return queryset
+
+# Estados dinámicos
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def listar_estados_pedido(request):
+    estados = EstadoPedido.objects.all().values("id", "nombre")
+    return Response(list(estados))
+
+# Imágenes
 class ImagenProductoViewSet(viewsets.ModelViewSet):
     queryset = ImagenProducto.objects.all()
     serializer_class = ImagenProductoSerializer

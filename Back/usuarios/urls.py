@@ -20,4 +20,4 @@ urlpatterns = [
     path("perfil/actualizar/", ActualizarPerfilView.as_view(), name="actualizar-perfil"),
 ]
 
-urlpatterns += router.urls  # ← esto es lo que faltaba
+urlpatterns += router.urls  
