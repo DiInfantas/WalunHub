@@ -120,9 +120,9 @@ def create_payment_preference(request):
     preference_data = {
         "items": preference_items,
         "back_urls": {
-            "success": "http://tcx3w432-5173.brs.devtunnels.ms/pago/success",
-            "failure": "http://tcx3w432-5173.brs.devtunnels.ms/pago/failure",
-            "pending": "http://tcx3w432-5173.brs.devtunnels.ms/pago/pending",
+            "success": "https://google.com",
+            "failure": "https://youtube.com",
+            "pending": "https://youtube.com",
         },
         "auto_return": "approved",
         "notification_url": "http://tcx3w432-8000.brs.devtunnels.ms/api/mp/webhook/",
