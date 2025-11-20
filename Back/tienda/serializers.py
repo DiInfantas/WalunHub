@@ -117,4 +117,18 @@ class PedidoCreateSerializer(serializers.ModelSerializer):
             ItemPedido.objects.create(pedido=pedido, **item_data)
 
         return pedido
+    
+class PedidoUpdateSerializer(serializers.ModelSerializer):
+    estado = serializers.SlugRelatedField(
+        queryset=EstadoPedido.objects.all(),
+        slug_field="nombre"
+    )
+    estado_pago = serializers.SlugRelatedField(
+        queryset=EstadoPago.objects.all(),
+        slug_field="nombre"
+    )
+
+    class Meta:
+        model = Pedido
+        fields = ["estado", "estado_pago", "blue_code"]
 

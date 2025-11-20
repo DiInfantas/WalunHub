@@ -1,5 +1,5 @@
 from django.db import models
-from django.conf import settings  
+from django.conf import settings
 from decimal import Decimal
 
 # Categoría
@@ -32,9 +32,16 @@ class ImagenProducto(models.Model):
     def __str__(self):
         return f"Imagen de {self.producto.nombre}"
 
-# Estado del pedido
+# Estado del pedido (logístico)
 class EstadoPedido(models.Model):
-    nombre = models.CharField(max_length=20, unique=True)
+    nombre = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.nombre
+
+# Estado del pago (nuevo)
+class EstadoPago(models.Model):
+    nombre = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.nombre
@@ -48,8 +55,7 @@ class MetodoPago(models.Model):
 
 # Pedido
 class Pedido(models.Model):
-    cliente = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)  # 👈 cambiado
-
+    cliente = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
 
     nombre = models.CharField(max_length=100, null=True, blank=True, default="")
     direccion = models.CharField(max_length=255, null=True, blank=True, default="")
@@ -57,9 +63,12 @@ class Pedido(models.Model):
     telefono = models.CharField(max_length=20, null=True, blank=True, default="")
     email = models.EmailField(null=True, blank=True, default="")
 
-    estado = models.ForeignKey(EstadoPedido, on_delete=models.SET_NULL, null=True)
+    estado = models.ForeignKey(EstadoPedido, on_delete=models.SET_NULL, null=True, related_name="pedidos")
+    estado_pago = models.ForeignKey(EstadoPago, on_delete=models.SET_NULL, null=True, blank=True, related_name="pagos")
     metodo_pago = models.ForeignKey(MetodoPago, on_delete=models.SET_NULL, null=True)
+
     total = models.IntegerField()
+
     TIPO_ENTREGA_CHOICES = (
         ("delivery", "Delivery"),
         ("retiro", "Retiro en tienda"),
@@ -69,6 +78,7 @@ class Pedido(models.Model):
         choices=TIPO_ENTREGA_CHOICES,
         default="delivery",
     )
+
     blue_code = models.IntegerField(null=True, blank=True)
     costo_envio = models.IntegerField(default=0)
     peso_total = models.DecimalField(max_digits=10, decimal_places=3, default=Decimal("0.000"))
@@ -78,8 +88,6 @@ class Pedido(models.Model):
 
     def __str__(self):
         return f"Pedido #{self.id} - {self.nombre or 'Sin nombre'}"
-
-
 
 # Detalle del pedido
 class ItemPedido(models.Model):
@@ -98,10 +106,9 @@ class EstadoEnvio(models.Model):
     def __str__(self):
         return self.nombre
 
-
 # Contacto
 class Contacto(models.Model):
-    cliente = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)  # 👈 cambiado
+    cliente = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     nombre = models.CharField(max_length=100)
     email = models.EmailField()
     mensaje = models.TextField(max_length=1000)

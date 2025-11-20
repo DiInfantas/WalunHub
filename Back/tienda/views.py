@@ -8,7 +8,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import (
     ProductoSerializer, CategoriaSerializer,
     PedidoSerializer, PedidoCreateSerializer,
-    ContactoSerializer, ImagenProductoSerializer
+    PedidoUpdateSerializer, ContactoSerializer,
+    ImagenProductoSerializer
 )
 from .models import *
 import mercadopago  # type: ignore
@@ -58,10 +59,10 @@ class PedidoCreateView(generics.CreateAPIView):
             pedido.save()
             return
 
-        peso_total = 0
-        for item in pedido.items.all():
-            peso_total += (item.producto.peso_kg or 0) * item.cantidad
-
+        peso_total = sum(
+            (item.producto.peso_kg or 0) * item.cantidad
+            for item in pedido.items.all()
+        )
         pedido.peso_total = peso_total
 
         if peso_total <= 0.5:
@@ -76,7 +77,7 @@ class PedidoCreateView(generics.CreateAPIView):
             costo = 9999
 
         pedido.costo_envio = costo
-        pedido.total = pedido.total + costo
+        pedido.total += costo
         pedido.save()
 
 # Contacto
@@ -119,12 +120,12 @@ def create_payment_preference(request):
     preference_data = {
         "items": preference_items,
         "back_urls": {
-            "success": "https://tu-url.com/pago/success",
-            "failure": "https://tu-url.com/pago/failure",
-            "pending": "https://tu-url.com/pago/pending",
+            "success": "https://tcx3w432-5173.brs.devtunnels.ms/pago/success",
+            "failure": "https://tcx3w432-5173.brs.devtunnels.ms/pago/failure",
+            "pending": "https://tcx3w432-5173.brs.devtunnels.ms/pago/pending",
         },
         "auto_return": "approved",
-        "notification_url": "https://tu-url.com/api/mp/webhook/",
+        "notification_url": "https://tcx3w432-8000.brs.devtunnels.ms/api/mp/webhook/",
         "external_reference": pedido_id,
         "metadata": {
             "pedido_id": pedido_id,
@@ -176,8 +177,8 @@ def mp_webhook(request):
         return Response({"message": "pago ya procesado"}, status=200)
 
     pedido.payment_id = payment_id
-    estado_pagado, _ = EstadoPedido.objects.get_or_create(nombre="Pagado")
-    pedido.estado = estado_pagado
+    estado_pagado, _ = EstadoPago.objects.get_or_create(nombre="Pagado")
+    pedido.estado_pago = estado_pagado
 
     ticket_url = (
         info_pago.get("transaction_details", {}).get("external_resource_url")
@@ -205,12 +206,13 @@ def actualizar_estado_pago(request):
         pedido.payment_id = payment_id
 
         if estado == "approved":
-            pedido.estado_id = 2
+            estado_pago, _ = EstadoPago.objects.get_or_create(nombre="Pagado")
         elif estado == "rejected":
-            pedido.estado_id = 3
+            estado_pago, _ = EstadoPago.objects.get_or_create(nombre="Rechazado")
         else:
-            pedido.estado_id = 1
+            estado_pago, _ = EstadoPago.objects.get_or_create(nombre="Pendiente")
 
+        pedido.estado_pago = estado_pago
         pedido.save()
         return Response({"message": "Pedido actualizado"})
 
@@ -225,11 +227,6 @@ class PedidoListView(generics.ListAPIView):
     def get_queryset(self):
         return Pedido.objects.filter(cliente=self.request.user).order_by('-id')
 
-class PedidoDetailView(generics.RetrieveAPIView):
-    queryset = Pedido.objects.all()
-    serializer_class = PedidoSerializer
-    permission_classes = [IsAuthenticated]
-
 class PedidoAdminListView(generics.ListAPIView):
     serializer_class = PedidoSerializer
     permission_classes = [IsAuthenticated]
@@ -238,20 +235,33 @@ class PedidoAdminListView(generics.ListAPIView):
         queryset = Pedido.objects.all().order_by("-id")
 
         estado = self.request.query_params.get("estado")
+        estado_pago = self.request.query_params.get("estado_pago")
         email = self.request.query_params.get("email")
         nombre = self.request.query_params.get("nombre")
         tipo_entrega = self.request.query_params.get("tipo_entrega")
 
         if estado:
             queryset = queryset.filter(estado__nombre__icontains=estado)
+        if estado_pago:
+            queryset = queryset.filter(estado_pago__nombre__icontains=estado_pago)
         if email:
-            queryset = queryset.filter(cliente__email__icontains=email)
+            queryset = queryset.filter(email__icontains=email)
         if nombre:
-            queryset = queryset.filter(cliente__username__icontains=nombre)
+            queryset = queryset.filter(nombre__icontains=nombre)
         if tipo_entrega:
             queryset = queryset.filter(tipo_entrega__iexact=tipo_entrega)
 
         return queryset
+
+class PedidoRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Pedido.objects.all()
+    permission_classes = [IsAuthenticated]
+    lookup_field = "id"  # 👈 esta línea es clave
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return PedidoSerializer
+        return PedidoUpdateSerializer
 
 # Estados dinámicos
 @api_view(["GET"])
@@ -260,8 +270,20 @@ def listar_estados_pedido(request):
     estados = EstadoPedido.objects.all().values("id", "nombre")
     return Response(list(estados))
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def listar_estados_pago(request):
+    estados = EstadoPago.objects.all().values("id", "nombre")
+    return Response(list(estados))
+
 # Imágenes
 class ImagenProductoViewSet(viewsets.ModelViewSet):
     queryset = ImagenProducto.objects.all()
     serializer_class = ImagenProductoSerializer
     permission_classes = [IsAuthenticated]
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def listar_estados_pago(request):
+    estados = EstadoPago.objects.all().values("id", "nombre")
+    return Response(list(estados))

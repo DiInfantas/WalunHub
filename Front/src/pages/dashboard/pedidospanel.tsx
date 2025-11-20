@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../../config/api";
 import toast, { Toaster } from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 interface Pedido {
   id: number;
@@ -9,6 +10,7 @@ interface Pedido {
   telefono: string;
   email: string;
   estado: string;
+  estado_pago: string;
   metodo_pago: string;
   tipo_entrega: string;
   total: number;
@@ -19,16 +21,20 @@ export default function PedidosPanel() {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
   const [estadosDisponibles, setEstadosDisponibles] = useState<{ id: number; nombre: string }[]>([]);
+  const [estadosPago, setEstadosPago] = useState<{ id: number; nombre: string }[]>([]);
+  
   const [filtros, setFiltros] = useState({
     email: "",
     nombre: "",
     estado: "",
+    estado_pago: "",
     tipo_entrega: "",
   });
-
+ 
   useEffect(() => {
     cargarPedidos();
     cargarEstados();
+    cargarEstadosPago();
   }, []);
 
   const cargarPedidos = () => {
@@ -37,6 +43,7 @@ export default function PedidosPanel() {
     if (filtros.email) params.append("email", filtros.email);
     if (filtros.nombre) params.append("nombre", filtros.nombre);
     if (filtros.estado) params.append("estado", filtros.estado);
+    if (filtros.estado_pago) params.append("estado_pago", filtros.estado_pago);
     if (filtros.tipo_entrega) params.append("tipo_entrega", filtros.tipo_entrega);
 
     api
@@ -53,6 +60,13 @@ export default function PedidosPanel() {
       .catch(() => toast.error("Error al cargar estados"));
   };
 
+  const cargarEstadosPago = () => {
+    api
+      .get("/estados-pago/")
+      .then((res) => setEstadosPago(res.data))
+      .catch(() => toast.error("Error al cargar estados de pago"));
+  };
+
   const cambiarEstado = async (id: number, nuevoEstado: string) => {
     try {
       await api.patch(`/pedidos/${id}/`, { estado: nuevoEstado });
@@ -60,6 +74,16 @@ export default function PedidosPanel() {
       cargarPedidos();
     } catch {
       toast.error("Error al actualizar estado");
+    }
+  };
+
+  const cambiarEstadoPago = async (id: number, nuevoEstado: string) => {
+    try {
+      await api.patch(`/pedidos/${id}/`, { estado_pago: nuevoEstado });
+      toast.success("Estado de pago actualizado");
+      cargarPedidos();
+    } catch {
+      toast.error("Error al actualizar estado de pago");
     }
   };
 
@@ -81,6 +105,13 @@ export default function PedidosPanel() {
     }
     pedidosPorEstado[estado].push(p);
   });
+
+  const colorMap: Record<string, string> = {
+    Pagado: "bg-green-100 text-green-800",
+    Pendiente: "bg-yellow-100 text-yellow-800",
+    Entregado: "bg-blue-100 text-blue-800",
+    Devuelto: "bg-red-100 text-red-800",
+  };
 
   return (
     <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-blue-600">
@@ -114,6 +145,18 @@ export default function PedidosPanel() {
           ))}
         </select>
         <select
+          value={filtros.estado_pago}
+          onChange={(e) => setFiltros({ ...filtros, estado_pago: e.target.value })}
+          className="border px-3 py-2 rounded w-60"
+        >
+          <option value="">Todos los estados de pago</option>
+          <option value="Pagado">Pagado</option>
+          <option value="Rechazado">Rechazado</option>
+          <option value="Devuelto">Devuelto</option>
+          <option value="Pago en tienda">Pago en tienda</option>
+          <option value="Pendiente">Pendiente</option>
+        </select>
+        <select
           value={filtros.tipo_entrega}
           onChange={(e) => setFiltros({ ...filtros, tipo_entrega: e.target.value })}
           className="border px-3 py-2 rounded w-60"
@@ -140,24 +183,18 @@ export default function PedidosPanel() {
               <th className="px-4 py-2 text-left">Teléfono</th>
               <th className="px-4 py-2 text-left">Total</th>
               <th className="px-4 py-2 text-left">Pago</th>
+              <th className="px-4 py-2 text-left">Estado de pago</th>
               <th className="px-4 py-2 text-left">Tipo</th>
               <th className="px-4 py-2 text-left">Blue Code</th>
               <th className="px-4 py-2 text-left">Acciones</th>
             </tr>
           </thead>
           {Object.entries(pedidosPorEstado).map(([estado, grupo]) => {
-            const colorMap: Record<string, string> = {
-              Pagado: "bg-green-100 text-green-800",
-              Pendiente: "bg-yellow-100 text-yellow-800",
-              Entregado: "bg-blue-100 text-blue-800",
-              Devuelto: "bg-red-100 text-red-800",
-            };
             const colorClass = colorMap[estado] || "bg-gray-100 text-gray-800";
-
             return (
               <tbody key={estado}>
                 <tr>
-                  <td colSpan={7} className={`font-semibold px-4 py-2 ${colorClass}`}>
+                  <td colSpan={8} className={`font-semibold px-4 py-2 ${colorClass}`}>
                     Estado: {estado}
                   </td>
                 </tr>
@@ -167,6 +204,19 @@ export default function PedidosPanel() {
                     <td className="px-4 py-2">{p.telefono}</td>
                     <td className="px-4 py-2">${p.total}</td>
                     <td className="px-4 py-2">{p.metodo_pago}</td>
+                    <td className="px-4 py-2">
+                      <select
+                        value={p.estado_pago}
+                        onChange={(e) => cambiarEstadoPago(p.id, e.target.value)}
+                        className="border border-gray-300 rounded px-2 py-1"
+                      >
+                        {estadosPago.map((estado) => (
+                          <option key={estado.id} value={estado.nombre}>
+                            {estado.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
                     <td className="px-4 py-2 capitalize">{p.tipo_entrega}</td>
                     <td className="px-4 py-2">
                       {p.tipo_entrega === "delivery" ? (
@@ -185,11 +235,11 @@ export default function PedidosPanel() {
                         />
                       )}
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-2 space-y-2">
                       <select
                         value={p.estado}
                         onChange={(e) => cambiarEstado(p.id, e.target.value)}
-                        className="border border-gray-300 rounded px-2 py-1"
+                        className="border border-gray-300 rounded px-2 py-1 w-full"
                       >
                         {estadosDisponibles.map((estado) => (
                           <option key={estado.id} value={estado.nombre}>
@@ -197,6 +247,12 @@ export default function PedidosPanel() {
                           </option>
                         ))}
                       </select>
+                      <Link
+                        to={`/admin/pedidos/${p.id}`}
+                        className="block text-blue-600 hover:underline text-sm mt-1"
+                      >
+                        Ver detalle
+                      </Link>
                     </td>
                   </tr>
                 ))}

@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .models import (
     Categoria, Producto, ImagenProducto,
-    EstadoPedido, MetodoPago, Pedido, ItemPedido,
+    EstadoPedido, EstadoPago, MetodoPago, Pedido, ItemPedido,
     EstadoEnvio, Contacto
 )
 
@@ -28,6 +28,11 @@ class EstadoPedidoAdmin(admin.ModelAdmin):
     list_display = ('nombre',)
     search_fields = ('nombre',)
 
+@admin.register(EstadoPago)
+class EstadoPagoAdmin(admin.ModelAdmin):  # 👈 nuevo
+    list_display = ('nombre',)
+    search_fields = ('nombre',)
+
 @admin.register(MetodoPago)
 class MetodoPagoAdmin(admin.ModelAdmin):
     list_display = ('nombre',)
@@ -39,8 +44,8 @@ class ItemPedidoInline(admin.TabularInline):
 
 @admin.register(Pedido)
 class PedidoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'cliente', 'fecha', 'estado', 'metodo_pago', 'total', 'tipo_entrega')
-    list_filter = ('estado', 'metodo_pago', 'tipo_entrega')
+    list_display = ('id', 'cliente', 'fecha', 'estado', 'estado_pago', 'metodo_pago', 'total', 'tipo_entrega')
+    list_filter = ('estado', 'estado_pago', 'metodo_pago', 'tipo_entrega')
     search_fields = ('cliente__username', 'cliente__email')
     inlines = [ItemPedidoInline]
 
@@ -48,7 +53,6 @@ class PedidoAdmin(admin.ModelAdmin):
 class EstadoEnvioAdmin(admin.ModelAdmin):
     list_display = ('nombre',)
     search_fields = ('nombre',)
-
 
 @admin.register(Contacto)
 class ContactoAdmin(admin.ModelAdmin):
