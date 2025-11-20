@@ -77,10 +77,11 @@ export default function Checkout() {
         comuna: form.comuna,
         telefono: form.telefono,
         email: form.email,
-        estado: 1,
-        metodo_pago: 1,
+        estado: 4,           // ID de "Pendiente"
+        estado_pago: 1,      // ID de "Pendiente"
+        metodo_pago: 1,      // ID de "Transferencia"
         tipo_entrega: form.tipo_entrega,
-        total: total, // <-- SOLO total de productos
+        total: total, //
         items: carrito.map((item) => ({
           producto: item.id,
           cantidad: item.cantidad,
