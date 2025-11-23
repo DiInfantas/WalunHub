@@ -61,8 +61,6 @@ class EnviarContactoView(generics.CreateAPIView):
         serializer.save(cliente=user)
 
 
-# MercadoPago
-# MercadoPago
 @api_view(["POST"])
 def create_payment_preference(request):
     sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
@@ -109,7 +107,6 @@ def create_payment_preference(request):
 def mp_webhook(request):
     sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
 
-    # --- Capturar payment_id ---
     payment_id = None
     if "data" in request.data and "id" in request.data["data"]:
         payment_id = request.data["data"]["id"]

@@ -70,8 +70,13 @@ export const updatePedidoPago = async (
 
 // Crear pedido
 export const crearPedido = async (pedido: any) => {
-  const res = await api.post("/pedidos/", pedido);
-  return res.data;
+  try {
+    const res = await api.post("/pedidos/", pedido);
+    return res.data;
+  } catch (error: any) {
+    console.log("ERROR DETALLE:", error.response?.data);
+    throw error;
+  }
 };
 
 // Obtener un pedido específico

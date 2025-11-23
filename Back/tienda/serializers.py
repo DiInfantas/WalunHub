@@ -144,8 +144,11 @@ class PedidoCreateSerializer(serializers.ModelSerializer):
 
         pedido = Pedido.objects.create(**validated_data)
 
-        for item_data in items_data:
-            ItemPedido.objects.create(pedido=pedido, **item_data)
+        for item_data in self.initial_data.get("items", []):
+            item_serializer = ItemPedidoCreateSerializer(data=item_data)
+            item_serializer.is_valid(raise_exception=True)
+            item_serializer.save(pedido=pedido)
+
 
         total_peso = 0
 
@@ -189,9 +192,6 @@ class PedidoCreateSerializer(serializers.ModelSerializer):
         return pedido
 
 
-
-
-    
 class PedidoUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pedido

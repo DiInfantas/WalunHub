@@ -14,7 +14,7 @@ class Categoria(models.Model):
 class Producto(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True)
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
+    precio = models.IntegerField()
     peso_kg = models.DecimalField(max_digits=8, decimal_places=3, default=Decimal("0.000"))
     stock = models.PositiveIntegerField(default=0)
     categoria = models.ForeignKey(Categoria, on_delete=models.RESTRICT, related_name='productos')
@@ -94,7 +94,7 @@ class ItemPedido(models.Model):
     pedido = models.ForeignKey(Pedido, related_name='items', on_delete=models.CASCADE)
     producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
     cantidad = models.PositiveIntegerField()
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    precio_unitario = models.IntegerField()
     peso_unitario = models.DecimalField(max_digits=8, decimal_places=3, default=0)
     peso_total_item = models.DecimalField(max_digits=8, decimal_places=3, default=0)
 
