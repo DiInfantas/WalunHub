@@ -71,7 +71,7 @@ export default function AppRouter() {
           <Route path="/perfil/pedido/:id" element={<PedidoDetalleCliente />} />
 
 
-
+          {/* jean test */}
 
         </Routes>
       </Layout>
