@@ -56,13 +56,31 @@ export default function PedidoDetalleCliente() {
 
       <div className="bg-white shadow-md rounded-lg p-5 mb-6">
         <h2 className="text-xl font-semibold mb-3">Estado del pedido</h2>
+
+        <p><strong>Tipo de entrega:</strong> {pedido.tipo_entrega}</p>
         <p><strong>Estado:</strong> {pedido.estado}</p>
         <p><strong>Estado de pago:</strong> {pedido.estado_pago || "—"}</p>
         <p><strong>Método de pago:</strong> {pedido.metodo_pago}</p>
         <p><strong>Payment ID:</strong> {pedido.payment_id || "—"}</p>
         <p><strong>Fecha:</strong> {new Date(pedido.fecha).toLocaleString()}</p>
-        <p><strong>Tipo de entrega:</strong> {pedido.tipo_entrega}</p>
-        <p><strong>Total:</strong> ${pedido.total}</p>
+
+        <p className="mt-2">
+          <strong>BlueExpress:</strong>{" "}
+          pendiente, estar pendiente a su correo dentro de 24–48 hrs hábiles
+        </p>
+
+        {/* Costos de envío si es delivery */}
+        {pedido.tipo_entrega === "delivery" && (
+          <div className="mt-4">
+            <p>
+              <strong>Costo envío:</strong>{" "}
+              ${pedido.costo_envio_min} – ${pedido.costo_envio_max}
+            </p>
+            <p className="text-gray-600">
+              pendiente por pagar en su domicilio
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="bg-white shadow-md rounded-lg p-5">

@@ -87,15 +87,15 @@ export default function PedidosPanel() {
     }
   };
 
-  const actualizarBlueCode = async (id: number, valor: string) => {
-    try {
-      await api.patch(`/pedidos/${id}/`, { blue_code: valor });
-      toast.success("Código actualizado");
-      cargarPedidos();
-    } catch {
-      toast.error("Error al actualizar código");
-    }
-  };
+  // const actualizarBlueCode = async (id: number, valor: string) => {
+  //   try {
+  //     await api.patch(`/pedidos/${id}/`, { blue_code: valor });
+  //     toast.success("Código actualizado");
+  //     cargarPedidos();
+  //   } catch {
+  //     toast.error("Error al actualizar código");
+  //   }
+  // };
 
   const pedidosPorEstado: { [estado: string]: Pedido[] } = {};
   pedidos.forEach((p) => {
@@ -109,13 +109,13 @@ export default function PedidosPanel() {
   const colorMap: Record<string, string> = {
     Pagado: "bg-green-100 text-green-800",
     Pendiente: "bg-yellow-100 text-yellow-800",
-    Entregado: "bg-blue-100 text-blue-800",
+    Entregado: "bg-green-100 text-green-800",
     Devuelto: "bg-red-100 text-red-800",
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-blue-600">
-      <h2 className="text-2xl font-bold text-blue-700 mb-6">Gestión de Pedidos</h2>
+    <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-green-600">
+      <h2 className="text-2xl font-bold text-green-700 mb-6">Gestión de Pedidos</h2>
 
       <div className="mb-6 flex flex-wrap gap-4">
         <input
@@ -167,7 +167,7 @@ export default function PedidosPanel() {
         </select>
         <button
           onClick={cargarPedidos}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
         >
           Aplicar filtros
         </button>
@@ -178,7 +178,7 @@ export default function PedidosPanel() {
       ) : (
         <table className="w-full table-auto border-collapse">
           <thead>
-            <tr className="bg-blue-100 text-blue-700">
+            <tr className="bg-green-100 text-green-700">
               <th className="px-4 py-2 text-left">Cliente</th>
               <th className="px-4 py-2 text-left">Teléfono</th>
               <th className="px-4 py-2 text-left">Total</th>
@@ -218,13 +218,30 @@ export default function PedidosPanel() {
                       </select>
                     </td>
                     <td className="px-4 py-2 capitalize">{p.tipo_entrega}</td>
-                    <td className="px-4 py-2">
+                    {/* <td className="px-4 py-2">
                       {p.tipo_entrega === "delivery" ? (
                         <input
                           type="text"
                           value={p.blue_code || ""}
                           onChange={(e) => actualizarBlueCode(p.id, e.target.value)}
                           className="border px-2 py-1 rounded w-full"
+                        />
+                      ) : (
+                        <input
+                          type="text"
+                          value="No aplica"
+                          disabled
+                          className="border px-2 py-1 rounded w-full bg-gray-100 text-gray-500 cursor-not-allowed"
+                        />
+                      )}
+                    </td> */}
+                    <td className="px-4 py-2">
+                      {p.tipo_entrega === "delivery" ? (
+                        <input
+                          type="text"
+                          value={p.blue_code || ""}
+                          readOnly   
+                          className="border px-2 py-1 rounded w-full bg-gray-100 cursor-not-allowed"
                         />
                       ) : (
                         <input
@@ -249,7 +266,7 @@ export default function PedidosPanel() {
                       </select>
                       <Link
                         to={`/admin/pedidos/${p.id}`}
-                        className="block text-blue-600 hover:underline text-sm mt-1"
+                        className="block text-green-600 hover:underline text-sm mt-1"
                       >
                         Ver detalle
                       </Link>

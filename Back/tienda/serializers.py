@@ -41,11 +41,14 @@ class ItemPedidoSerializer(serializers.ModelSerializer):
             "producto",
             "cantidad",
             "precio_unitario",
+            "peso_unitario",       
+            "peso_total_item",     
             "subtotal",
         ]
 
     def get_subtotal(self, obj):
         return obj.cantidad * obj.precio_unitario
+
 
 
 class PedidoSerializer(serializers.ModelSerializer):

@@ -69,12 +69,12 @@ export default function CategoriasPanel() {
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-purple-600">
+    <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-green-600">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-purple-700">Gestión de Categorías</h2>
+        <h2 className="text-2xl font-bold text-green-700">Gestión de Categorías</h2>
         <button
           onClick={abrirModalCrear}
-          className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-600"
         >
           + Nueva categoría
         </button>
@@ -85,7 +85,7 @@ export default function CategoriasPanel() {
       ) : (
         <table className="w-full table-auto border-collapse">
           <thead>
-            <tr className="bg-purple-100 text-purple-700">
+            <tr className="bg-white-600 text-green-700">
               <th className="px-4 py-2 text-left">Nombre</th>
               <th className="px-4 py-2 text-left">Descripción</th>
               <th className="px-4 py-2 text-left">Acciones</th>
@@ -119,7 +119,7 @@ export default function CategoriasPanel() {
       {mostrarModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
-            <h3 className="text-xl font-bold text-purple-700 mb-4">
+            <h3 className="text-xl font-bold text-green-700 mb-4">
               {modoEdicion ? "Editar categoría" : "Nueva categoría"}
             </h3>
 
@@ -152,7 +152,7 @@ export default function CategoriasPanel() {
               </button>
               <button
                 onClick={guardarCategoria}
-                className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
               >
                 {modoEdicion ? "Guardar cambios" : "Crear"}
               </button>
