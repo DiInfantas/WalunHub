@@ -85,12 +85,12 @@ def create_payment_preference(request):
     preference_data = {
         "items": preference_items,
         "back_urls": {
-            "success": "https://26jw2jkc-5173.brs.devtunnels.ms/pago/success",
-            "failure": "https://26jw2jkc-5173.brs.devtunnels.ms/pago/failure",
-            "pending": "https://26jw2jkc-5173.brs.devtunnels.ms/pago/pending",
+            "success": "https://llc289xb-5173.brs.devtunnels.ms/pago/success",
+            "failure": "https://llc289xb-5173.brs.devtunnels.ms/pago/failure",
+            "pending": "https://llc289xb-5173.brs.devtunnels.ms/pago/pending",
         },
         "auto_return": "approved",
-        "notification_url": "https://26jw2jkc-8000.brs.devtunnels.ms/api/mp/webhook/",
+        "notification_url": "https://llc289xb-8000.brs.devtunnels.ms/api/mp/webhook/",
         "external_reference": pedido_id,
         "metadata": {
             "pedido_id": pedido_id,
