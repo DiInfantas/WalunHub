@@ -52,7 +52,7 @@ class PedidoSerializer(serializers.ModelSerializer):
     cliente = serializers.StringRelatedField()
     items = ItemPedidoSerializer(many=True)
     estado = serializers.StringRelatedField()
-    estado_pago = serializers.StringRelatedField()  # ✅ este campo faltaba
+    estado_pago = serializers.StringRelatedField() 
     metodo_pago = serializers.StringRelatedField()
 
     class Meta:
@@ -81,6 +81,19 @@ class ItemPedidoCreateSerializer(serializers.ModelSerializer):
         model = ItemPedido
         fields = ["producto", "cantidad", "precio_unitario"]
 
+    def create(self, validated_data):
+        producto = validated_data["producto"]
+
+        validated_data["peso_unitario"] = producto.peso_kg
+        validated_data["peso_total_item"] = producto.peso_kg * validated_data["cantidad"]
+
+        return ItemPedido.objects.create(**validated_data)
+
+
+    class Meta:
+        model = ItemPedido
+        fields = ["producto", "cantidad", "precio_unitario"]
+
 class PedidoCreateSerializer(serializers.ModelSerializer):
     items = ItemPedidoCreateSerializer(many=True)
 
@@ -94,42 +107,94 @@ class PedidoCreateSerializer(serializers.ModelSerializer):
             "telefono",
             "email",
             "estado",
-            "estado_pago", 
+            "estado_pago",
             "metodo_pago",
             "total",
             "tipo_entrega",
-            "costo_envio",
-            "peso_total",
+            "costo_envio_min",
+            "costo_envio_max",
             "items",
             "payment_id",
+            "cliente",
         ]
-        read_only_fields = ["costo_envio", "peso_total", "payment_id"]
+
+        read_only_fields = [
+            "estado",
+            "estado_pago",
+            "costo_envio_min",
+            "costo_envio_max",
+            "payment_id",
+            "cliente",
+        ]
 
     def create(self, validated_data):
-        items_data = validated_data.pop("items")
-
         request = self.context.get("request")
+        items_data = validated_data.pop("items", [])
+
+        estado_pedido = EstadoPedido.objects.get(nombre="Esperando pago")
+        estado_pago = EstadoPago.objects.get(nombre="Pendiente")
+
+        validated_data["estado"] = estado_pedido
+        validated_data["estado_pago"] = estado_pago
+
         if request and request.user.is_authenticated:
             validated_data["cliente"] = request.user
+        else:
+            validated_data["cliente"] = None
 
         pedido = Pedido.objects.create(**validated_data)
 
         for item_data in items_data:
             ItemPedido.objects.create(pedido=pedido, **item_data)
 
+        total_peso = 0
+
+        for item in pedido.items.all():
+            raw_peso = item.producto.peso_kg or 0
+
+            if isinstance(raw_peso, str):
+                raw_peso = raw_peso.replace(",", ".")
+                try:
+                    peso = float(raw_peso)
+                except:
+                    peso = 0
+            else:
+                peso = float(raw_peso)
+
+            total_peso += peso * item.cantidad
+
+        pedido.peso_total = total_peso
+
+        if pedido.tipo_entrega == "retiro":
+            min_envio, max_envio = 0, 0
+
+        else:
+            if total_peso <= 0.5:
+                min_envio, max_envio = 3100, 4200
+            elif total_peso <= 3:
+                min_envio, max_envio = 4200, 4800
+            elif total_peso <= 6:
+                min_envio, max_envio = 4800, 5400
+            elif total_peso <= 20:
+                min_envio, max_envio = 5400, 5400
+            else:
+                min_envio, max_envio = 9999, 15000
+
+        pedido.costo_envio_min = min_envio
+        pedido.costo_envio_max = max_envio
+
+
+        pedido.save()
+
         return pedido
+
+
+
+
     
 class PedidoUpdateSerializer(serializers.ModelSerializer):
-    estado = serializers.SlugRelatedField(
-        queryset=EstadoPedido.objects.all(),
-        slug_field="nombre"
-    )
-    estado_pago = serializers.SlugRelatedField(
-        queryset=EstadoPago.objects.all(),
-        slug_field="nombre"
-    )
-
     class Meta:
         model = Pedido
         fields = ["estado", "estado_pago", "blue_code"]
+
 

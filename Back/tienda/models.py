@@ -80,8 +80,8 @@ class Pedido(models.Model):
     )
 
     blue_code = models.IntegerField(null=True, blank=True)
-    costo_envio = models.IntegerField(default=0)
-    peso_total = models.DecimalField(max_digits=10, decimal_places=3, default=Decimal("0.000"))
+    costo_envio_min = models.IntegerField(default=0)
+    costo_envio_max = models.IntegerField(default=0)
     payment_id = models.CharField(max_length=200, null=True, blank=True)
     fecha = models.DateTimeField(auto_now_add=True)
     ticket_url = models.URLField(null=True, blank=True)
@@ -95,6 +95,8 @@ class ItemPedido(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
     cantidad = models.PositiveIntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    peso_unitario = models.DecimalField(max_digits=8, decimal_places=3, default=0)
+    peso_total_item = models.DecimalField(max_digits=8, decimal_places=3, default=0)
 
     def __str__(self):
         return f'{self.producto.nombre} x {self.cantidad}'

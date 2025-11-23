@@ -44,10 +44,9 @@ export default function Success() {
         const pedidoData = await getPedido(Number(pedidoLocal));
         setTicketUrl(pedidoData.ticket_url || null);
 
-        // limpiar local
         localStorage.removeItem("carrito");
-        // localStorage.removeItem("ultimo_pedido_id");
-
+        
+        
         setLoading(false);
       } catch (err) {
         console.error("Error actualizando pedido:", err);

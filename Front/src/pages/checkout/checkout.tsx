@@ -2,9 +2,16 @@ import { useEffect, useState } from "react";
 import type { ItemCarrito } from "../../interfaces/itemCarrito";
 import { obtenerCarrito } from "../carrito/carritoUtils";
 import { crearPedido, createPreference } from "../../config/api";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function Checkout() {
   const [carrito, setCarrito] = useState<ItemCarrito[]>([]);
+  const [pedidoCreado, setPedidoCreado] = useState<any | null>(null);
+
+  const [showEnvioConfirm, setShowEnvioConfirm] = useState(false);
+  const [showPagoConfirm, setShowPagoConfirm] = useState(false);
+  const [onResult, setOnResult] = useState<() => void>(() => {});
+
   const [form, setForm] = useState({
     nombre: "",
     direccion: "",
@@ -33,43 +40,100 @@ export default function Checkout() {
     return acc + peso * item.cantidad;
   }, 0);
 
-  console.log("carrito:", carrito);
-  console.log("pesoTotal calculado:", pesoTotal);
+  // console.log("carrito:", carrito);
+  // console.log("pesoTotal calculado:", pesoTotal);
+  // console.log("🟢 PEDIDO CREADO EN CHECKOUT =>", pedidoCreado);
 
-
-  const calcularEnvio = (peso: number) => {
-    if (peso <= 0.5) return 3100;
-    if (peso <= 3) return 4200;
-    if (peso <= 6) return 4800;
-    return 5400;
+  const calcularRangoEnvio = (kg: number) => {
+    if (kg <= 0) return null;
+    if (kg <= 0.5) return { min: 3100, max: 4200 };
+    if (kg <= 3) return { min: 4200, max: 4800 };
+    if (kg <= 6) return { min: 4800, max: 5400 };
+    if (kg <= 20) return { min: 5400, max: 5400 };
+    return { min: 9999, max: 15000 };
   };
 
-  const costoEnvio =
-    form.tipo_entrega === "delivery" ? calcularEnvio(pesoTotal) : 0;
+  const rango = calcularRangoEnvio(pesoTotal);
 
-  const totalFinal = total + costoEnvio;
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const procesarPago = async () => {
-    if (!carrito.length) {
-      alert("El carrito está vacío.");
-      return;
-    }
+  const EnvioModal = () => {
+    if (!showEnvioConfirm || !rango) return null;
 
-    if (
-      !form.nombre ||
-      !form.direccion ||
-      !form.comuna ||
-      !form.telefono ||
-      !form.email
-    ) {
-      alert("Completa todos los campos.");
-      return;
-    }
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded shadow-xl max-w-sm w-full">
+          <h2 className="text-xl font-bold mb-3 text-center">Confirmar envío</h2>
+          <p className="mb-4 text-center">
+            Tu pedido será <strong>por pagar</strong>.<br />
+            Rango estimado:{" "}
+            <strong>
+              ${rango.min.toLocaleString("es-CL")} -{" "}
+              ${rango.max.toLocaleString("es-CL")}
+            </strong>
+          </p>
 
+          <div className="flex gap-3 mt-4">
+            <button
+              onClick={() => {
+                setShowEnvioConfirm(false);
+                setShowPagoConfirm(true);
+              }}
+              className="flex-1 bg-green-600 text-white font-bold py-2 rounded"
+            >
+              Continuar
+            </button>
+
+            <button
+              onClick={() => setShowEnvioConfirm(false)}
+              className="flex-1 bg-gray-400 text-white font-bold py-2 rounded"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const ConfirmPagoModal = () => {
+    if (!showPagoConfirm) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded shadow-xl max-w-sm w-full">
+          <h2 className="text-xl font-bold mb-4 text-center">
+            ¿Seguro que quieres proceder al pago?
+          </h2>
+
+          <div className="flex gap-3 mt-4">
+            <button
+              onClick={() => {
+                setShowPagoConfirm(false);
+                onResult();
+              }}
+              className="flex-1 bg-green-600 text-white font-bold py-2 rounded"
+            >
+              Sí, proceder
+            </button>
+
+            <button
+              onClick={() => setShowPagoConfirm(false)}
+              className="flex-1 bg-gray-400 text-white font-bold py-2 rounded"
+            >
+              No
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const ejecutarPago = async () => {
     try {
       const pedido = await crearPedido({
         nombre: form.nombre,
@@ -77,11 +141,9 @@ export default function Checkout() {
         comuna: form.comuna,
         telefono: form.telefono,
         email: form.email,
-        estado: 4,           // ID de "Pendiente"
-        estado_pago: 1,      // ID de "Pendiente"
-        metodo_pago: 1,      // ID de "Transferencia"
+        metodo_pago: 1,
         tipo_entrega: form.tipo_entrega,
-        total: total, //
+        total: total,
         items: carrito.map((item) => ({
           producto: item.id,
           cantidad: item.cantidad,
@@ -90,8 +152,7 @@ export default function Checkout() {
       });
 
       localStorage.setItem("ultimo_pedido_id", pedido.id);
-
-      console.log("PEDIDO CREADO =>", pedido);
+      setPedidoCreado(pedido);
 
       const pref = await createPreference(
         pedido.id,
@@ -102,146 +163,180 @@ export default function Checkout() {
         }))
       );
 
-      console.log("PREFERENCE =>", pref);
+      console.log("Preferencia generada por MP:", pref);
 
       if (!pref.init_point) {
-        alert("Error al generar el pago.");
+        toast.error("Error al generar el pago.");
         return;
       }
 
       window.location.href = pref.init_point;
     } catch (error) {
-      alert("Error al procesar el pago.");
+      console.log("ERROR procesando pago:", error);
+      toast.error("Error al procesar el pago.");
     }
+  };
+  
+  const procesarPago = () => {
+    if (!carrito.length) return toast.error("El carrito está vacío.");
+
+    if (
+      !form.nombre ||
+      !form.direccion ||
+      !form.comuna ||
+      !form.telefono ||
+      !form.email
+    ) {
+      return toast.error("Completa todos los campos.");
+    }
+
+    if (form.tipo_entrega === "delivery") {
+      setShowEnvioConfirm(true);
+      setOnResult(() => ejecutarPago);
+      return;
+    }
+
+    setShowPagoConfirm(true);
+    setOnResult(() => ejecutarPago);
   };
 
   return (
-    <section className="max-w-5xl mx-auto px-6 py-12">
-      <h2 className="text-3xl font-bold text-green-700 mb-8 text-center">
-        Confirmar pedido
-      </h2>
+    <>
+      <EnvioModal />
+      <ConfirmPagoModal />
 
-      
-      <form className="grid md:grid-cols-2 gap-6 mb-10">
-        <div>
-          <label className="block font-semibold mb-1">Nombre completo</label>
-          <input
-            type="text"
-            name="nombre"
-            value={form.nombre}
-            onChange={handleChange}
-            required
-            className="w-full border-2 border-green-600 p-3 rounded"
-          />
-        </div>
+      <section className="max-w-5xl mx-auto px-6 py-12">
+        <Toaster />
+        <h2 className="text-3xl font-bold text-green-700 mb-8 text-center">
+          Confirmar pedido
+        </h2>
 
-        <div>
-          <label className="block font-semibold mb-1">Teléfono</label>
-          <input
-            type="tel"
-            name="telefono"
-            value={form.telefono}
-            onChange={handleChange}
-            required
-            className="w-full border-2 border-green-600 p-3 rounded"
-          />
-        </div>
+        <form className="grid md:grid-cols-2 gap-6 mb-10">
+          <div>
+            <label className="block font-semibold mb-1">Nombre completo</label>
+            <input
+              type="text"
+              name="nombre"
+              value={form.nombre}
+              onChange={handleChange}
+              className="w-full border-2 border-green-600 p-3 rounded"
+            />
+          </div>
 
-        <div>
-          <label className="block font-semibold mb-1">Dirección</label>
-          <input
-            type="text"
-            name="direccion"
-            value={form.direccion}
-            onChange={handleChange}
-            required
-            className="w-full border-2 border-green-600 p-3 rounded"
-          />
-        </div>
+          <div>
+            <label className="block font-semibold mb-1">Teléfono</label>
+            <input
+              type="tel"
+              name="telefono"
+              value={form.telefono}
+              onChange={handleChange}
+              className="w-full border-2 border-green-600 p-3 rounded"
+            />
+          </div>
 
-        <div>
-          <label className="block font-semibold mb-1">Comuna / Región</label>
-          <input
-            type="text"
-            name="comuna"
-            value={form.comuna}
-            onChange={handleChange}
-            required
-            className="w-full border-2 border-green-600 p-3 rounded"
-          />
-        </div>
+          <div>
+            <label className="block font-semibold mb-1">Dirección</label>
+            <input
+              type="text"
+              name="direccion"
+              value={form.direccion}
+              onChange={handleChange}
+              className="w-full border-2 border-green-600 p-3 rounded"
+            />
+          </div>
 
-        <div className="md:col-span-2">
-          <label className="block font-semibold mb-1">Correo electrónico</label>
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            required
-            className="w-full border-2 border-green-600 p-3 rounded"
-          />
-        </div>
+          <div>
+            <label className="block font-semibold mb-1">Comuna / Región</label>
+            <input
+              type="text"
+              name="comuna"
+              value={form.comuna}
+              onChange={handleChange}
+              className="w-full border-2 border-green-600 p-3 rounded"
+            />
+          </div>
 
-        <div className="md:col-span-2">
-          <label className="block font-semibold mb-1">Tipo de entrega</label>
-          <select
-            name="tipo_entrega"
-            value={form.tipo_entrega}
-            onChange={(e) => setForm({ ...form, tipo_entrega: e.target.value })}
-            className="w-full border-2 border-green-600 p-3 rounded"
-          >
-            <option value="delivery">Delivery</option>
-            <option value="retiro">Retiro en tienda</option>
-          </select>
-        </div>
-      </form>
+          <div className="md:col-span-2">
+            <label className="block font-semibold mb-1">
+              Correo electrónico
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              className="w-full border-2 border-green-600 p-3 rounded"
+            />
+          </div>
 
-      
-      <div className="bg-white shadow rounded p-6">
-        <h3 className="text-xl font-bold mb-4">Resumen del pedido</h3>
-        <ul className="divide-y">
-          {carrito.map((item) => (
-            <li
-              key={item.id}
-              className="py-2 flex justify-between items-center gap-3"
+          <div className="md:col-span-2">
+            <label className="block font-semibold mb-1">Tipo de entrega</label>
+            <select
+              name="tipo_entrega"
+              value={form.tipo_entrega}
+              onChange={handleChange}
+              className="w-full border-2 border-green-600 p-3 rounded"
             >
-              <div className="flex items-center gap-3">
-                <img
-                  src={item.imagen || "/img/default.jpg"}
-                  alt={item.nombre}
-                  className="w-12 h-12 rounded object-cover"
-                />
+              <option value="delivery">Delivery</option>
+              <option value="retiro">Retiro en tienda</option>
+            </select>
+          </div>
+        </form>
+
+        <div className="bg-white shadow rounded p-6">
+          <h3 className="text-xl font-bold mb-4">Resumen del pedido</h3>
+
+          <ul className="divide-y">
+            {carrito.map((item) => (
+              <li
+                key={item.id}
+                className="py-2 flex justify-between items-center gap-3"
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    src={item.imagen || "/img/default.jpg"}
+                    alt={item.nombre}
+                    className="w-12 h-12 rounded object-cover"
+                  />
+                  <span>
+                    {item.nombre} x {item.cantidad}
+                  </span>
+                </div>
                 <span>
-                  {item.nombre} x {item.cantidad}
+                  ${(item.precio * item.cantidad).toLocaleString("es-CL")}
                 </span>
-              </div>
-              <span>${item.precio * item.cantidad}</span>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
 
-        <p className="text-right font-bold text-lg mt-4">
-          Total: ${total.toLocaleString("es-CL")}
-        </p>
-
-        {form.tipo_entrega === "delivery" && (
-          <p className="text-right mt-2">
-            Costo de envío estimado: ${costoEnvio.toLocaleString("es-CL")}
+          <p className="text-right font-bold text-lg mt-4">
+            Total: ${total.toLocaleString("es-CL")}
           </p>
-        )}
 
-        <p className="text-right font-bold text-lg mt-4">
-          Total final: ${totalFinal.toLocaleString("es-CL")}
-        </p>
+          {form.tipo_entrega === "delivery" && (
+            <p className="text-right mt-2 font-semibold text-blue-700">
+              {rango ? (
+                <>
+                  Costo de envío estimado: $
+                  {rango.min.toLocaleString("es-CL")} - $
+                  {rango.max.toLocaleString("es-CL")}
+                </>
+              ) : (
+                <>Costo de envío estimado: {pesoTotal.toFixed(2)} kg — calculando...</>
+              )}
+            </p>
+          )}
 
-        <button
-          onClick={procesarPago}
-          className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded"
-        >
-          Ir a pagar con MercadoPago
-        </button>
-      </div>
-    </section>
+          <button
+            onClick={procesarPago}
+            className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded"
+          >
+            Ir a pagar con MercadoPago
+          </button>
+        </div>
+      </section>
+    </>
   );
 }
+
+
