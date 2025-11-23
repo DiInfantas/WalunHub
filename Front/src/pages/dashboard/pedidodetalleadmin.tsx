@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../../config/api";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -36,6 +36,8 @@ interface Pedido {
 
 export default function PedidoDetalleAdmin() {
   const { id } = useParams();
+  const navigate = useNavigate();
+
   const [pedido, setPedido] = useState<Pedido | null>(null);
   const [loading, setLoading] = useState(true);
   const [estadosPedido, setEstadosPedido] = useState<{ id: number; nombre: string }[]>([]);
@@ -43,9 +45,18 @@ export default function PedidoDetalleAdmin() {
   const [blueCodeTemp, setBlueCodeTemp] = useState("");
   const [mostrarModal, setMostrarModal] = useState(false);
 
+  // 🔐 PROTECCIÓN SOLO ADMIN
   useEffect(() => {
-    cargarPedido();
-    cargarEstados();
+    api
+      .get("/usuarios/panel/")
+      .then(() => {
+        cargarPedido();
+        cargarEstados();
+      })
+      .catch(() => {
+        alert("Acceso restringido: solo cuentas autorizadas pueden ver esta página.");
+        navigate("/");
+      });
   }, [id]);
 
   const cargarPedido = async () => {
@@ -84,7 +95,6 @@ export default function PedidoDetalleAdmin() {
       toast.error(`Error al actualizar ${campo}`);
     }
   };
-
 
   const guardarBlueCode = async () => {
     if (!pedido) return;

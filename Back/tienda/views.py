@@ -5,6 +5,7 @@ from rest_framework import generics, permissions, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from .permissions import PuedeVerPedido
 from .serializers import (
     ProductoSerializer, CategoriaSerializer,
     PedidoSerializer, PedidoCreateSerializer,
@@ -85,12 +86,12 @@ def create_payment_preference(request):
     preference_data = {
         "items": preference_items,
         "back_urls": {
-            "success": "https://llc289xb-5173.brs.devtunnels.ms/pago/success",
-            "failure": "https://llc289xb-5173.brs.devtunnels.ms/pago/failure",
-            "pending": "https://llc289xb-5173.brs.devtunnels.ms/pago/pending",
+            "success": "https://26jw2jkc-5173.brs.devtunnels.ms/pago/success",
+            "failure": "https://26jw2jkc-5173.brs.devtunnels.ms/pago/failure",
+            "pending": "https://26jw2jkc-5173.brs.devtunnels.ms/pago/pending",
         },
         "auto_return": "approved",
-        "notification_url": "https://llc289xb-8000.brs.devtunnels.ms/api/mp/webhook/",
+        "notification_url": "https://26jw2jkc-8000.brs.devtunnels.ms/api/mp/webhook/",
         "external_reference": pedido_id,
         "metadata": {
             "pedido_id": pedido_id,
@@ -268,15 +269,25 @@ class PedidoAdminListView(generics.ListAPIView):
 
         return queryset
 
+
 class PedidoRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     queryset = Pedido.objects.all()
-    permission_classes = [IsAuthenticated]
-    lookup_field = "id" 
+    lookup_field = "id"
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [IsAuthenticated(), PuedeVerPedido()]
+        
+        if self.request.method in ["PATCH", "PUT"]:
+            return [IsAuthenticated(), PuedeVerPedido()]
+        
+        return super().get_permissions()
 
     def get_serializer_class(self):
         if self.request.method == "GET":
             return PedidoSerializer
         return PedidoUpdateSerializer
+
 
 # Estados dinámicos
 @api_view(["GET"])

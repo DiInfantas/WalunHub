@@ -2,19 +2,34 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../../config/api";
 import toast from "react-hot-toast";
+import { redirectWithToast } from '../../interfaces/navigationWithToast';
 
 export default function PedidoDetalleCliente() {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [pedido, setPedido] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function cargarPedido() {
       try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          toast.error("Debes iniciar sesión para ver tus pedidos");
+          navigate("/login");
+          return;
+        }
+
         const res = await api.get(`/pedidos/${id}/`);
         setPedido(res.data);
-      } catch (error) {
+
+      } catch (error: any) {
+        if (error.response?.status === 403) {
+          redirectWithToast(navigate, "No tienes permiso para ver este pedido", "/perfil");
+          return;
+        }
+
         toast.error("No se pudo cargar el pedido");
       } finally {
         setLoading(false);
@@ -22,7 +37,7 @@ export default function PedidoDetalleCliente() {
     }
 
     cargarPedido();
-  }, [id]);
+  }, [id, navigate]);
 
   if (loading) {
     return <p className="p-6 text-center text-lg">Cargando pedido...</p>;
@@ -65,11 +80,9 @@ export default function PedidoDetalleCliente() {
         <p><strong>Fecha:</strong> {new Date(pedido.fecha).toLocaleString()}</p>
 
         <p className="mt-2">
-          <strong>BlueExpress:</strong>{" "}
-          pendiente, estar pendiente a su correo dentro de 24–48 hrs hábiles
+          <strong>Código BlueExpress:</strong> [Pendiente] (Esté atento a su correo dentro de 24–48 hrs hábiles)
         </p>
 
-        {/* Costos de envío si es delivery */}
         {pedido.tipo_entrega === "delivery" && (
           <div className="mt-4">
             <p>
@@ -77,7 +90,7 @@ export default function PedidoDetalleCliente() {
               ${pedido.costo_envio_min} – ${pedido.costo_envio_max}
             </p>
             <p className="text-gray-600">
-              pendiente por pagar en su domicilio
+              Pendiente por pagar en su domicilio.
             </p>
           </div>
         )}
@@ -94,12 +107,14 @@ export default function PedidoDetalleCliente() {
                 alt={item.producto.nombre}
                 className="w-20 h-20 object-cover rounded"
               />
+
               <div className="flex-1">
                 <p className="text-lg font-semibold">{item.producto.nombre}</p>
                 <p className="text-gray-600">
                   {item.cantidad} × ${item.precio_unitario}
                 </p>
               </div>
+
               <p className="text-lg font-bold">${item.subtotal}</p>
             </div>
           ))}
@@ -112,3 +127,5 @@ export default function PedidoDetalleCliente() {
     </section>
   );
 }
+
+
