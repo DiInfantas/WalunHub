@@ -13,8 +13,6 @@ import Dashboard from '../pages/dashboard/dashboard';
 import Registro from '../pages/usuario/registro';
 import Carrito from '../pages/carrito/carrito';
 import Checkout from '../pages/checkout/checkout';
-import PagoAprobado from '../pages/checkout/pagook';
-import PagoRechazado from '../pages/checkout/pagofail';
 import Perfil from '../pages/usuario/perfil';
 import ForgotPassword from '../pages/usuario/passmailto';
 import ResetPassword from '../pages/usuario/recuperar';
@@ -58,9 +56,7 @@ export default function AppRouter() {
           <Route path="/registro" element={<Registro />} />
           <Route path="/carrito" element={<Carrito />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/pagoaprobado" element={<PagoAprobado />} />
           <Route path="/perfil" element={<Perfil/>} />
-          <Route path="/pagorechazado" element={<PagoRechazado />} />
           <Route path="/pago/success" element={<Success />} />
           <Route path="/pago/failure" element={<Failure />} />
           <Route path="/pago/pending" element={<Pending />} />
@@ -70,8 +66,6 @@ export default function AppRouter() {
           <Route path="/admin/pedidos/:id" element={<PedidoDetalleAdmin />} />
           <Route path="/perfil/pedido/:id" element={<PedidoDetalleCliente />} />
 
-
-          {/* jean test */}
 
         </Routes>
       </Layout>
