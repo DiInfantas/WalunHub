@@ -16,7 +16,6 @@ function ProductoDetalle() {
       .then(res => {
         setProducto(res.data);
 
-        // Si el stock es 0, establecer cantidad en 0
         if (res.data.stock === 0) {
           setCantidad(0);
         }
@@ -24,14 +23,18 @@ function ProductoDetalle() {
       .catch(() => setError("Producto no encontrado"));
   }, [id]);
 
+  if (!producto) return <p className="text-center mt-10">Cargando producto...</p>;
+  
+  const disponible = producto.stock === 1;
+
   const handleAddToCart = () => {
     if (!producto) return;
 
-    if (producto.stock === 0) {
+    if (!disponible) {
       toast.error("No hay stock disponible");
       return;
     }
-    // validar token GOD shiet 
+
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("Debes iniciar sesión para agregar al carrito");
@@ -52,31 +55,37 @@ function ProductoDetalle() {
   };
 
   if (error) return <p className="text-red-600 text-center mt-10">{error}</p>;
-  if (!producto) return <p className="text-center mt-10">Cargando producto...</p>;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
       <Toaster position="top-center" />
 
       <div className="grid md:grid-cols-2 gap-6">
+        
         <img
           src={producto.imagenes[0]?.imagen || '/img/default.jpg'}
           alt={producto.nombre}
           className="w-full h-auto rounded shadow"
         />
+
         <div>
           <h1 className="text-3xl font-bold mb-2">{producto.nombre}</h1>
+
           <p className="text-gray-700 mb-4">{producto.descripcion}</p>
-          <p className="text-xl font-semibold text-green-700 mb-2">${producto.precio}</p>
+
+          <p className="text-xl font-semibold text-green-700 mb-2">
+            ${producto.precio}
+          </p>
+
           <p className="text-sm text-gray-600 mb-4">
-            {producto.stock > 0 ? `Stock disponible: ${producto.stock}` : "Sin stock"}
+            {disponible ? "Hay stock disponible" : "Sin stock disponible"}
           </p>
 
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={() => setCantidad(Math.max(1, cantidad - 1))}
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-              disabled={cantidad <= 1 || producto.stock === 0}
+              disabled={!disponible || cantidad <= 1}
             >
               −
             </button>
@@ -84,9 +93,9 @@ function ProductoDetalle() {
             <span className="text-lg">{cantidad}</span>
 
             <button
-              onClick={() => setCantidad(Math.min(producto.stock, cantidad + 1))}
+              onClick={() => setCantidad(cantidad + 1)}  // ilimitado
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-              disabled={cantidad >= producto.stock || producto.stock === 0}
+              disabled={!disponible}
             >
               +
             </button>
@@ -94,19 +103,21 @@ function ProductoDetalle() {
 
           <button
             onClick={handleAddToCart}
-            disabled={producto.stock === 0}
+            disabled={!disponible}
             className={`px-4 py-2 rounded text-white transition ${
-              producto.stock === 0
+              !disponible
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-green-600 hover:bg-green-700"
             }`}
           >
-            {producto.stock === 0 ? "Sin stock" : "Agregar al carrito"}
+            {disponible ? "Agregar al carrito" : "Sin stock"}
           </button>
         </div>
+
       </div>
     </div>
   );
 }
 
 export default ProductoDetalle;
+

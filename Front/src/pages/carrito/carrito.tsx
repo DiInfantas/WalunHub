@@ -17,10 +17,11 @@ export default function Carrito() {
 
   const actualizarCantidad = (id: number, cantidad: number) => {
     const actualizado = carrito.map((item) =>
-      item.id === id 
-        ? { ...item, cantidad: Math.max(1, Math.min(item.stock, cantidad)) } 
+      item.id === id
+        ? { ...item, cantidad: Math.max(1, cantidad) }
         : item
     );
+
     setCarrito(actualizado);
     guardarCarrito(actualizado);
   };
@@ -58,6 +59,7 @@ export default function Carrito() {
             <div className="flex-1">
               <h3 className="text-lg font-semibold">{item.nombre}</h3>
               <p className="text-sm text-gray-600">${item.precio} /kg</p>
+
               <div className="flex items-center mt-2 gap-2">
                 <button
                   onClick={() => actualizarCantidad(item.id, item.cantidad - 1)}
@@ -66,16 +68,18 @@ export default function Carrito() {
                 >
                   −
                 </button>
+
                 <span className="px-3">{item.cantidad}</span>
+
                 <button
                   onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}
-                  className="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
-                  disabled={item.cantidad >= item.stock}
+                  className="px-2 py-1 bg-gray-200 rounded"
                 >
                   +
                 </button>
               </div>
             </div>
+
             <div className="text-right">
               <p className="font-bold">${item.precio * item.cantidad}</p>
               <button
@@ -91,6 +95,7 @@ export default function Carrito() {
 
       <div className="mt-10 text-right">
         <p className="text-xl font-bold mb-4">Total: ${total.toFixed(0)}</p>
+
         <div className="flex justify-end gap-4">
           <button
             onClick={() => {
@@ -101,6 +106,7 @@ export default function Carrito() {
           >
             Vaciar carrito
           </button>
+
           <Link
             to="/checkout"
             className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded"

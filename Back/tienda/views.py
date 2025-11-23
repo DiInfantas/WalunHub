@@ -166,10 +166,10 @@ def mp_webhook(request):
             or info_pago.get("receipt_url")
         )
 
-        for item in pedido.items.all():
-            producto = item.producto
-            producto.stock = max(0, producto.stock - item.cantidad)
-            producto.save()
+        # for item in pedido.items.all():
+        #     producto = item.producto
+        #     producto.stock = max(0, producto.stock - item.cantidad)
+        #     producto.save()
 
     elif status_mp in ["pending", "in_process"]:
         pedido.estado_pago = pago_pendiente
@@ -183,10 +183,10 @@ def mp_webhook(request):
         pedido.estado_pago = pago_devuelto
         pedido.estado = pedido_devuelto
 
-        for item in pedido.items.all():
-            producto = item.producto
-            producto.stock += item.cantidad
-            producto.save()
+        # for item in pedido.items.all():
+        #     producto = item.producto
+        #     producto.stock += item.cantidad
+        #     producto.save()
 
     else:
         pedido.estado_pago = pago_pendiente

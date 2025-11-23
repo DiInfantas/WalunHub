@@ -13,7 +13,7 @@ export const obtenerCarrito = (): ItemCarrito[] => {
 
     return {
       ...item,
-      peso_kg: isNaN(pesoParseado) ? 0 : pesoParseado, // siempre número
+      peso_kg: isNaN(pesoParseado) ? 0 : pesoParseado,
     };
   });
 };
@@ -41,11 +41,10 @@ export const agregarAlCarrito = (producto: ItemCarrito) => {
     carrito.push({
       ...producto,
       cantidad: producto.cantidad,
-      stock: producto.stock,
+      stock: producto.stock, 
       peso_kg,
     });
   }
-
 
   guardarCarrito(carrito);
 };
