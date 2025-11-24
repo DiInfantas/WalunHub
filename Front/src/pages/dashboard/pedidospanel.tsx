@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { api } from "../../config/api";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import { Link } from "react-router-dom";
+import { toastError, toastSuccess } from "../../interfaces/toast";
+
 
 interface Pedido {
   id: number;
@@ -49,7 +51,7 @@ export default function PedidosPanel() {
     api
       .get(`/pedidos-admin/?${params.toString()}`)
       .then((res) => setPedidos(res.data))
-      .catch(() => toast.error("Error al cargar pedidos"))
+      .catch(() => toastError("Error al cargar pedidos"))
       .finally(() => setLoading(false));
   };
 
@@ -57,43 +59,43 @@ export default function PedidosPanel() {
     api
       .get("/estados-pedido/")
       .then((res) => setEstadosDisponibles(res.data))
-      .catch(() => toast.error("Error al cargar estados"));
+      .catch(() => toastError("Error al cargar estados"));
   };
 
   const cargarEstadosPago = () => {
     api
       .get("/estados-pago/")
       .then((res) => setEstadosPago(res.data))
-      .catch(() => toast.error("Error al cargar estados de pago"));
+      .catch(() => toastError("Error al cargar estados de pago"));
   };
 
   const cambiarEstado = async (id: number, nuevoEstado: string) => {
     try {
       await api.patch(`/pedidos/${id}/`, { estado: nuevoEstado });
-      toast.success("Estado actualizado");
+      toastSuccess("Estado actualizado");
       cargarPedidos();
     } catch {
-      toast.error("Error al actualizar estado");
+      toastError("Error al actualizar estado");
     }
   };
 
   const cambiarEstadoPago = async (id: number, nuevoEstado: string) => {
     try {
       await api.patch(`/pedidos/${id}/`, { estado_pago: nuevoEstado });
-      toast.success("Estado de pago actualizado");
+      toastSuccess("Estado de pago actualizado");
       cargarPedidos();
     } catch {
-      toast.error("Error al actualizar estado de pago");
+      toastError("Error al actualizar estado de pago");
     }
   };
 
   // const actualizarBlueCode = async (id: number, valor: string) => {
   //   try {
   //     await api.patch(`/pedidos/${id}/`, { blue_code: valor });
-  //     toast.success("Código actualizado");
+  //     toastSuccess("Código actualizado");
   //     cargarPedidos();
   //   } catch {
-  //     toast.error("Error al actualizar código");
+  //     toastError("Error al actualizar código");
   //   }
   // };
 

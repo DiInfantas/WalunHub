@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { requestResetCode } from "../../config/api";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import { toastError, toastSuccess } from "../../interfaces/toast";
+
+
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -19,20 +22,12 @@ export default function ForgotPassword() {
 
       setMessage(fullMessage);
 
-      toast.success("Código enviado correctamente. Revisa tu correo.", {
-        duration: 5000,
-        position: "top-center",
-      });
+      toastSuccess("✅ Código enviado correctamente. Revisa tu correo.");
 
-      setTimeout(() => {
-        // Guarda el correo en localStorage para usarlo en la siguiente pantalla
-        localStorage.setItem("reset_email", email);
-        window.location.href = "/recuperarpass2";
-      }, 2000);
     } catch (err: any) {
       const errorMsg = err.response?.data?.error || "Error al enviar código";
       setMessage(errorMsg);
-      toast.error(errorMsg, { duration: 4000, position: "top-center" });
+      toastError(errorMsg);
     } finally {
       setLoading(false);
     }

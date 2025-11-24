@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../../config/api";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import { toastError, toastSuccess } from "../../interfaces/toast";
 
 interface Producto {
   id: number;
@@ -24,10 +25,15 @@ export default function ProductosPanel() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [mostrarModal, setMostrarModal] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
   const [productoEditando, setProductoEditando] = useState<number | null>(null);
   const [imagen, setImagen] = useState<File | null>(null);
+
+
+  const [mostrarModalEliminar, setMostrarModalEliminar] = useState(false);
+  const [productoEliminar, setProductoEliminar] = useState<number | null>(null);
 
   const [formulario, setFormulario] = useState({
     nombre: "",
@@ -49,7 +55,7 @@ export default function ProductosPanel() {
     api
       .get("/productos-admin/")
       .then((res) => setProductos(res.data))
-      .catch(() => toast.error("Error al cargar productos"))
+      .catch(() => toastError("Error al cargar productos"))
       .finally(() => setLoading(false));
   };
 
@@ -57,7 +63,7 @@ export default function ProductosPanel() {
     api
       .get("/categorias/")
       .then((res) => setCategorias(res.data))
-      .catch(() => toast.error("Error al cargar categorías"));
+      .catch(() => toastError("Error al cargar categorías"));
   };
 
   const abrirModalCrear = () => {
@@ -125,27 +131,36 @@ export default function ProductosPanel() {
         });
       }
 
-      toast.success("Producto guardado");
+      toastSuccess("Producto guardado");
       setMostrarModal(false);
       setProductoEditando(null);
       setImagen(null);
       cargarProductos();
     } catch {
-      toast.error("Error al guardar producto");
+      toastError("Error al guardar producto");
     }
   };
 
-  const eliminarProducto = async (id: number) => {
-    if (!confirm("¿Estás seguro de eliminar este producto?")) return;
+  const abrirModalEliminarProducto = (id: number) => {
+    setProductoEliminar(id);
+    setMostrarModalEliminar(true);
+  };
+
+  const confirmarEliminarProducto = async () => {
+    if (!productoEliminar) return;
 
     try {
-      await api.delete(`/productos-admin/${id}/`);
-      toast.success("Producto eliminado");
+      await api.delete(`/productos-admin/${productoEliminar}/`);
+      toastSuccess("Producto eliminado");
       cargarProductos();
     } catch {
-      toast.error("Error al eliminar producto");
+      toastError("Error al eliminar producto");
     }
+
+    setMostrarModalEliminar(false);
+    setProductoEliminar(null);
   };
+
   return (
     <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-green-600">
       <div className="flex justify-between items-center mb-6">
@@ -198,7 +213,7 @@ export default function ProductosPanel() {
                     Editar
                   </button>
                   <button
-                    onClick={() => eliminarProducto(producto.id)}
+                    onClick={() => abrirModalEliminarProducto(producto.id)}
                     className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
                   >
                     Eliminar
@@ -211,7 +226,7 @@ export default function ProductosPanel() {
       )}
 
       {mostrarModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg overflow-y-auto max-h-screen">
             <h3 className="text-xl font-bold text-green-700 mb-4">
               {modoEdicion ? "Editar producto" : "Crear nuevo producto"}
@@ -227,6 +242,7 @@ export default function ProductosPanel() {
                 }
                 className="w-full p-3 border border-gray-300 rounded"
               />
+
               <textarea
                 placeholder="Descripción"
                 value={formulario.descripcion}
@@ -235,6 +251,7 @@ export default function ProductosPanel() {
                 }
                 className="w-full p-3 border border-gray-300 rounded"
               />
+
               <input
                 type="number"
                 placeholder="Precio"
@@ -244,6 +261,7 @@ export default function ProductosPanel() {
                 }
                 className="w-full p-3 border border-gray-300 rounded"
               />
+
               <input
                 type="number"
                 placeholder="Peso (kg)"
@@ -253,6 +271,7 @@ export default function ProductosPanel() {
                 }
                 className="w-full p-3 border border-gray-300 rounded"
               />
+
               <input
                 type="number"
                 placeholder="Stock"
@@ -262,6 +281,7 @@ export default function ProductosPanel() {
                 }
                 className="w-full p-3 border border-gray-300 rounded"
               />
+
               <select
                 value={formulario.categoria}
                 onChange={(e) =>
@@ -276,12 +296,14 @@ export default function ProductosPanel() {
                   </option>
                 ))}
               </select>
+
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => setImagen(e.target.files?.[0] || null)}
                 className="w-full p-3 border border-gray-300 rounded"
               />
+
               <div className="flex items-center space-x-4">
                 <label className="flex items-center space-x-2">
                   <input
@@ -293,6 +315,7 @@ export default function ProductosPanel() {
                   />
                   <span>Destacado</span>
                 </label>
+
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -313,11 +336,42 @@ export default function ProductosPanel() {
               >
                 Cancelar
               </button>
+
               <button
                 onClick={guardarProducto}
                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
               >
                 {modoEdicion ? "Guardar cambios" : "Crear"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {mostrarModalEliminar && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
+            <h3 className="text-xl font-bold text-red-600 mb-4">
+              Confirmar eliminación
+            </h3>
+
+            <p className="text-gray-700 mb-6">
+              ¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.
+            </p>
+
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setMostrarModalEliminar(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={confirmarEliminarProducto}
+                className="px-4 py-2 bg-red-400 text-white rounded hover:bg-red-500"
+              >
+                Eliminar
               </button>
             </div>
           </div>

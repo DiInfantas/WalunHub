@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { api } from "../../config/api";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import { toastError, toastSuccess } from "../../interfaces/toast";
+
 
 export default function Contacto() {
   const [nombre, setNombre] = useState("");
@@ -11,12 +13,12 @@ export default function Contacto() {
     e.preventDefault();
     try {
       await api.post("/contacto/enviar/", { nombre, email, mensaje });
-      toast.success("Mensaje enviado correctamente");
+      toastSuccess("Mensaje enviado correctamente");
       setNombre("");
       setEmail("");
       setMensaje("");
     } catch (err) {
-      toast.error("Error al enviar el mensaje");
+      toastError("Error al enviar el mensaje");
     }
   };
 
@@ -29,7 +31,6 @@ export default function Contacto() {
         <h1 className="text-4xl font-bold mt-16">Contáctanos</h1>
       </header>
 
-      {/* Métodos de contacto */}
       <section className="text-center py-12 px-4">
         <h2 className="text-2xl font-bold">Estamos aquí para ayudarte</h2>
         <p className="mt-4 text-gray-700 max-w-2xl mx-auto">
@@ -51,7 +52,6 @@ export default function Contacto() {
         </div>
       </section>
 
-      {/* Formulario */}
       <section className="bg-gray-100 py-12 px-4">
         <h2 className="text-2xl font-bold text-center">Envíanos un mensaje</h2>
         <form onSubmit={handleSubmit} className="max-w-2xl mx-auto mt-8 space-y-8">
@@ -97,7 +97,6 @@ export default function Contacto() {
         </form>
       </section>
 
-      {/* Preguntas frecuentes */}
       <section className="text-center py-12 px-4">
         <h2 className="text-2xl font-bold">Preguntas frecuentes</h2>
         <div className="mt-8">

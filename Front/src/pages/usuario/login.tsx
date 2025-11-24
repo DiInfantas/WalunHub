@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { api } from "../../config/api";
-import toast, { Toaster } from "react-hot-toast";
+import { toastError, toastSuccess } from "../../interfaces/toast";
+import { Toaster } from "react-hot-toast";
+
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,14 +15,14 @@ export default function Login() {
       const res = await api.post("/usuarios/login/", { email, password });
       localStorage.setItem("token", res.data.token);
 
-      toast.success("Login exitoso", { position: "top-center" });
+      toastSuccess("✅ Login exitoso");
 
       setTimeout(() => {
         window.location.href = "/";
       }, 2000);
     } catch (err: any) {
       console.error(err.response?.data);
-      toast.error("Credenciales inválidas", { position: "top-center" });
+      toastError("❌ Credenciales inválidas");
     }
   };
 

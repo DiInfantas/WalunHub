@@ -1,6 +1,47 @@
 import { useState } from "react";
 import { api } from "../../config/api";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import { toastError, toastSuccess } from "../../interfaces/toast";
+
+
+interface ModalProps {
+  open: boolean;
+  title: string;
+  children: React.ReactNode;
+  onConfirm: () => void;
+  onClose: () => void;
+}
+
+
+function Modal({ open, title, children, onConfirm, onClose }: ModalProps) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full">
+        <h2 className="text-xl font-bold mb-3">{title}</h2>
+
+        <div className="mb-4">{children}</div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={onConfirm}
+            className="flex-1 bg-green-600 text-white py-2 rounded"
+          >
+            Sí
+          </button>
+
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-500 text-white py-2 rounded"
+          >
+            No
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Registro() {
   const [username, setUsername] = useState("");
@@ -8,37 +49,48 @@ export default function Registro() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
 
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleSubmitFinal = async () => {
     try {
       await api.post("/usuarios/registro/", { username, email, password });
 
-      toast.success("Cuenta creada con éxito", {
-        duration: 15000,
-        position: "top-center",
-      });
+      toastSuccess("Cuenta creada con éxito");
 
       setTimeout(() => {
         window.location.href = "/login";
       }, 1200);
-
     } catch (err: any) {
       console.error(err.response?.data);
-
       const msg = "Error al crear la cuenta";
-
-      alert(msg);
-
-      toast.error(msg, {
-        duration: 3000,
-        position: "top-center",
-      });
+      toastError(msg);
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Abre el modal antes de registrar
+    setModalOpen(true);
+  };
+
+  const handleConfirmModal = () => {
+    setModalOpen(false);
+    handleSubmitFinal();
   };
 
   return (
     <>
+      <Modal
+        open={modalOpen}
+        title="Confirmación"
+        onConfirm={handleConfirmModal}
+        onClose={() => setModalOpen(false)}
+      >
+        <p>¿Estás seguro de usar esta contraseña?</p>
+      </Modal>
+
       <div className="container px-4 mx-auto py-12">
         <div className="max-w-lg mx-auto bg-white shadow-lg rounded-lg p-8">
           <h2 className="text-3xl font-bold text-green-700 text-center mb-6">

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../../config/api";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import { toastError, toastSuccess } from "../../interfaces/toast";
+
 
 interface Pedido {
   id: number;
@@ -45,7 +47,7 @@ export default function PedidoDetalleAdmin() {
   const [blueCodeTemp, setBlueCodeTemp] = useState("");
   const [mostrarModal, setMostrarModal] = useState(false);
 
-  // 🔐 PROTECCIÓN SOLO ADMIN
+
   useEffect(() => {
     api
       .get("/usuarios/panel/")
@@ -54,7 +56,7 @@ export default function PedidoDetalleAdmin() {
         cargarEstados();
       })
       .catch(() => {
-        alert("Acceso restringido: solo cuentas autorizadas pueden ver esta página.");
+        toastError("Acceso restringido: solo cuentas autorizadas pueden ver esta página.");
         navigate("/");
       });
   }, [id]);
@@ -66,7 +68,7 @@ export default function PedidoDetalleAdmin() {
 
       setBlueCodeTemp(res.data.blue_code || "");
     } catch {
-      toast.error("Error al cargar el pedido");
+      toastError("Error al cargar el pedido");
     } finally {
       setLoading(false);
     }
@@ -81,7 +83,7 @@ export default function PedidoDetalleAdmin() {
       setEstadosPedido(resPedido.data);
       setEstadosPago(resPago.data);
     } catch {
-      toast.error("Error al cargar estados");
+      toastError("Error al cargar estados");
     }
   };
 
@@ -89,10 +91,10 @@ export default function PedidoDetalleAdmin() {
     if (!pedido) return;
     try {
       await api.patch(`/pedidos/${pedido.id}/`, { [campo]: valor });
-      toast.success(`Campo actualizado: ${campo}`);
+      toastSuccess(`Campo actualizado: ${campo}`);
       cargarPedido();
     } catch {
-      toast.error(`Error al actualizar ${campo}`);
+      toastError(`Error al actualizar ${campo}`);
     }
   };
 
@@ -101,10 +103,10 @@ export default function PedidoDetalleAdmin() {
 
     try {
       await api.patch(`/pedidos/${pedido.id}/`, { blue_code: blueCodeTemp });
-      toast.success("Blue Code actualizado");
+      toastSuccess("Blue Code actualizado");
       cargarPedido();
     } catch {
-      toast.error("Error al actualizar Blue Code");
+      toastError("Error al actualizar Blue Code");
     }
 
     setMostrarModal(false);

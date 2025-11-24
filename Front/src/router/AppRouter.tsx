@@ -24,7 +24,6 @@ import NotFoundPage from '../components/layout/404';
 import PedidoDetalleAdmin from '../pages/dashboard/pedidodetalleadmin';
 import PedidoDetalleCliente from '../pages/pago/pedidodetalle';
 
-// Layout wrapper con lógica para ocultar MainNav
 function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const hideMainNav = location.pathname.startsWith('/login') || location.pathname.startsWith('/gestion') || location.pathname.startsWith('/recuperarpass1') || location.pathname.startsWith('/recuperarpass2');

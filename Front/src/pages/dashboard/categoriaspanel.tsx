@@ -1,11 +1,50 @@
 import { useEffect, useState } from "react";
 import { api } from "../../config/api";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import { toastError, toastSuccess } from "../../interfaces/toast";
 
 interface Categoria {
   id: number;
   nombre: string;
   descripcion: string;
+}
+
+interface ModalProps {
+  open: boolean;
+  title: string;
+  children: React.ReactNode;
+  onConfirm: () => void;
+  onClose: () => void;
+}
+
+function Modal({ open, title, children, onConfirm, onClose }: ModalProps) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full">
+        <h2 className="text-xl font-bold mb-3">{title}</h2>
+
+        <div className="mb-4">{children}</div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={onConfirm}
+            className="flex-1 bg-red-600 text-white py-2 rounded"
+          >
+            Sí
+          </button>
+
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-500 text-white py-2 rounded"
+          >
+            No
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function CategoriasPanel() {
@@ -15,6 +54,10 @@ export default function CategoriasPanel() {
   const [modoEdicion, setModoEdicion] = useState(false);
   const [categoriaEditando, setCategoriaEditando] = useState<number | null>(null);
   const [formulario, setFormulario] = useState({ nombre: "", descripcion: "" });
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: number | null }>({
+    open: false,
+    id: null,
+  });
 
   useEffect(() => {
     cargarCategorias();
@@ -24,7 +67,7 @@ export default function CategoriasPanel() {
     api
       .get("/categorias-admin/")
       .then((res) => setCategorias(res.data))
-      .catch(() => toast.error("Error al cargar categorías"))
+      .catch(() => toastError("Error al cargar categorías"))
       .finally(() => setLoading(false));
   };
 
@@ -49,22 +92,29 @@ export default function CategoriasPanel() {
       } else {
         await api.post("/categorias-admin/", formulario);
       }
-      toast.success("Categoría guardada");
+      toastSuccess("Categoría guardada");
       setMostrarModal(false);
       cargarCategorias();
     } catch {
-      toast.error("Error al guardar categoría");
+      toastError("Error al guardar categoría");
     }
   };
 
-  const eliminarCategoria = async (id: number) => {
-    if (!confirm("¿Eliminar esta categoría?")) return;
+  const eliminarCategoria = (id: number) => {
+    setDeleteModal({ open: true, id });
+  };
+
+  const confirmarEliminarCategoria = async () => {
+    if (!deleteModal.id) return;
+
     try {
-      await api.delete(`/categorias-admin/${id}/`);
-      toast.success("Categoría eliminada");
+      await api.delete(`/categorias-admin/${deleteModal.id}/`);
+      toastSuccess("Categoría eliminada");
       cargarCategorias();
     } catch {
-      toast.error("Error al eliminar categoría");
+      toastError("Error al eliminar categoría");
+    } finally {
+      setDeleteModal({ open: false, id: null });
     }
   };
 
@@ -103,6 +153,7 @@ export default function CategoriasPanel() {
                   >
                     Editar
                   </button>
+
                   <button
                     onClick={() => eliminarCategoria(cat.id)}
                     className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
@@ -117,7 +168,7 @@ export default function CategoriasPanel() {
       )}
 
       {mostrarModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
             <h3 className="text-xl font-bold text-green-700 mb-4">
               {modoEdicion ? "Editar categoría" : "Nueva categoría"}
@@ -160,6 +211,15 @@ export default function CategoriasPanel() {
           </div>
         </div>
       )}
+
+      <Modal
+        open={deleteModal.open}
+        title="Eliminar categoría"
+        onConfirm={confirmarEliminarCategoria}
+        onClose={() => setDeleteModal({ open: false, id: null })}
+      >
+        <p>¿Seguro que deseas eliminar esta categoría?</p>
+      </Modal>
 
       <Toaster position="top-center" />
     </div>

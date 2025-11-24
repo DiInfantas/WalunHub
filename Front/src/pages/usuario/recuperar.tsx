@@ -1,6 +1,45 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { resetPassword } from "../../config/api";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import { toastError, toastSuccess } from "../../interfaces/toast";
+
+interface ModalProps {
+  open: boolean;
+  title: string;
+  children: React.ReactNode;
+  onConfirm: () => void;
+  onClose: () => void;
+}
+
+function Modal({ open, title, children, onConfirm, onClose }: ModalProps) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full">
+        <h2 className="text-xl font-bold mb-3">{title}</h2>
+
+        <div className="mb-4">{children}</div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={onConfirm}
+            className="flex-1 bg-green-600 text-white py-2 rounded"
+          >
+            Sí
+          </button>
+
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-500 text-white py-2 rounded"
+          >
+            No
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ResetPassword() {
   const [email, setEmail] = useState("");
@@ -10,18 +49,13 @@ export default function ResetPassword() {
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => {
-    const storedEmail = localStorage.getItem("reset_email");
-    if (storedEmail) {
-      setEmail(storedEmail);
-    }
-  }, []);
+  const [confirmModal, setConfirmModal] = useState(false);
 
   const handleSubmit = async () => {
-    const confirmChange = confirm(
-      "¿Estás seguro que quieres usar esta nueva contraseña?"
-    );
-    if (!confirmChange) return;
+    if (!email || !code || !newPassword) {
+      toastError("Todos los campos son obligatorios");
+      return;
+    }
 
     setLoading(true);
     setMessage("");
@@ -30,23 +64,16 @@ export default function ResetPassword() {
       const data = await resetPassword(email, code, newPassword);
       setMessage(data.message || "Contraseña actualizada correctamente");
 
-      toast.success("Tu contraseña ha sido cambiada exitosamente.", {
-        duration: 15000,
-        position: "top-center",
-      });
+      toastSuccess("Tu contraseña ha sido cambiada exitosamente.");
 
       setTimeout(() => {
-        localStorage.removeItem("reset_email");
         window.location.href = "/login";
       }, 1500);
     } catch (err: any) {
       const errorMsg =
         err.response?.data?.error || "Error al actualizar contraseña";
       setMessage(errorMsg);
-      toast.error(errorMsg, {
-        duration: 3000,
-        position: "top-center",
-      });
+      toastError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -71,9 +98,10 @@ export default function ResetPassword() {
 
         <input
           type="email"
+          placeholder="Tu correo"
           value={email}
-          readOnly
-          className="border p-2 rounded w-64 bg-gray-100 text-gray-500"
+          onChange={(e) => setEmail(e.target.value)}
+          className="border p-2 rounded w-64"
         />
 
         <div className="relative w-64">
@@ -95,7 +123,7 @@ export default function ResetPassword() {
         </div>
 
         <button
-          onClick={handleSubmit}
+          onClick={() => setConfirmModal(true)}
           disabled={loading}
           className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
         >
@@ -105,7 +133,21 @@ export default function ResetPassword() {
         {message && <p className="text-sm text-gray-700">{message}</p>}
       </div>
 
+      <Modal
+        open={confirmModal}
+        title="Confirmar cambio"
+        onConfirm={() => {
+          setConfirmModal(false);
+          handleSubmit();
+        }}
+        onClose={() => setConfirmModal(false)}
+      >
+        <p>¿Estás seguro que quieres usar esta nueva contraseña?</p>
+      </Modal>
+
       <Toaster />
     </>
   );
 }
+
+

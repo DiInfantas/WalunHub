@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../../config/api";
-import toast from "react-hot-toast";
 import { redirectWithToast } from '../../interfaces/navigationWithToast';
+import { toastError} from "../../interfaces/toast";
+
 
 export default function PedidoDetalleCliente() {
   const { id } = useParams();
@@ -16,7 +17,7 @@ export default function PedidoDetalleCliente() {
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-          toast.error("Debes iniciar sesión para ver tus pedidos");
+          toastError("Debes iniciar sesión para ver tus pedidos");
           navigate("/login");
           return;
         }
@@ -30,7 +31,7 @@ export default function PedidoDetalleCliente() {
           return;
         }
 
-        toast.error("No se pudo cargar el pedido");
+        toastError("No se pudo cargar el pedido");
       } finally {
         setLoading(false);
       }

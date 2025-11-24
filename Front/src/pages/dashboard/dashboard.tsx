@@ -5,6 +5,7 @@ import ProductosPanel from "../dashboard/productospanel";
 import CategoriasPanel from "./categoriaspanel";
 import PedidosPanel from "./pedidospanel";
 import CuentasPanel from "./cuentaspanel";
+import { toastError } from "../../interfaces/toast";
 
 interface SidebarProps {
   active: string;
@@ -56,7 +57,7 @@ const DashboardDueña: React.FC = () => {
       .get("/usuarios/panel/")
       .then(() => setAutorizado(true))
       .catch(() => {
-        alert("Acceso restringido: solo para cuentas de gestión");
+        toastError("Acceso restringido: solo para cuentas de gestión");
         navigate("/");
       });
   }, []);

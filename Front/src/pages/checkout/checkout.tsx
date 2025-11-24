@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import type { ItemCarrito } from "../../interfaces/itemCarrito";
 import { obtenerCarrito } from "../carrito/carritoUtils";
 import { crearPedido, createPreference } from "../../config/api";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import { toastError } from "../../interfaces/toast";
+
 
 export default function Checkout() {
   const [carrito, setCarrito] = useState<ItemCarrito[]>([]);
@@ -65,7 +67,7 @@ export default function Checkout() {
     if (!showEnvioConfirm || !rango) return null;
 
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
         <div className="bg-white p-6 rounded shadow-xl max-w-sm w-full">
           <h2 className="text-xl font-bold mb-3 text-center">Confirmar envío</h2>
           <p className="mb-4 text-center">
@@ -104,7 +106,7 @@ export default function Checkout() {
     if (!showPagoConfirm) return null;
 
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
         <div className="bg-white p-6 rounded shadow-xl max-w-sm w-full">
           <h2 className="text-xl font-bold mb-4 text-center">
             ¿Seguro que quieres proceder al pago?
@@ -166,19 +168,19 @@ export default function Checkout() {
       console.log("Preferencia generada por MP:", pref);
 
       if (!pref.init_point) {
-        toast.error("Error al generar el pago.");
+        toastError("Error al generar el pago.");
         return;
       }
 
       window.location.href = pref.init_point;
     } catch (error) {
       console.log("ERROR procesando pago:", error);
-      toast.error("Error al procesar el pago.");
+      toastError("Error al procesar el pago.");
     }
   };
   
   const procesarPago = () => {
-    if (!carrito.length) return toast.error("El carrito está vacío.");
+    if (!carrito.length) return toastError("El carrito está vacío.");
 
     if (
       !form.nombre ||
@@ -187,7 +189,7 @@ export default function Checkout() {
       !form.telefono ||
       !form.email
     ) {
-      return toast.error("Completa todos los campos.");
+      return toastError("Completa todos los campos del formulario.");  
     }
 
     if (form.tipo_entrega === "delivery") {
@@ -220,6 +222,7 @@ export default function Checkout() {
               value={form.nombre}
               onChange={handleChange}
               className="w-full border-2 border-green-600 p-3 rounded"
+              required
             />
           </div>
 
@@ -231,6 +234,7 @@ export default function Checkout() {
               value={form.telefono}
               onChange={handleChange}
               className="w-full border-2 border-green-600 p-3 rounded"
+              required
             />
           </div>
 
@@ -242,6 +246,7 @@ export default function Checkout() {
               value={form.direccion}
               onChange={handleChange}
               className="w-full border-2 border-green-600 p-3 rounded"
+              required
             />
           </div>
 
@@ -253,19 +258,19 @@ export default function Checkout() {
               value={form.comuna}
               onChange={handleChange}
               className="w-full border-2 border-green-600 p-3 rounded"
+              required
             />
           </div>
 
           <div className="md:col-span-2">
-            <label className="block font-semibold mb-1">
-              Correo electrónico
-            </label>
+            <label className="block font-semibold mb-1">Correo electrónico</label>
             <input
               type="email"
               name="email"
               value={form.email}
               onChange={handleChange}
               className="w-full border-2 border-green-600 p-3 rounded"
+              required
             />
           </div>
 

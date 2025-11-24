@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import { actualizarPerfil, getPerfil, requestResetCode, resetPassword, api } from "../../config/api"; // Ajusta la ruta si es necesario
+import { toastError, toastSuccess } from "../../interfaces/toast";
 
 interface SidebarProps {
   active: string;
@@ -58,13 +59,21 @@ const Perfil: React.FC = () => {
     api
       .get("/pedidos/mis/")
       .then((res) => setPedidos(res.data))
-      .catch(() => toast.error("Error al cargar tus pedidos"));
+      .catch(() => toastError("Error al cargar tus pedidos"));
   }, []);
 
   const cardClass = "bg-white p-8 rounded-lg shadow-lg border-2 border-green-600";
 
   if (!user) {
-    return <div className="p-8 text-center">Cargando perfil...</div>;
+    return (
+      <div className="p-8 text-center">
+        Error cargando el perfil (
+        <a href="/login" className="text-green-700 font-semibold underline">
+          Inicia Sesión
+        </a>
+        )...
+      </div>
+    );
   }
 
   const renderContent = () => {
@@ -104,8 +113,8 @@ const Perfil: React.FC = () => {
                 type="button"
                 onClick={() => {
                   requestResetCode(user.email)
-                    .then(() => alert("Código enviado a tu correo"))
-                    .catch(() => alert("Error al enviar el código"));
+                    .then(() => toastSuccess("Código enviado a tu correo"))
+                    .catch(() => toastError("Error al enviar el código"));
                 }}
                 className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded transition duration-200"
               >
@@ -124,8 +133,8 @@ const Perfil: React.FC = () => {
                   new_password: formData.get("new_password"),
                 };
                 resetPassword(datos.email, datos.code as string, datos.new_password as string)
-                  .then(() => alert("Contraseña actualizada correctamente"))
-                  .catch(() => alert("Error al actualizar la contraseña"));
+                  .then(() => toastSuccess("Contraseña actualizada correctamente"))
+                  .catch(() => toastError("Error al actualizar la contraseña"));
               }}
             >
               <div>
@@ -159,11 +168,29 @@ const Perfil: React.FC = () => {
         return (
           <div className={cardClass}>
             <h2 className="text-2xl font-bold text-green-700 mb-6">Editar Información</h2>
+
             <form
               className="space-y-4"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
+
                 const formData = new FormData(e.currentTarget);
+                const requiredFields = [
+                  "username",
+                  "email",
+                  "telefono",
+                  "direccion",
+                  "comuna",
+                  "ciudad",
+                  "codigo_postal",
+                ];
+
+                for (let field of requiredFields) {
+                  if (!formData.get(field)) {
+                    toastError("Por favor completa todos los campos");
+                    return;
+                  }
+                }
                 const datos = {
                   username: formData.get("username"),
                   email: formData.get("email"),
@@ -173,43 +200,116 @@ const Perfil: React.FC = () => {
                   ciudad: formData.get("ciudad"),
                   codigo_postal: formData.get("codigo_postal"),
                 };
-                actualizarPerfil(datos)
-                  .then(() => alert("Información actualizada correctamente"))
-                  .catch(() => alert("Error al actualizar la información"));
+
+                try {
+                  await actualizarPerfil(datos);
+
+                  toastSuccess("Datos actualizados exitosamente");
+                } catch {
+                  toastError("Error al actualizar la información");
+                }
               }}
             >
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre</label>
-                <input name="username" type="text" defaultValue={user.username} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Nombre
+                </label>
+                <input
+                  name="username"
+                  type="text"
+                  required
+                  defaultValue={user.username}
+                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+                />
               </div>
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Correo electrónico</label>
-                <input name="email" type="email" defaultValue={user.email} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Correo electrónico
+                </label>
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  defaultValue={user.email}
+                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+                />
               </div>
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Teléfono</label>
-                <input name="telefono" type="text" defaultValue={user.telefono} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Teléfono
+                </label>
+                <input
+                  name="telefono"
+                  type="number"
+                  required
+                  defaultValue={user.telefono}
+                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+                />
               </div>
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Dirección</label>
-                <input name="direccion" type="text" defaultValue={user.direccion} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Dirección
+                </label>
+                <input
+                  name="direccion"
+                  type="text"
+                  required
+                  defaultValue={user.direccion}
+                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+                />
               </div>
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Comuna</label>
-                <input name="comuna" type="text" defaultValue={user.comuna} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Comuna
+                </label>
+                <input
+                  name="comuna"
+                  type="text"
+                  required
+                  defaultValue={user.comuna}
+                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+                />
               </div>
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Ciudad</label>
-                <input name="ciudad" type="text" defaultValue={user.ciudad} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Ciudad
+                </label>
+                <input
+                  name="ciudad"
+                  type="text"
+                  required
+                  defaultValue={user.ciudad}
+                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+                />
               </div>
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Código Postal</label>
-                <input name="codigo_postal" type="text" defaultValue={user.codigo_postal} className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Código Postal
+                </label>
+                <input
+                  name="codigo_postal"
+                  type="text"
+                  required
+                  defaultValue={user.codigo_postal}
+                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+                />
               </div>
-              <button type="submit" className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded transition duration-200">
+
+              <button
+                type="submit"
+                className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded transition duration-200"
+              >
                 Guardar Cambios
               </button>
             </form>
+
+            <Toaster />
           </div>
         );
       case "orders":

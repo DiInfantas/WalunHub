@@ -1,6 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function Pending() {
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+
+  useEffect(() => {
+    const status = params.get("status");
+
+    // Bloquear acceso directo
+    if (status !== "pending") {
+      navigate("/");
+    }
+  }, []);
+
   return (
     <section className="max-w-xl mx-auto text-center py-20">
       <h2 className="text-3xl font-bold text-yellow-600">Pago pendiente ⏳</h2>
@@ -17,3 +30,4 @@ export default function Pending() {
     </section>
   );
 }
+

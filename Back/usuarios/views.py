@@ -86,8 +86,8 @@ class ResetPasswordView(APIView):
 
         try:
             user = User.objects.get(email=email, key=code)
-            user.password = make_password(new_password)  # encripta la nueva contraseña
-            user.key = None  # limpiar el código
+            user.password = make_password(new_password) 
+            user.key = None 
             user.save()
             return Response({"message": "Contraseña actualizada correctamente"})
         except User.DoesNotExist:
@@ -98,6 +98,26 @@ class RegistroView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = RegistroUsuarioSerializer
     permission_classes = [permissions.AllowAny]
+
+    def perform_create(self, serializer):
+        user = serializer.save() 
+
+        send_mail(
+            subject="Cuenta creada exitosamente",
+            message=(
+                "Hola,\n\n"
+                "Tu cuenta ha sido creada correctamente.\n\n"
+                f"Email registrado: {user.email}\n"
+                f"Usuario: {user.username}\n\n"
+                "Puedes iniciar sesión en el siguiente enlace:\n"
+                "http://localhost:5173/login\n\n"
+                "Ya puedes iniciar sesión cuando quieras.\n\n"
+                "Saludos,\n"
+                "Equipo de soporte WalunHub"
+            ),
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[user.email],
+        )
 
 # Login
 class LoginView(APIView):

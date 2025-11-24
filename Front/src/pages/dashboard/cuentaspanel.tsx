@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../../config/api";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import { toastError, toastSuccess } from "../../interfaces/toast";
 
 interface Usuario {
   id: number;
@@ -14,9 +15,52 @@ interface Usuario {
   es_vendedor: boolean;
 }
 
+interface ModalProps {
+  open: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  onClose: () => void;
+}
+
+function ConfirmModal({ open, title, message, onConfirm, onClose }: ModalProps) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full">
+        <h2 className="text-xl font-bold mb-3">{title}</h2>
+
+        <p className="mb-4">{message}</p>
+
+        <div className="flex gap-3">
+          <button
+            onClick={onConfirm}
+            className="flex-1 bg-green-600 text-white py-2 rounded"
+          >
+            Sí
+          </button>
+
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-500 text-white py-2 rounded"
+          >
+            No
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CuentasPanel() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Estado del modal
+  const [openConfirmModal, setOpenConfirmModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
 
   useEffect(() => {
     cargarUsuarios();
@@ -26,37 +70,47 @@ export default function CuentasPanel() {
     api
       .get("/usuarios/usuarios-admin/")
       .then((res) => setUsuarios(res.data))
-      .catch(() => toast.error("Error al cargar usuarios"))
+      .catch(() => toastError("Error al cargar usuarios"))
       .finally(() => setLoading(false));
   };
 
-  const actualizarVendedor = async (id: number, es_vendedor: boolean) => {
-    const nombre = usuarios.find((u) => u.id === id)?.username || "este usuario";
+  const actualizarVendedor = (id: number, es_vendedor: boolean) => {
+    const nombre =
+      usuarios.find((u) => u.id === id)?.username || "este usuario";
 
-    const confirmar = window.confirm(
-      `¿Estás seguro de que quieres ${es_vendedor ? "dar acceso a" : "revocar acceso de"} ${nombre}?`
+    setModalMessage(
+      `¿Estás seguro de que quieres ${
+        es_vendedor ? "dar acceso a" : "revocar acceso de"
+      } ${nombre}?`
     );
 
-    if (!confirmar) return;
+    // Acción al confirmar
+    setConfirmAction(() => async () => {
+      try {
+        await api.patch(`/usuarios/usuarios-admin/${id}/`, { es_vendedor });
 
-    try {
-      await api.patch(`/usuarios/usuarios-admin/${id}/`, { es_vendedor });
+        toastSuccess(
+          es_vendedor
+            ? `Acceso otorgado a ${nombre}`
+            : `Acceso revocado de ${nombre}`
+        );
 
-      toast.success(
-        es_vendedor
-          ? `Acceso otorgado a ${nombre}`
-          : `Acceso revocado de ${nombre}`
-      );
+        cargarUsuarios();
+      } catch {
+        toastError("Error al actualizar permiso");
+      }
 
-      cargarUsuarios();
-    } catch {
-      toast.error("Error al actualizar permiso");
-    }
+      setOpenConfirmModal(false);
+    });
+
+    setOpenConfirmModal(true);
   };
 
   return (
     <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-yellow-600">
-      <h2 className="text-2xl font-bold text-yellow-700 mb-6">Gestión de Cuentas</h2>
+      <h2 className="text-2xl font-bold text-yellow-700 mb-6">
+        Gestión de Cuentas
+      </h2>
 
       {loading ? (
         <p className="text-gray-600">Cargando usuarios...</p>
@@ -82,7 +136,9 @@ export default function CuentasPanel() {
                 <td className="px-4 py-2">
                   <span
                     className={`px-2 py-1 rounded text-sm font-semibold ${
-                      u.es_vendedor ? "bg-green-200 text-green-700" : "bg-red-200 text-red-700"
+                      u.es_vendedor
+                        ? "bg-green-200 text-green-700"
+                        : "bg-red-200 text-red-700"
                     }`}
                   >
                     {u.es_vendedor ? "Sí" : "No"}
@@ -92,7 +148,9 @@ export default function CuentasPanel() {
                   <button
                     onClick={() => actualizarVendedor(u.id, !u.es_vendedor)}
                     className={`px-3 py-1 rounded text-white ${
-                      u.es_vendedor ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"
+                      u.es_vendedor
+                        ? "bg-red-600 hover:bg-red-700"
+                        : "bg-green-600 hover:bg-green-700"
                     }`}
                   >
                     {u.es_vendedor ? "Revocar acceso" : "Dar acceso"}
@@ -105,6 +163,14 @@ export default function CuentasPanel() {
       )}
 
       <Toaster position="top-center" />
+
+      <ConfirmModal
+        open={openConfirmModal}
+        title="Confirmar acción"
+        message={modalMessage}
+        onConfirm={confirmAction}
+        onClose={() => setOpenConfirmModal(false)}
+      />
     </div>
   );
 }

@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { updatePedidoPago } from "../../config/api";
-import { getPedido } from "../../config/api";
-
+import { updatePedidoPago, getPedido } from "../../config/api";
 
 export default function Success() {
   const [params] = useSearchParams();
@@ -18,21 +16,17 @@ export default function Success() {
       setError(null);
 
       const paymentId = params.get("payment_id");
-      const status = params.get("status"); 
-      let pedidoLocal = localStorage.getItem("ultimo_pedido_id");
+      const status = params.get("status");
+      const pedidoLocal = localStorage.getItem("ultimo_pedido_id");
 
-      if (!paymentId || !status) {
-        setError("Datos de pago incompletos en la URL.");
-        setLoading(false);
+      const estadosValidos = ["approved", "pending", "failure"];
+      if (!paymentId || !status || !estadosValidos.includes(status)) {
+        navigate("/"); 
         return;
       }
 
       if (!pedidoLocal) {
-        setError(
-          "No se encontró el ID del pedido localmente. Guarda este payment_id: " +
-            paymentId
-        );
-        setLoading(false);
+        navigate("/");
         return;
       }
 
@@ -45,8 +39,7 @@ export default function Success() {
         setTicketUrl(pedidoData.ticket_url || null);
 
         localStorage.removeItem("carrito");
-        
-        
+
         setLoading(false);
       } catch (err) {
         console.error("Error actualizando pedido:", err);
@@ -81,9 +74,7 @@ export default function Success() {
     <section className="p-10 text-center">
       {status === "approved" ? (
         <>
-          <h1 className="text-3xl font-bold text-green-600">
-            ¡Pago exitoso!
-          </h1>
+          <h1 className="text-3xl font-bold text-green-600">¡Pago exitoso!</h1>
           <p className="mt-4">Tu pedido fue confirmado.</p>
 
           {pedidoId && (
@@ -94,6 +85,7 @@ export default function Success() {
               Ver mi pedido
             </button>
           )}
+
           {ticketUrl && (
             <a
               href={ticketUrl}
@@ -107,18 +99,12 @@ export default function Success() {
         </>
       ) : status === "pending" ? (
         <>
-          <h1 className="text-3xl font-bold text-yellow-600">
-            Pago pendiente
-          </h1>
-          <p className="mt-4">
-            Cuando se confirme, te avisaremos por correo.
-          </p>
+          <h1 className="text-3xl font-bold text-yellow-600">Pago pendiente</h1>
+          <p className="mt-4">Cuando se confirme, te avisaremos por correo.</p>
         </>
       ) : (
         <>
-          <h1 className="text-3xl font-bold text-red-600">
-            Pago rechazado
-          </h1>
+          <h1 className="text-3xl font-bold text-red-600">Pago rechazado</h1>
           <p className="mt-4">Intenta nuevamente.</p>
         </>
       )}

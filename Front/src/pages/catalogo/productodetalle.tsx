@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react';
 import type { Producto } from '../../interfaces/producto';
 import { api } from '../../config/api';
 import { agregarAlCarrito } from '../carrito/carritoUtils';
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import { toastError, toastSuccess } from "../../interfaces/toast";
+
 
 function ProductoDetalle() {
   const { id } = useParams();
@@ -31,13 +33,13 @@ function ProductoDetalle() {
     if (!producto) return;
 
     if (!disponible) {
-      toast.error("No hay stock disponible");
+      toastError("No hay stock disponible");
       return;
     }
 
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("Debes iniciar sesión para agregar al carrito");
+      toastError("Debes iniciar sesión para agregar al carrito");
       return;
     }
 
@@ -51,7 +53,7 @@ function ProductoDetalle() {
       peso_kg: producto.peso_kg,
     });
 
-    toast.success("Producto agregado al carrito");
+    toastSuccess("Producto agregado al carrito");
   };
 
   if (error) return <p className="text-red-600 text-center mt-10">{error}</p>;
