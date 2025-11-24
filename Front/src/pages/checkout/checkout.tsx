@@ -4,6 +4,7 @@ import { obtenerCarrito } from "../carrito/carritoUtils";
 import { crearPedido, createPreference } from "../../config/api";
 import { Toaster } from "react-hot-toast";
 import { toastError } from "../../interfaces/toast";
+import { getPerfil } from "../../config/api";
 
 
 export default function Checkout() {
@@ -27,6 +28,30 @@ export default function Checkout() {
     setCarrito(obtenerCarrito());
   }, []);
 
+
+  useEffect(() => {
+    const cargarPerfil = async () => {
+      try {
+        const perfil = await getPerfil();
+        if (!perfil) return;
+
+        setForm((f) => ({
+          ...f,
+          nombre: f.nombre || perfil.username || "",
+          direccion: f.direccion || perfil.direccion || "",
+          comuna: f.comuna || perfil.comuna || "",
+          telefono: f.telefono || perfil.telefono || "",
+          email: f.email || perfil.email || "",
+        }));
+      } catch (error) {
+        console.log("No se pudo cargar perfil:", error);
+      }
+    };
+
+    cargarPerfil();
+  }, []);
+
+  
   const total = carrito.reduce(
     (acc, item) => acc + item.precio * item.cantidad,
     0
@@ -44,7 +69,7 @@ export default function Checkout() {
 
   // console.log("carrito:", carrito);
   // console.log("pesoTotal calculado:", pesoTotal);
-  // console.log("🟢 PEDIDO CREADO EN CHECKOUT =>", pedidoCreado);
+  // console.log("🟢PEDIDO CREADO EN CHECKOUT =>", pedidoCreado);
 
   const calcularRangoEnvio = (kg: number) => {
     if (kg <= 0) return null;
@@ -135,6 +160,7 @@ export default function Checkout() {
     );
   };
 
+
   const ejecutarPago = async () => {
     try {
       const pedido = await crearPedido({
@@ -178,7 +204,7 @@ export default function Checkout() {
       toastError("Error al procesar el pago.");
     }
   };
-  
+
   const procesarPago = () => {
     if (!carrito.length) return toastError("El carrito está vacío.");
 
@@ -189,7 +215,7 @@ export default function Checkout() {
       !form.telefono ||
       !form.email
     ) {
-      return toastError("Completa todos los campos del formulario.");  
+      return toastError("Completa todos los campos del formulario.");
     }
 
     if (form.tipo_entrega === "delivery") {
@@ -201,6 +227,7 @@ export default function Checkout() {
     setShowPagoConfirm(true);
     setOnResult(() => ejecutarPago);
   };
+
 
   return (
     <>
@@ -222,7 +249,6 @@ export default function Checkout() {
               value={form.nombre}
               onChange={handleChange}
               className="w-full border-2 border-green-600 p-3 rounded"
-              required
             />
           </div>
 
@@ -234,7 +260,6 @@ export default function Checkout() {
               value={form.telefono}
               onChange={handleChange}
               className="w-full border-2 border-green-600 p-3 rounded"
-              required
             />
           </div>
 
@@ -246,7 +271,6 @@ export default function Checkout() {
               value={form.direccion}
               onChange={handleChange}
               className="w-full border-2 border-green-600 p-3 rounded"
-              required
             />
           </div>
 
@@ -258,7 +282,6 @@ export default function Checkout() {
               value={form.comuna}
               onChange={handleChange}
               className="w-full border-2 border-green-600 p-3 rounded"
-              required
             />
           </div>
 
@@ -270,7 +293,6 @@ export default function Checkout() {
               value={form.email}
               onChange={handleChange}
               className="w-full border-2 border-green-600 p-3 rounded"
-              required
             />
           </div>
 
@@ -343,5 +365,6 @@ export default function Checkout() {
     </>
   );
 }
+
 
 
