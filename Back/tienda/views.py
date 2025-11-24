@@ -1,5 +1,7 @@
 import json
 from decimal import Decimal
+from django.core.mail import send_mail, EmailMultiAlternatives
+from rest_framework import status
 from django.http import JsonResponse
 from rest_framework import generics, permissions, viewsets
 from rest_framework.response import Response
@@ -44,6 +46,67 @@ class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
     permission_classes = [IsAuthenticated]
+
+
+def correopedido(pedido):
+    if not pedido.email:
+        return 
+
+    subject = f"Confirmación de pedido #{pedido.id} - WalunHub"
+    from_email = settings.EMAIL_HOST_USER
+    to = [pedido.email]
+
+    items_html = ""
+    for item in pedido.items.all():
+        items_html += f"""
+            <tr>
+                <td style="padding: 6px 10px;">{item.producto.nombre}</td>
+                <td style="padding: 6px 10px; text-align:center;">{item.cantidad}</td>
+                <td style="padding: 6px 10px;">${item.precio_unitario}</td>
+            </tr>
+        """
+
+    html_content = f"""
+        <h2>Gracias por tu compra 🛒</h2>
+
+        <p>Hola <b>{pedido.nombre}</b>,</p>
+        <p>Tu pedido ha sido recibido correctamente. Aquí tienes los detalles:</p>
+
+        <h3>📦 Pedido #{pedido.id}</h3>
+
+        <table style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background:#f3f3f3;">
+                    <th style="padding: 6px 10px; text-align:left;">Producto</th>
+                    <th style="padding: 6px 10px; text-align:center;">Cantidad</th>
+                    <th style="padding: 6px 10px; text-align:left;">Precio unitario</th>
+                </tr>
+            </thead>
+            <tbody>
+                {items_html}
+            </tbody>
+        </table>
+
+        <p><b>Total pagado:</b> ${pedido.total}</p>
+        <p><b>Método de pago:</b> {pedido.metodo_pago}</p>
+
+        <h3>📍 Datos de entrega</h3>
+        <p>
+            <b>Dirección:</b> {pedido.direccion}<br>
+            <b>Comuna:</b> {pedido.comuna}<br>
+            <b>Teléfono:</b> {pedido.telefono}<br>
+        </p>
+
+        <br>
+
+        <p>Puedes ver tu pedido en tu panel de gestión aquí:<br>
+        <a href="https://26jw2jkc-5173.brs.devtunnels.ms/dashboard">Ir a mi panel de pedidos</a></p>
+
+        <p>Gracias por confiar en <b>WalunHub</b> 💚</p>
+    """
+    msg = EmailMultiAlternatives(subject, "", from_email, to)
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
 
 
 class PedidoCreateView(generics.CreateAPIView):
@@ -166,7 +229,7 @@ def mp_webhook(request):
             info_pago.get("transaction_details", {}).get("external_resource_url")
             or info_pago.get("receipt_url")
         )
-
+        correopedido(pedido)
         # for item in pedido.items.all():
         #     producto = item.producto
         #     producto.stock = max(0, producto.stock - item.cantidad)
