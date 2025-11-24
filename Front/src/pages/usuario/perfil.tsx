@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { actualizarPerfil, getPerfil, requestResetCode, resetPassword, api } from "../../config/api"; // Ajusta la ruta si es necesario
+import { actualizarPerfil, getPerfil, requestResetCode, resetPassword, api } from "../../config/api";
 import { toastError, toastSuccess } from "../../interfaces/toast";
 
 interface SidebarProps {

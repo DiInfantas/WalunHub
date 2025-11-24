@@ -64,7 +64,6 @@ export default function TopBar() {
       });
   }, []);
 
-  // Nuevo logout con modal
   const handleLogout = async () => {
     try {
       await api.post("/usuarios/logout/");

@@ -1,4 +1,3 @@
-// src/router/AppRouter.tsx
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import TopBar from '../components/layout/topbar';
 import MainNav from '../components/layout/mainnav';

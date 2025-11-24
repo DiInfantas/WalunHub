@@ -17,7 +17,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// --- Funciones auxiliares ---
+
 
 // Obtener perfil del usuario autenticado
 export const getPerfil = async () => {

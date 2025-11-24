@@ -57,7 +57,6 @@ export default function CuentasPanel() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Estado del modal
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
@@ -84,7 +83,6 @@ export default function CuentasPanel() {
       } ${nombre}?`
     );
 
-    // Acción al confirmar
     setConfirmAction(() => async () => {
       try {
         await api.patch(`/usuarios/usuarios-admin/${id}/`, { es_vendedor });

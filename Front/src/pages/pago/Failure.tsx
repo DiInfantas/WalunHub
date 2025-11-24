@@ -8,7 +8,6 @@ export default function Failure() {
   useEffect(() => {
     const status = params.get("status");
 
-    // Bloquear acceso directo
     if (status !== "failure") {
       navigate("/");
     }

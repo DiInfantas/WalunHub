@@ -71,7 +71,6 @@ export default function Registro() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Abre el modal antes de registrar
     setModalOpen(true);
   };
 

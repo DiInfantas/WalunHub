@@ -95,7 +95,7 @@ function ProductoDetalle() {
             <span className="text-lg">{cantidad}</span>
 
             <button
-              onClick={() => setCantidad(cantidad + 1)}  // ilimitado
+              onClick={() => setCantidad(cantidad + 1)} 
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
               disabled={!disponible}
             >

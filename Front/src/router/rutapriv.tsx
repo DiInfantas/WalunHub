@@ -1,4 +1,3 @@
-// src/router/RutaPrivada.tsx
 import { Navigate } from "react-router-dom";
 
 export default function RutaPrivada({ children }: { children: JSX.Element }) {

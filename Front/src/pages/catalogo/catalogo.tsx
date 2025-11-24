@@ -14,7 +14,7 @@ export default function Catalogo() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
 
-  // Cargar productos
+
   useEffect(() => {
     fetch(`${API_BASE_URL}/productos/`)
       .then(res => res.json())
@@ -22,7 +22,7 @@ export default function Catalogo() {
       .catch(err => console.error('Error al cargar productos:', err));
   }, []);
 
-  // Cargar categorías
+
   useEffect(() => {
     fetch(`${API_BASE_URL}/categorias/`)
       .then(res => res.json())
@@ -38,7 +38,7 @@ export default function Catalogo() {
     <section className="max-w-7xl mx-auto px-6 py-12">
       <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Nuestro catálogo</h2>
 
-      {/* Filtros */}
+
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-10">
         <div>
           <label className="font-semibold mr-2">Categoría:</label>
@@ -68,7 +68,6 @@ export default function Catalogo() {
         </div>
       </div>
 
-      {/* Tarjetas de productos */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-20 gap-x-10 justify-items-center">
         {productosFiltrados.map(producto => (
           <div key={producto.id} className="w-72 bg-white shadow-md rounded-xl duration-500 hover:scale-105 hover:shadow-xl">

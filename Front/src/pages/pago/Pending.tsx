@@ -8,7 +8,6 @@ export default function Pending() {
   useEffect(() => {
     const status = params.get("status");
 
-    // Bloquear acceso directo
     if (status !== "pending") {
       navigate("/");
     }
