@@ -89,3 +89,13 @@ export const actualizarPerfil = async (datos: any) => {
   const res = await api.put("/usuarios/perfil/actualizar/", datos);
   return res.data;
 };
+
+export const getContactos = async () => {
+  const res = await api.get("/contactos/");
+  return res.data;
+};
+
+export const updateContacto = async (id: number, datos: any) => {
+  const res = await api.patch(`/contactos/${id}/`, datos);
+  return res.data;
+};

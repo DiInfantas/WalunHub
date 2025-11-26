@@ -62,20 +62,11 @@ class PedidoSerializer(serializers.ModelSerializer):
         model = Pedido
         fields = "__all__"
 
-
 class ContactoSerializer(serializers.ModelSerializer):
-    cliente = serializers.StringRelatedField()
-
     class Meta:
         model = Contacto
-        fields = '__all__'
-
-    # def create(self, validated_data):
-    #     items_data = validated_data.pop('items')
-    #     pedido = Pedido.objects.create(**validated_data)
-    #     for item in items_data:
-    #         ItemPedido.objects.create(pedido=pedido, **item)
-    #     return pedido
+        fields = ["id", "cliente", "nombre", "email", "mensaje", "fecha", "respondido"]
+        read_only_fields = ["cliente", "fecha", "nombre", "email"]
 
 class ItemPedidoCreateSerializer(serializers.ModelSerializer):
     producto = serializers.PrimaryKeyRelatedField(queryset=Producto.objects.all())

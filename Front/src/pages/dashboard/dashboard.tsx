@@ -5,6 +5,7 @@ import ProductosPanel from "../dashboard/productospanel";
 import CategoriasPanel from "./categoriaspanel";
 import PedidosPanel from "./pedidospanel";
 import CuentasPanel from "./cuentaspanel";
+import ContactosPanel from "./contactospanel"; // 👈 nuevo
 import { toastError } from "../../interfaces/toast";
 
 interface SidebarProps {
@@ -18,8 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({ active, setActive }) => {
     { id: "pedidos", label: "Pedidos" },
     { id: "categorias", label: "Categorías" },
     { id: "cuentas", label: "Cuentas de clientes" },
-    { id: "reportes", label: "Reportes (Proximamente)" },
-    { id: "logout", label: "Cerrar Sesión" },
+    { id: "contactos", label: "Contactos" }, // 👈 agregado
   ];
 
   return (
@@ -33,10 +33,11 @@ const Sidebar: React.FC<SidebarProps> = ({ active, setActive }) => {
             <button
               key={item.id}
               onClick={() => setActive(item.id)}
-              className={`w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${active === item.id
-                ? "bg-green-600 text-white"
-                : "text-green-100 hover:bg-green-500 hover:text-white"
-                }`}
+              className={`w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                active === item.id
+                  ? "bg-green-600 text-white"
+                  : "text-green-100 hover:bg-green-500 hover:text-white"
+              }`}
             >
               {item.label}
             </button>
@@ -62,13 +63,6 @@ const DashboardDueña: React.FC = () => {
       });
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("es_vendedor");
-    api.post("/usuarios/logout/").catch(() => { });
-    setActive("logout");
-  };
-
   const cardClass =
     "bg-white p-8 rounded-lg shadow-lg border-2 border-green-600";
 
@@ -82,32 +76,16 @@ const DashboardDueña: React.FC = () => {
         return <CategoriasPanel />;
       case "cuentas":
         return <CuentasPanel />;
-      case "reportes":
-        return (
-          <div className={cardClass}>
-            <h2 className="text-2xl font-bold text-green-700 mb-6">Reportes (Proximamente)</h2>
-            <p>Aquí la dueña puede ver estadísticas de ventas y actividad.</p>
-          </div>
-        );
-      case "logout":
+      case "contactos": // 👈 nuevo
+        return <ContactosPanel />;
+      default:
         return (
           <div className={cardClass}>
             <h2 className="text-2xl font-bold text-green-700 mb-6 text-center">
-              Sesión cerrada
+              Selecciona una opción del menú
             </h2>
-            <p className="text-center text-gray-700">
-              Has cerrado sesión. Vuelve al{" "}
-              <a
-                href="/"
-                className="text-green-600 hover:underline font-semibold"
-              >
-                inicio
-              </a>.
-            </p>
           </div>
         );
-      default:
-        return null;
     }
   };
 
@@ -121,16 +99,7 @@ const DashboardDueña: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar
-        active={active}
-        setActive={(section) => {
-          if (section === "logout") {
-            handleLogout();
-          } else {
-            setActive(section);
-          }
-        }}
-      />
+      <Sidebar active={active} setActive={setActive} />
       <main className="flex-1 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold text-green-700 mb-8">
           Panel de gestión de WalunGranel

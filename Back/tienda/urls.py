@@ -6,7 +6,7 @@ from .views import (
     PedidoListView, ProductoDetailView, ProductoListView,
     ProductoViewSet, actualizar_estado_pago, create_payment_preference,
     mp_webhook, listar_estados_pedido, listar_estados_pago,
-    PedidoRetrieveUpdateView  # 👈 vista unificada para GET y PATCH
+    PedidoRetrieveUpdateView, ContactoListView, ContactoUpdateView # 👈 vista unificada para GET y PATCH
 )
 
 router = DefaultRouter()
@@ -30,6 +30,8 @@ urlpatterns = [
 
     # Contacto
     path('api/contacto/enviar/', EnviarContactoView.as_view(), name='enviar-contacto'),
+    path("api/contactos/", ContactoListView.as_view(), name="contacto-list"),
+    path("api/contactos/<int:id>/", ContactoUpdateView.as_view(), name="contacto-update"),
 
     # MercadoPago
     path('api/create_preference/', create_payment_preference),

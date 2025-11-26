@@ -420,3 +420,16 @@ class ImagenProductoViewSet(viewsets.ModelViewSet):
 def listar_estados_pago(request):
     estados = EstadoPago.objects.all().values("id", "nombre")
     return Response(list(estados))
+
+# Listar todos los contactos (solo admin o staff)
+class ContactoListView(generics.ListAPIView):
+    queryset = Contacto.objects.all().order_by("-fecha")
+    serializer_class = ContactoSerializer
+    permission_classes = [IsAuthenticated]
+
+# Actualizar contacto (marcar respondido, editar mensaje)
+class ContactoUpdateView(generics.UpdateAPIView):
+    queryset = Contacto.objects.all()
+    serializer_class = ContactoSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "id"
