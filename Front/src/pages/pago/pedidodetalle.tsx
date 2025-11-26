@@ -79,10 +79,15 @@ export default function PedidoDetalleCliente() {
         <p><strong>Método de pago:</strong> {pedido.metodo_pago}</p>
         <p><strong>Payment ID:</strong> {pedido.payment_id || "—"}</p>
         <p><strong>Fecha:</strong> {new Date(pedido.fecha).toLocaleString()}</p>
-
-        <p className="mt-2">
-          <strong>Código BlueExpress:</strong> [Pendiente] (Esté atento a su correo dentro de 24–48 hrs hábiles)
-        </p>
+        
+        {pedido.tipo_entrega === "delivery" && (
+          <p className="mt-2">
+            <strong>Código BlueExpress:</strong>{" "}
+            {pedido.blue_code
+              ? pedido.blue_code
+              : "[Pendiente] (Esté atento a su correo dentro de 24–48 hrs hábiles)"}
+          </p>
+        )}
 
         {pedido.tipo_entrega === "delivery" && (
           <div className="mt-4">

@@ -60,53 +60,97 @@ def correopedido(pedido):
     for item in pedido.items.all():
         items_html += f"""
             <tr>
-                <td style="padding: 6px 10px;">{item.producto.nombre}</td>
-                <td style="padding: 6px 10px; text-align:center;">{item.cantidad}</td>
-                <td style="padding: 6px 10px;">${item.precio_unitario}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                    {item.producto.nombre}
+                </td>
+                <td style="padding: 10px; text-align:center; border-bottom: 1px solid #eee;">
+                    {item.cantidad}
+                </td>
+                <td style="padding: 10px; text-align:right; border-bottom: 1px solid #eee;">
+                    ${item.precio_unitario}
+                </td>
             </tr>
         """
 
     html_content = f"""
-        <h2>Gracias por tu compra 🛒</h2>
+        <div style="font-family: Arial, sans-serif; max-width: 650px; margin: auto;
+                    padding: 24px; background: #ffffff; border-radius: 12px; 
+                    border: 1px solid #e6e6e6;">
 
-        <p>Hola <b>{pedido.nombre}</b>,</p>
-        <p>Tu pedido ha sido recibido correctamente. Aquí tienes los detalles:</p>
+            <h2 style="color: #0e8a4f; text-align:center; margin-bottom: 25px;">
+                ¡Gracias por tu compra! 🛒
+            </h2>
 
-        <h3>📦 Pedido #{pedido.id}</h3>
+            <p style="font-size: 15px; color:#333;">
+                Hola <b>{pedido.nombre}</b>,<br><br>
+                Hemos recibido tu pedido exitosamente.  
+                Aquí tienes un resumen de tu compra:
+            </p>
 
-        <table style="width:100%; border-collapse: collapse;">
-            <thead>
-                <tr style="background:#f3f3f3;">
-                    <th style="padding: 6px 10px; text-align:left;">Producto</th>
-                    <th style="padding: 6px 10px; text-align:center;">Cantidad</th>
-                    <th style="padding: 6px 10px; text-align:left;">Precio unitario</th>
-                </tr>
-            </thead>
-            <tbody>
-                {items_html}
-            </tbody>
-        </table>
+            <div style="margin: 25px 0; background:#f3fdf6; padding: 15px 20px; 
+                        border-radius: 10px; border:1px solid #c8e6c9;">
+                <h3 style="margin:0; font-size: 18px; color:#0e8a4f;">
+                    📦 Pedido #{pedido.id}
+                </h3>
+            </div>
 
-        <p><b>Total pagado:</b> ${pedido.total}</p>
-        <p><b>Método de pago:</b> {pedido.metodo_pago}</p>
+            <table style="width:100%; border-collapse: collapse; margin-bottom: 25px;">
+                <thead>
+                    <tr style="background:#f3f3f3;">
+                        <th style="padding: 12px; text-align:left;">Producto</th>
+                        <th style="padding: 12px; text-align:center;">Cantidad</th>
+                        <th style="padding: 12px; text-align:right;">Precio unitario</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {items_html}
+                </tbody>
+            </table>
 
-        <h3>📍 Datos de entrega</h3>
-        <p>
-            <b>Dirección:</b> {pedido.direccion}<br>
-            <b>Comuna:</b> {pedido.comuna}<br>
-            <b>Teléfono:</b> {pedido.telefono}<br>
-        </p>
+            <p style="font-size: 16px; margin: 8px 0;">
+                <b>Total pagado:</b> ${pedido.total}
+            </p>
+            <p style="font-size: 15px; margin: 8px 0;">
+                <b>Método de pago:</b> {pedido.metodo_pago}
+            </p>
 
-        <br>
+            <h3 style="color:#0e8a4f; margin-top: 30px;">📍 Datos de entrega</h3>
 
-        <p>Puedes ver tu pedido en tu panel de gestión aquí:<br>
-        <a href="https://26jw2jkc-5173.brs.devtunnels.ms/dashboard">Ir a mi panel de pedidos</a></p>
+            <div style="background:#fafafa; padding: 15px; border-radius: 8px; 
+                        border: 1px solid #eee; margin-bottom: 25px;">
+                <p style="margin: 5px 0; font-size: 15px;">
+                    <b>Dirección:</b> {pedido.direccion}
+                </p>
+                <p style="margin: 5px 0; font-size: 15px;">
+                    <b>Comuna:</b> {pedido.comuna}
+                </p>
+                <p style="margin: 5px 0; font-size: 15px;">
+                    <b>Teléfono:</b> {pedido.telefono}
+                </p>
+            </div>
 
-        <p>Gracias por confiar en <b>WalunHub</b> 💚</p>
+            <div style="text-align:center; margin: 25px 0;">
+                <a href="https://26jw2jkc-5173.brs.devtunnels.ms/perfil"
+                   style="background:#0e8a4f; color:white; padding:12px 25px; 
+                          text-decoration:none; border-radius:8px; font-size:16px;">
+                   Ver mi pedido
+                </a>
+            </div>
+
+            <p style="font-size: 14px; color:#555;">
+                Si tienes dudas, no dudes en contactarnos.
+            </p>
+
+            <p style="font-size: 14px; color:#999; text-align:center; margin-top: 30px;">
+                — Gracias por confiar en <b>WalunHub</b> 💚
+            </p>
+        </div>
     """
+
     msg = EmailMultiAlternatives(subject, "", from_email, to)
     msg.attach_alternative(html_content, "text/html")
     msg.send()
+
 
 
 class PedidoCreateView(generics.CreateAPIView):

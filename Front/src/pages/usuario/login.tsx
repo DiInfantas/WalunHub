@@ -89,6 +89,15 @@ export default function Login() {
                 Recuperar contraseña
               </a>
             </p>
+                        <p className="text-sm text-gray-600">
+              ¿No tienes una cuenta?{" "}
+              <a
+                href="/registro"
+                className="text-green-600 font-semibold hover:underline"
+              >
+                Crear Cuenta
+              </a>
+            </p>
           </div>
         </div>
       </div>
