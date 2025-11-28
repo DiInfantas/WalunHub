@@ -25,7 +25,7 @@ urlpatterns = [
     # Pedidos
     path('api/pedidos/', PedidoCreateView.as_view()),
     path('api/pedidos/mis/', PedidoListView.as_view()),
-    path('api/pedidos/<int:id>/', PedidoRetrieveUpdateView.as_view()),  # ✅ unificada
+    path('api/pedidos/<int:id>/', PedidoRetrieveUpdateView.as_view()),
     path('api/pedidos-admin/', PedidoAdminListView.as_view()),
 
     # Contacto

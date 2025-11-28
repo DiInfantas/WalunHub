@@ -15,14 +15,14 @@ export default function Login() {
       const res = await api.post("/usuarios/login/", { email, password });
       localStorage.setItem("token", res.data.token);
 
-      toastSuccess("✅ Login exitoso");
+      toastSuccess("Login exitoso");
 
       setTimeout(() => {
         window.location.href = "/";
       }, 2000);
     } catch (err: any) {
       console.error(err.response?.data);
-      toastError("❌ Credenciales inválidas");
+      toastError("Credenciales inválidas");
     }
   };
 

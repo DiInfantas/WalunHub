@@ -22,7 +22,7 @@ export default function ForgotPassword() {
 
       setMessage(fullMessage);
 
-      toastSuccess("✅ Código enviado correctamente. Revisa tu correo.");
+      toastSuccess("Código enviado correctamente. Revisa tu correo.");
 
     } catch (err: any) {
       const errorMsg = err.response?.data?.error || "Error al enviar código";
