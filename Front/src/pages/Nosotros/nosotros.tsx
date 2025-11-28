@@ -3,7 +3,6 @@ export default function Nosotros() {
         <section className="pb-16 pt-10 overflow-hidden bg-gray-50 dark:bg-gray-800 sm:pt-16">
             <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
                 <div className="grid items-center grid-cols-1 md:grid-cols-2 gap-12">
-                    {/* Texto izquierdo */}
                     <div>
                         <h2 className="text-3xl font-bold leading-tight text-black dark:text-white sm:text-4xl lg:text-5xl">
                             Nuestra historia 🌱
@@ -31,7 +30,6 @@ export default function Nosotros() {
                         </p>
                     </div>
 
-                    {/* Texto tipo Hero a la derecha */}
                     <div className="text-center md:text-right">
                         <span className="w-20 h-2 bg-gray-800 dark:bg-white mb-6 inline-block" />
                         <h1 className="uppercase text-6xl sm:text-7xl font-black leading-none text-gray-800 dark:text-white">

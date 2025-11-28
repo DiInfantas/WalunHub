@@ -4,7 +4,6 @@ import { api } from "../../config/api";
 import { Toaster } from "react-hot-toast";
 import { toastError, toastSuccess } from "../../interfaces/toast";
 
-
 interface Pedido {
   id: number;
   nombre: string;
@@ -12,8 +11,8 @@ interface Pedido {
   comuna: string;
   telefono: string;
   email: string;
-  estado: string;
-  estado_pago: string;
+  estado: number | string;
+  estado_pago: number | string;
   metodo_pago: string;
   payment_id: string;
   fecha: string;
@@ -42,37 +41,36 @@ export default function PedidoDetalleAdmin() {
 
   const [pedido, setPedido] = useState<Pedido | null>(null);
   const [loading, setLoading] = useState(true);
+
   const [estadosPedido, setEstadosPedido] = useState<{ id: number; nombre: string }[]>([]);
   const [estadosPago, setEstadosPago] = useState<{ id: number; nombre: string }[]>([]);
+
+  const [estadoID, setEstadoID] = useState<number | "">("");
+  const [estadoPagoID, setEstadoPagoID] = useState<number | "">("");
+
   const [blueCodeTemp, setBlueCodeTemp] = useState("");
   const [mostrarModal, setMostrarModal] = useState(false);
 
+  const [campoPendiente, setCampoPendiente] = useState<null | {
+    campo: "estado" | "estado_pago";
+    id: number;
+    nombre: string;
+  }>(null);
+
+  const [mostrarModalEstado, setMostrarModalEstado] = useState(false);
 
   useEffect(() => {
     api
       .get("/usuarios/panel/")
-      .then(() => {
-        cargarPedido();
-        cargarEstados();
+      .then(async () => {
+        await cargarEstados();
+        await cargarPedido();
       })
       .catch(() => {
         toastError("Acceso restringido: solo cuentas autorizadas pueden ver esta página.");
         navigate("/");
       });
-  }, [id]);
-
-  const cargarPedido = async () => {
-    try {
-      const res = await api.get(`/pedidos/${id}/`);
-      setPedido(res.data);
-
-      setBlueCodeTemp(res.data.blue_code || "");
-    } catch {
-      toastError("Error al cargar el pedido");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [id, navigate]);
 
   const cargarEstados = async () => {
     try {
@@ -87,16 +85,36 @@ export default function PedidoDetalleAdmin() {
     }
   };
 
-  const actualizarCampo = async (campo: "estado" | "estado_pago" | "blue_code", valor: string) => {
-    if (!pedido) return;
+  const cargarPedido = async () => {
     try {
-      await api.patch(`/pedidos/${pedido.id}/`, { [campo]: valor });
-      toastSuccess(`Campo actualizado: ${campo}`);
-      cargarPedido();
+      const res = await api.get(`/pedidos/${id}/`);
+      const data = res.data;
+
+      setPedido(data);
+      setBlueCodeTemp(data.blue_code || "");
     } catch {
-      toastError(`Error al actualizar ${campo}`);
+      toastError("Error al cargar el pedido");
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!pedido || estadosPedido.length === 0 || estadosPago.length === 0) return;
+
+    const eId =
+      typeof pedido.estado === "number"
+        ? pedido.estado
+        : estadosPedido.find((s) => s.nombre === pedido.estado)?.id ?? "";
+
+    const pId =
+      typeof pedido.estado_pago === "number"
+        ? pedido.estado_pago
+        : estadosPago.find((s) => s.nombre === pedido.estado_pago)?.id ?? "";
+
+    setEstadoID(eId);
+    setEstadoPagoID(pId);
+  }, [pedido, estadosPedido, estadosPago]);
 
   const guardarBlueCode = async () => {
     if (!pedido) return;
@@ -110,6 +128,38 @@ export default function PedidoDetalleAdmin() {
     }
 
     setMostrarModal(false);
+  };
+
+  const abrirModalCambio = (campo: "estado" | "estado_pago", idValor: number) => {
+    const nombre =
+      campo === "estado"
+        ? estadosPedido.find((e) => e.id === idValor)?.nombre || ""
+        : estadosPago.find((e) => e.id === idValor)?.nombre || "";
+
+    setCampoPendiente({ campo, id: idValor, nombre });
+    setMostrarModalEstado(true);
+  };
+
+  const confirmarCambioEstado = async () => {
+    if (!pedido || !campoPendiente) return;
+
+    try {
+      await api.patch(`/pedidos/${pedido.id}/`, { [campoPendiente.campo]: campoPendiente.id });
+
+      setPedido((prev) =>
+        prev ? { ...prev, [campoPendiente.campo]: campoPendiente.nombre } : prev
+      );
+
+      if (campoPendiente.campo === "estado") setEstadoID(campoPendiente.id);
+      if (campoPendiente.campo === "estado_pago") setEstadoPagoID(campoPendiente.id);
+
+      toastSuccess("Cambio aplicado correctamente");
+    } catch {
+      toastError("Error al aplicar el cambio");
+    } finally {
+      setCampoPendiente(null);
+      setMostrarModalEstado(false);
+    }
   };
 
   if (loading) {
@@ -149,16 +199,16 @@ export default function PedidoDetalleAdmin() {
               className="border px-3 py-2 rounded w-full bg-gray-100"
             />
           </div>
-
           <div className="mb-3">
             <label className="block font-medium mb-1">Estado del pedido</label>
             <select
-              value={pedido.estado || ""}
-              onChange={(e) => actualizarCampo("estado", e.target.value)}
+              value={estadoID}
+              onChange={(e) => abrirModalCambio("estado", Number(e.target.value))}
               className="border px-3 py-2 rounded w-full"
             >
+              <option value="">Seleccione...</option>
               {estadosPedido.map((estado) => (
-                <option key={estado.id} value={estado.nombre}>
+                <option key={estado.id} value={estado.id}>
                   {estado.nombre}
                 </option>
               ))}
@@ -168,12 +218,13 @@ export default function PedidoDetalleAdmin() {
           <div className="mb-3">
             <label className="block font-medium mb-1">Estado de pago</label>
             <select
-              value={pedido.estado_pago || ""}
-              onChange={(e) => actualizarCampo("estado_pago", e.target.value)}
+              value={estadoPagoID}
+              onChange={(e) => abrirModalCambio("estado_pago", Number(e.target.value))}
               className="border px-3 py-2 rounded w-full"
             >
+              <option value="">Seleccione...</option>
               {estadosPago.map((estado) => (
-                <option key={estado.id} value={estado.nombre}>
+                <option key={estado.id} value={estado.id}>
                   {estado.nombre}
                 </option>
               ))}
@@ -214,9 +265,42 @@ export default function PedidoDetalleAdmin() {
           <p><strong>Fecha:</strong> {new Date(pedido.fecha).toLocaleString()}</p>
         </div>
       </div>
+      {mostrarModalEstado && campoPendiente && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-96">
+            <h2 className="text-lg font-bold mb-3">Confirmar actualización</h2>
+            <p className="mb-4">
+              ¿Deseas actualizar{" "}
+              <strong>
+                {campoPendiente.campo === "estado" ? "Estado del pedido" : "Estado de pago"}
+              </strong>{" "}
+              a:<br />
+              <strong className="text-green-700">{campoPendiente.nombre}</strong>?
+            </p>
 
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setMostrarModalEstado(false);
+                  setCampoPendiente(null);
+                }}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={confirmarCambioEstado}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {mostrarModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow-lg w-96">
             <h2 className="text-lg font-bold mb-3">Confirmar Código BlueExpress</h2>
             <p className="mb-4">
@@ -235,7 +319,7 @@ export default function PedidoDetalleAdmin() {
 
               <button
                 onClick={guardarBlueCode}
-                className="px-4 py-2 bg-green-600 rounded hover:bg-green-700"
+                className="px-4 py-2 bg-green-600 rounded hover:bg-green-700 text-white"
               >
                 Aceptar
               </button>
@@ -244,7 +328,7 @@ export default function PedidoDetalleAdmin() {
         </div>
       )}
 
-      <div className="bg-white shadow rounded-lg p-5">
+      <div className="bg-white shadow rounded-lg p-5 mt-6">
         <h2 className="text-2xl font-semibold mb-4">Productos del pedido</h2>
 
         <div className="space-y-4">
@@ -284,3 +368,8 @@ export default function PedidoDetalleAdmin() {
     </section>
   );
 }
+
+
+
+
+

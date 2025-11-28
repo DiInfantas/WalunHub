@@ -5,7 +5,7 @@ import ProductosPanel from "../dashboard/productospanel";
 import CategoriasPanel from "./categoriaspanel";
 import PedidosPanel from "./pedidospanel";
 import CuentasPanel from "./cuentaspanel";
-import ContactosPanel from "./contactospanel"; // 👈 nuevo
+import ContactosPanel from "./contactospanel";
 import { toastError } from "../../interfaces/toast";
 
 interface SidebarProps {
@@ -19,7 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({ active, setActive }) => {
     { id: "pedidos", label: "Pedidos" },
     { id: "categorias", label: "Categorías" },
     { id: "cuentas", label: "Cuentas de clientes" },
-    { id: "contactos", label: "Contactos" }, // 👈 agregado
+    { id: "contactos", label: "Contactos" }, 
   ];
 
   return (
@@ -76,7 +76,7 @@ const DashboardDueña: React.FC = () => {
         return <CategoriasPanel />;
       case "cuentas":
         return <CuentasPanel />;
-      case "contactos": // 👈 nuevo
+      case "contactos":
         return <ContactosPanel />;
       default:
         return (

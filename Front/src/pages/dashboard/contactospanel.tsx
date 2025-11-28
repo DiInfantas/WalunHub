@@ -80,7 +80,6 @@ export default function ContactosPanel() {
     <div className="bg-white p-6 rounded-lg shadow-lg border-2 border-green-600">
       <h2 className="text-2xl font-bold text-green-700 mb-6">📩 Contactos</h2>
 
-      {/* Filtro */}
       <div className="flex gap-3 mb-4">
         <button
           onClick={() => setFilter("todos")}
@@ -141,7 +140,6 @@ export default function ContactosPanel() {
         ))}
       </ul>
 
-      {/* Modal de confirmación */}
       <Modal
         open={modalOpen}
         title="Confirmar acción"

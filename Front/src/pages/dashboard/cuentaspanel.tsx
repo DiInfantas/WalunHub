@@ -105,8 +105,8 @@ export default function CuentasPanel() {
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-yellow-600">
-      <h2 className="text-2xl font-bold text-yellow-700 mb-6">
+    <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-green-600">
+      <h2 className="text-2xl font-bold text-green-700 mb-6">
         Gestión de Cuentas
       </h2>
 
@@ -115,7 +115,7 @@ export default function CuentasPanel() {
       ) : (
         <table className="w-full table-auto border-collapse">
           <thead>
-            <tr className="bg-yellow-100 text-yellow-700">
+            <tr className="bg-green-100 text-green-700">
               <th className="px-4 py-2 text-left">Nombre</th>
               <th className="px-4 py-2 text-left">Email</th>
               <th className="px-4 py-2 text-left">Teléfono</th>

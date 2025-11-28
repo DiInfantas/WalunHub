@@ -26,7 +26,6 @@ export default function Contacto() {
     <main>
       <Toaster position="top-right" />
 
-      {/* Encabezado */}
       <header className="bg-green-700 text-white text-center py-12">
         <h1 className="text-4xl font-bold mt-16">Contáctanos</h1>
       </header>

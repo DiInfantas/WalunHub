@@ -15,7 +15,6 @@ const Sidebar: React.FC<SidebarProps> = ({ active, setActive }) => {
     { id: "password", label: "Cambiar Clave" },
     { id: "edit", label: "Editar Información" },
     { id: "orders", label: "Tus Pedidos" },
-    { id: "logout", label: "Cerrar Sesión" },
   ];
 
   return (
@@ -29,10 +28,9 @@ const Sidebar: React.FC<SidebarProps> = ({ active, setActive }) => {
             <button
               key={item.id}
               onClick={() => setActive(item.id)}
-              className={`w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${active === item.id
-                  ? "bg-green-600 text-white"
-                  : "text-green-100 hover:bg-green-500 hover:text-white"
-                }`}
+              className={`w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                active === item.id ? "bg-green-600 text-white" : "text-green-100 hover:bg-green-500 hover:text-white"
+              }`}
             >
               {item.label}
             </button>
@@ -48,6 +46,10 @@ const Perfil: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [pedidos, setPedidos] = useState<any[]>([]);
   const navigate = useNavigate();
+
+  const [showModal, setShowModal] = useState(false);
+
+  const [formDataTemp, setFormDataTemp] = useState<any>(null);
 
   useEffect(() => {
     getPerfil()
@@ -76,6 +78,45 @@ const Perfil: React.FC = () => {
     );
   }
 
+  const confirmarGuardado = async () => {
+    if (!formDataTemp) return;
+
+    try {
+      await actualizarPerfil(formDataTemp);
+      setShowModal(false);
+      toastSuccess("Datos actualizados correctamente");
+      setTimeout(() => {
+        window.location.href = "/perfil";
+      }, 1200);
+    } catch {
+      toastError("Error al actualizar la información");
+    }
+  };
+
+  const ModalConfirmacion = () => (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-lg w-96 text-center shadow-xl border-2 border-green-600">
+        <h2 className="text-xl font-bold text-green-700 mb-4">Confirmar cambios</h2>
+        <p className="mb-6">¿Estás seguro de guardar estos cambios?</p>
+
+        <div className="flex justify-between">
+          <button
+            onClick={() => setShowModal(false)}
+            className="px-6 py-2 bg-red-300 text-gray-700 rounded hover:bg-red-400"
+          >
+            No
+          </button>
+          <button
+            onClick={confirmarGuardado}
+            className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          >
+            Sí, guardar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderContent = () => {
     switch (active) {
       case "info":
@@ -93,12 +134,13 @@ const Perfil: React.FC = () => {
             <p><strong>Código Postal:</strong> {user.codigo_postal}</p>
           </div>
         );
+
       case "password":
         return (
           <div className={cardClass}>
             <h2 className="text-2xl font-bold text-green-700 mb-6">Cambiar Clave</h2>
             <p className="mb-6 text-gray-700">
-              Para cambiar tu contraseña, primero debes solicitar un código de verificación que será enviado a tu correo electrónico. Luego, ingresa ese código junto con tu nueva contraseña.
+              Para cambiar tu contraseña, primero debes solicitar un código...
             </p>
 
             <div className="space-y-4 mb-8">
@@ -116,7 +158,7 @@ const Perfil: React.FC = () => {
                     .then(() => toastSuccess("Código enviado a tu correo"))
                     .catch(() => toastError("Error al enviar el código"));
                 }}
-                className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded transition duration-200"
+                className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded"
               >
                 Solicitar Código
               </button>
@@ -126,44 +168,33 @@ const Perfil: React.FC = () => {
               className="space-y-4"
               onSubmit={(e) => {
                 e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const datos = {
-                  email: user.email,
-                  code: formData.get("code"),
-                  new_password: formData.get("new_password"),
-                };
-                resetPassword(datos.email, datos.code as string, datos.new_password as string)
+                const fd = new FormData(e.currentTarget);
+
+                resetPassword(user.email, fd.get("code") as string, fd.get("new_password") as string)
                   .then(() => toastSuccess("Contraseña actualizada correctamente"))
                   .catch(() => toastError("Error al actualizar la contraseña"));
               }}
             >
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Código de verificación</label>
-                <input
-                  name="code"
-                  type="text"
-                  placeholder="Ingresa el código recibido por correo"
-                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-                />
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Código</label>
+                <input name="code" type="text" className="w-full p-4 border-2 border-green-600 rounded" />
               </div>
+
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Nueva contraseña</label>
-                <input
-                  name="new_password"
-                  type="password"
-                  placeholder="Ingresa tu nueva contraseña"
-                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-                />
+                <input name="new_password" type="password" className="w-full p-4 border-2 border-green-600 rounded" />
               </div>
+
               <button
                 type="submit"
-                className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded transition duration-200"
+                className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded"
               >
                 Cambiar Clave
               </button>
             </form>
           </div>
         );
+
       case "edit":
         return (
           <div className={cardClass}>
@@ -171,151 +202,79 @@ const Perfil: React.FC = () => {
 
             <form
               className="space-y-4"
-              onSubmit={async (e) => {
+              onSubmit={(e) => {
                 e.preventDefault();
 
-                const formData = new FormData(e.currentTarget);
-                const requiredFields = [
-                  "username",
-                  "email",
-                  "telefono",
-                  "direccion",
-                  "comuna",
-                  "ciudad",
-                  "codigo_postal",
-                ];
+                const fd = new FormData(e.currentTarget);
 
-                for (let field of requiredFields) {
-                  if (!formData.get(field)) {
-                    toastError("Por favor completa todos los campos");
-                    return;
-                  }
-                }
                 const datos = {
-                  username: formData.get("username"),
-                  email: formData.get("email"),
-                  telefono: formData.get("telefono"),
-                  direccion: formData.get("direccion"),
-                  comuna: formData.get("comuna"),
-                  ciudad: formData.get("ciudad"),
-                  codigo_postal: formData.get("codigo_postal"),
+                  username: fd.get("username"),
+                  email: fd.get("email"),
+                  telefono: fd.get("telefono"),
+                  direccion: fd.get("direccion"),
+                  comuna: fd.get("comuna"),
+                  ciudad: fd.get("ciudad"),
+                  codigo_postal: fd.get("codigo_postal"),
                 };
 
-                try {
-                  await actualizarPerfil(datos);
-
-                  toastSuccess("Datos actualizados exitosamente");
-                } catch {
-                  toastError("Error al actualizar la información");
-                }
+                setFormDataTemp(datos);
+                setShowModal(true);
               }}
             >
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Nombre
-                </label>
-                <input
-                  name="username"
-                  type="text"
-                  required
-                  defaultValue={user.username}
-                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-                />
+                <label className="block text-sm">Nombre</label>
+                <input name="username" defaultValue={user.username} className="w-full p-4 border-2 border-green-600" />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Correo electrónico
-                </label>
-                <input
-                  name="email"
-                  type="email"
-                  required
-                  defaultValue={user.email}
-                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-                />
+                <label className="block text-sm">Correo</label>
+                <input name="email" type="email" defaultValue={user.email} className="w-full p-4 border-2 border-green-600" />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Teléfono
-                </label>
-                <input
-                  name="telefono"
-                  type="number"
-                  required
-                  defaultValue={user.telefono}
-                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-                />
+                <label className="block text-sm">Teléfono</label>
+                <input name="telefono" defaultValue={user.telefono} className="w-full p-4 border-2 border-green-600" />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Dirección
-                </label>
-                <input
-                  name="direccion"
-                  type="text"
-                  required
-                  defaultValue={user.direccion}
-                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-                />
+                <label className="block text-sm">Dirección</label>
+                <input name="direccion" defaultValue={user.direccion} className="w-full p-4 border-2 border-green-600" />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Comuna
-                </label>
-                <input
-                  name="comuna"
-                  type="text"
-                  required
-                  defaultValue={user.comuna}
-                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-                />
+                <label className="block text-sm">Comuna</label>
+                <input name="comuna" defaultValue={user.comuna} className="w-full p-4 border-2 border-green-600" />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Ciudad
-                </label>
-                <input
-                  name="ciudad"
-                  type="text"
-                  required
-                  defaultValue={user.ciudad}
-                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-                />
+                <label className="block text-sm">Ciudad</label>
+                <input name="ciudad" defaultValue={user.ciudad} className="w-full p-4 border-2 border-green-600" />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Código Postal
-                </label>
-                <input
-                  name="codigo_postal"
-                  type="text"
-                  required
-                  defaultValue={user.codigo_postal}
-                  className="w-full p-4 border-2 border-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-                />
+                <label className="block text-sm">Código Postal</label>
+                <input name="codigo_postal" defaultValue={user.codigo_postal} className="w-full p-4 border-2 border-green-600" />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded transition duration-200"
+                className="w-full py-3 px-6 text-white font-bold bg-green-600 hover:bg-green-700 rounded"
               >
                 Guardar Cambios
               </button>
             </form>
 
+            {showModal && <ModalConfirmacion />}
+
             <Toaster />
           </div>
         );
+
       case "orders":
         return (
           <div className={cardClass}>
             <h2 className="text-2xl font-bold text-green-700 mb-6">Tus Pedidos</h2>
+
             <div className="overflow-x-auto">
               <table className="min-w-full border-2 border-green-600 rounded">
                 <thead className="bg-green-100">
@@ -329,6 +288,7 @@ const Perfil: React.FC = () => {
                     <th className="px-4 py-2 text-green-700">Acciones</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {pedidos.map((p) => (
                     <tr key={p.id} className="border-t">
@@ -349,36 +309,29 @@ const Perfil: React.FC = () => {
                     </tr>
                   ))}
                 </tbody>
+
               </table>
             </div>
           </div>
         );
-      case "logout":
-        return (
-          <div className={cardClass}>
-            <h2 className="text-2xl font-bold text-green-700 mb-6 text-center">Sesión cerrada</h2>
-            <p className="text-center text-gray-700">
-              Has cerrado sesión. Vuelve al{" "}
-              <a href="/" className="text-green-600 hover:underline font-semibold">
-                Home
-              </a>.
-            </p>
-          </div>
-        );
+
       default:
         return null;
     }
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100">
       <Sidebar active={active} setActive={setActive} />
       <main className="flex-1 p-8">
         <h1 className="text-3xl font-bold text-green-700 mb-8">
           Bienvenido, {user.username} a tu panel de gestión de cuenta!
         </h1>
+
         {renderContent()}
       </main>
+
+      <Toaster position="top-center" />
     </div>
   );
 };

@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "../../config/api";
 import { Toaster } from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { toastError, toastSuccess } from "../../interfaces/toast";
-
+import { toastError} from "../../interfaces/toast";
 
 interface Pedido {
   id: number;
@@ -69,43 +68,13 @@ export default function PedidosPanel() {
       .catch(() => toastError("Error al cargar estados de pago"));
   };
 
-  const cambiarEstado = async (id: number, nuevoEstado: string) => {
-    try {
-      await api.patch(`/pedidos/${id}/`, { estado: nuevoEstado });
-      toastSuccess("Estado actualizado");
-      cargarPedidos();
-    } catch {
-      toastError("Error al actualizar estado");
-    }
-  };
-
-  const cambiarEstadoPago = async (id: number, nuevoEstado: string) => {
-    try {
-      await api.patch(`/pedidos/${id}/`, { estado_pago: nuevoEstado });
-      toastSuccess("Estado de pago actualizado");
-      cargarPedidos();
-    } catch {
-      toastError("Error al actualizar estado de pago");
-    }
-  };
-
-  // const actualizarBlueCode = async (id: number, valor: string) => {
-  //   try {
-  //     await api.patch(`/pedidos/${id}/`, { blue_code: valor });
-  //     toastSuccess("Código actualizado");
-  //     cargarPedidos();
-  //   } catch {
-  //     toastError("Error al actualizar código");
-  //   }
-  // };
-
   const pedidosPorEstado: { [estado: string]: Pedido[] } = {};
   pedidos.forEach((p) => {
-    const estado = p.estado || "Sin estado";
-    if (!pedidosPorEstado[estado]) {
-      pedidosPorEstado[estado] = [];
+    const estadoAgrupado = p.estado || "Sin estado";
+    if (!pedidosPorEstado[estadoAgrupado]) {
+      pedidosPorEstado[estadoAgrupado] = [];
     }
-    pedidosPorEstado[estado].push(p);
+    pedidosPorEstado[estadoAgrupado].push(p);
   });
 
   const colorMap: Record<string, string> = {
@@ -139,7 +108,7 @@ export default function PedidosPanel() {
           onChange={(e) => setFiltros({ ...filtros, estado: e.target.value })}
           className="border px-3 py-2 rounded w-60"
         >
-          <option value="">Todos los estados</option>
+          <option value="">Todos los estados pedido</option>
           {estadosDisponibles.map((estado) => (
             <option key={estado.id} value={estado.nombre}>
               {estado.nombre}
@@ -181,6 +150,7 @@ export default function PedidosPanel() {
         <table className="w-full table-auto border-collapse">
           <thead>
             <tr className="bg-green-100 text-green-700">
+              <th className="px-4 py-2 text-left">ID</th>
               <th className="px-4 py-2 text-left">Cliente</th>
               <th className="px-4 py-2 text-left">Teléfono</th>
               <th className="px-4 py-2 text-left">Total</th>
@@ -191,58 +161,43 @@ export default function PedidosPanel() {
               <th className="px-4 py-2 text-left">Acciones</th>
             </tr>
           </thead>
+
           {Object.entries(pedidosPorEstado).map(([estado, grupo]) => {
             const colorClass = colorMap[estado] || "bg-gray-100 text-gray-800";
+
             return (
               <tbody key={estado}>
                 <tr>
-                  <td colSpan={8} className={`font-semibold px-4 py-2 ${colorClass}`}>
+                  <td colSpan={8} className={`font-bold text-lg text-black px-4 py-1 ${colorClass}`}>
                     Estado: {estado}
                   </td>
                 </tr>
+
                 {grupo.map((p) => (
                   <tr key={p.id} className="border-b">
+                    <td className="px-4 py-2">{p.id}</td>
                     <td className="px-4 py-2">{p.nombre}</td>
                     <td className="px-4 py-2">{p.telefono}</td>
                     <td className="px-4 py-2">${p.total}</td>
                     <td className="px-4 py-2">{p.metodo_pago}</td>
+
                     <td className="px-4 py-2">
-                      <select
+                      <input
+                        type="text"
                         value={p.estado_pago}
-                        onChange={(e) => cambiarEstadoPago(p.id, e.target.value)}
-                        className="border border-gray-300 rounded px-2 py-1"
-                      >
-                        {estadosPago.map((estado) => (
-                          <option key={estado.id} value={estado.nombre}>
-                            {estado.nombre}
-                          </option>
-                        ))}
-                      </select>
+                        readOnly
+                        className="border px-2 py-1 rounded w-full bg-gray-100 cursor-not-allowed"
+                      />
                     </td>
+
                     <td className="px-4 py-2 capitalize">{p.tipo_entrega}</td>
-                    {/* <td className="px-4 py-2">
-                      {p.tipo_entrega === "delivery" ? (
-                        <input
-                          type="text"
-                          value={p.blue_code || ""}
-                          onChange={(e) => actualizarBlueCode(p.id, e.target.value)}
-                          className="border px-2 py-1 rounded w-full"
-                        />
-                      ) : (
-                        <input
-                          type="text"
-                          value="No aplica"
-                          disabled
-                          className="border px-2 py-1 rounded w-full bg-gray-100 text-gray-500 cursor-not-allowed"
-                        />
-                      )}
-                    </td> */}
+
                     <td className="px-4 py-2">
                       {p.tipo_entrega === "delivery" ? (
                         <input
                           type="text"
                           value={p.blue_code || ""}
-                          readOnly   
+                          readOnly
                           className="border px-2 py-1 rounded w-full bg-gray-100 cursor-not-allowed"
                         />
                       ) : (
@@ -254,18 +209,16 @@ export default function PedidosPanel() {
                         />
                       )}
                     </td>
+
                     <td className="px-4 py-2 space-y-2">
-                      <select
+
+                      <input
+                        type="text"
                         value={p.estado}
-                        onChange={(e) => cambiarEstado(p.id, e.target.value)}
-                        className="border border-gray-300 rounded px-2 py-1 w-full"
-                      >
-                        {estadosDisponibles.map((estado) => (
-                          <option key={estado.id} value={estado.nombre}>
-                            {estado.nombre}
-                          </option>
-                        ))}
-                      </select>
+                        readOnly
+                        className="border px-2 py-1 rounded w-full bg-gray-100 cursor-not-allowed"
+                      />
+
                       <Link
                         to={`/admin/pedidos/${p.id}`}
                         className="block text-green-600 hover:underline text-sm mt-1"
