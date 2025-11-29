@@ -56,8 +56,13 @@ function ProductoDetalle() {
   const handleAddToCart = () => {
     if (!producto) return;
 
-    if (!disponible) {
+    if (producto.stock === 0) {
       toastError("No hay stock disponible");
+      return;
+    }
+
+    if (cantidad > producto.stock) {
+      toastError(`Solo quedan ${producto.stock} unidades disponibles`);
       return;
     }
 
@@ -112,7 +117,9 @@ function ProductoDetalle() {
           <p className="text-3xl font-bold text-green-700 mb-3">${producto.precio}</p>
 
           <p className="text-sm text-gray-600 mb-5">
-            {disponible ? "Hay stock disponible" : "Sin stock disponible"}
+            {disponible
+              ? `Hay ${producto.stock} unidades disponibles`
+              : "Sin stock disponible"}
           </p>
 
           <div className="flex items-center gap-3 mb-6">
@@ -127,9 +134,13 @@ function ProductoDetalle() {
             <span className="text-xl font-semibold">{cantidad}</span>
 
             <button
-              onClick={() => setCantidad(cantidad + 1)}
+              onClick={() => {
+                if (cantidad < producto.stock) {
+                  setCantidad(cantidad + 1);
+                }
+              }}
               className="px-3 py-1 bg-gray-200 rounded text-xl disabled:opacity-50"
-              disabled={!disponible}
+              disabled={!disponible || cantidad >= producto.stock}
             >
               +
             </button>
@@ -138,10 +149,11 @@ function ProductoDetalle() {
           <button
             onClick={handleAddToCart}
             disabled={!disponible}
-            className={`w-full py-3 rounded-xl text-white font-semibold text-lg transition ${!disponible
+            className={`w-full py-3 rounded-xl text-white font-semibold text-lg transition ${
+              !disponible
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-green-600 hover:bg-green-700 shadow-md"
-              }`}
+            }`}
           >
             {disponible ? "Agregar al carrito" : "Sin stock"}
           </button>
@@ -185,7 +197,6 @@ function ProductoDetalle() {
                 </div>
 
                 <div className="flex flex-col flex-1 mt-3">
-
                   <h3 className="font-semibold text-gray-900 text-lg truncate h-6">
                     {p.nombre}
                   </h3>
@@ -210,7 +221,6 @@ function ProductoDetalle() {
                   </a>
                 </div>
               </div>
-
             ))}
           </div>
         </section>

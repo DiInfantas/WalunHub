@@ -16,11 +16,16 @@ export default function Carrito() {
   }, []);
 
   const actualizarCantidad = (id: number, cantidad: number) => {
-    const actualizado = carrito.map((item) =>
-      item.id === id
-        ? { ...item, cantidad: Math.max(1, cantidad) }
-        : item
-    );
+    const actualizado = carrito.map((item) => {
+      if (item.id !== id) return item;
+
+      const nuevaCantidad = Math.min(
+        Math.max(1, cantidad), 
+        item.stock
+      );
+
+      return { ...item, cantidad: nuevaCantidad };
+    });
 
     setCarrito(actualizado);
     guardarCarrito(actualizado);
@@ -66,10 +71,15 @@ export default function Carrito() {
               <h3 className="text-lg font-semibold">{item.nombre}</h3>
               <p className="text-sm text-gray-600">${item.precio} /kg</p>
 
+              <p className="text-xs text-gray-500 mt-1">
+                Stock disponible: {item.stock}
+              </p>
+
               <div className="flex justify-center sm:justify-start items-center mt-3 gap-2">
+
                 <button
                   onClick={() => actualizarCantidad(item.id, item.cantidad - 1)}
-                  className="px-3 py-1 bg-gray-200 rounded text-lg"
+                  className="px-3 py-1 bg-gray-200 rounded text-lg disabled:opacity-50"
                   disabled={item.cantidad <= 1}
                 >
                   −
@@ -79,7 +89,8 @@ export default function Carrito() {
 
                 <button
                   onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}
-                  className="px-3 py-1 bg-gray-200 rounded text-lg"
+                  className="px-3 py-1 bg-gray-200 rounded text-lg disabled:opacity-50"
+                  disabled={item.cantidad >= item.stock}
                 >
                   +
                 </button>
@@ -126,3 +137,4 @@ export default function Carrito() {
     </section>
   );
 }
+

@@ -72,6 +72,7 @@ export default function TopBar() {
     localStorage.removeItem("token");
     setUsername(null);
     setEsVendedor(false);
+    localStorage.removeItem("carrito");
     navigate("/login");
   };
 

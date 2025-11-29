@@ -277,7 +277,7 @@ def mp_webhook(request):
 
         if pedido.estado == pedido_pagado:
             return Response({"message": "pedido ya marcado como pagado"}, status=200)
-        
+
         pedido.estado_pago = pago_pagado
         pedido.estado = pedido_pagado
 
@@ -290,10 +290,11 @@ def mp_webhook(request):
         pedido.save()
 
         correopedido(pedido)
-        # for item in pedido.items.all():
-        #     producto = item.producto
-        #     producto.stock = max(0, producto.stock - item.cantidad)
-        #     producto.save()
+
+        for item in pedido.items.all():
+            producto = item.producto
+            producto.stock = max(0, producto.stock - item.cantidad)
+            producto.save()
 
     elif status_mp in ["pending", "in_process"]:
         pedido.estado_pago = pago_pendiente
@@ -304,20 +305,24 @@ def mp_webhook(request):
         pedido.estado = pedido_cancelado
 
     elif status_mp == "refunded" or status_detail == "refunded":
+
+        if pedido.estado == pedido_devuelto:
+            return Response({"message": "pedido ya estaba devuelto"}, status=200)
+
         pedido.estado_pago = pago_devuelto
         pedido.estado = pedido_devuelto
+        pedido.save()
 
-        # for item in pedido.items.all():
-        #     producto = item.producto
-        #     producto.stock += item.cantidad
-        #     producto.save()
+        for item in pedido.items.all():
+            producto = item.producto
+            producto.stock += item.cantidad
+            producto.save()
 
     else:
         pedido.estado_pago = pago_pendiente
         pedido.estado = pedido_esperando
 
     pedido.save()
-
     return Response({"message": "OK"}, status=200)
 
 
