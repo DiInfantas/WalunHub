@@ -35,7 +35,7 @@ export default function Carrito() {
 
   if (carrito.length === 0) {
     return (
-      <div className="text-center py-20">
+      <div className="text-center py-20 px-6">
         <h2 className="text-2xl font-bold mb-4">Tu carrito está vacío 🛒</h2>
         <Link to="/catalogo" className="text-green-600 hover:underline font-semibold">
           Ir al catálogo
@@ -45,43 +45,49 @@ export default function Carrito() {
   }
 
   return (
-    <section className="max-w-5xl mx-auto px-6 py-12">
-      <h2 className="text-3xl font-bold text-green-700 mb-8 text-center">Tu carrito</h2>
+    <section className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <h2 className="text-3xl font-bold text-green-700 mb-8 text-center">
+        Tu carrito
+      </h2>
 
       <div className="space-y-6">
         {carrito.map((item) => (
-          <div key={item.id} className="flex items-center gap-4 border-b pb-4">
+          <div
+            key={item.id}
+            className="flex flex-col sm:flex-row items-center sm:items-start gap-4 border-b pb-5"
+          >
             <img
               src={item.imagen || '/img/default.jpg'}
               alt={item.nombre}
-              className="w-24 h-24 object-cover rounded"
+              className="w-32 h-32 sm:w-24 sm:h-24 object-cover rounded"
             />
-            <div className="flex-1">
+
+            <div className="flex-1 text-center sm:text-left">
               <h3 className="text-lg font-semibold">{item.nombre}</h3>
               <p className="text-sm text-gray-600">${item.precio} /kg</p>
 
-              <div className="flex items-center mt-2 gap-2">
+              <div className="flex justify-center sm:justify-start items-center mt-3 gap-2">
                 <button
                   onClick={() => actualizarCantidad(item.id, item.cantidad - 1)}
-                  className="px-2 py-1 bg-gray-200 rounded"
+                  className="px-3 py-1 bg-gray-200 rounded text-lg"
                   disabled={item.cantidad <= 1}
                 >
                   −
                 </button>
 
-                <span className="px-3">{item.cantidad}</span>
+                <span className="px-3 text-lg">{item.cantidad}</span>
 
                 <button
                   onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}
-                  className="px-2 py-1 bg-gray-200 rounded"
+                  className="px-3 py-1 bg-gray-200 rounded text-lg"
                 >
                   +
                 </button>
               </div>
             </div>
 
-            <div className="text-right">
-              <p className="font-bold">${item.precio * item.cantidad}</p>
+            <div className="text-center sm:text-right">
+              <p className="font-bold text-lg">${item.precio * item.cantidad}</p>
               <button
                 onClick={() => eliminarProducto(item.id)}
                 className="text-red-500 text-sm hover:underline mt-1"
@@ -93,23 +99,25 @@ export default function Carrito() {
         ))}
       </div>
 
-      <div className="mt-10 text-right">
-        <p className="text-xl font-bold mb-4">Total: ${total.toFixed(0)}</p>
+      <div className="mt-10">
+        <p className="text-xl font-bold text-center sm:text-right mb-4">
+          Total: ${total.toFixed(0)}
+        </p>
 
-        <div className="flex justify-end gap-4">
+        <div className="flex flex-col sm:flex-row justify-end gap-4">
           <button
             onClick={() => {
               vaciarCarrito();
               setCarrito([]);
             }}
-            className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
+            className="px-5 py-3 bg-gray-300 hover:bg-gray-400 rounded font-semibold"
           >
             Vaciar carrito
           </button>
 
           <Link
             to="/checkout"
-            className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded"
+            className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded text-center"
           >
             Ir al checkout
           </Link>
