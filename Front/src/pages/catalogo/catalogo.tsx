@@ -1,99 +1,328 @@
-import { useEffect, useState } from 'react';
-import { API_BASE_URL } from '../../config/api';
-import type { Producto } from '../../interfaces/producto';
+import { useEffect, useMemo, useState } from "react";
+import { API_BASE_URL } from "../../config/api";
+import type { Producto as ProductoType } from "../../interfaces/producto";
+import type { Categoria as CategoriaType } from "../../interfaces/categoria";
+import { Link } from "react-router-dom";
 
-interface Categoria {
-  id: number;
-  nombre: string;
-  descripcion: string;
-}
+/**
+ * Catálogo rediseñado
+ * - Sidebar (desktop) + off-canvas (mobile)
+ * - Aplicar filtros con botón
+ * - Cards con peso, precio por bolsa y precio/kg calculado
+ * - Responsive grid 2/3/4/5
+ */
 
-export default function Catalogo() {
-  const [categoria, setCategoria] = useState('todos');
-  const [orden, setOrden] = useState<'asc' | 'desc'>('asc');
-  const [productos, setProductos] = useState<Producto[]>([]);
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
+export default function Catalogo(): JSX.Element {
+  const [productos, setProductos] = useState<ProductoType[]>([]);
+  const [categorias, setCategorias] = useState<CategoriaType[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  // Controles (selección previa antes de aplicar)
+  const [selectedCat, setSelectedCat] = useState<string>("all"); // 'all' o string(id)
+  const [selectedOrden, setSelectedOrden] = useState<"asc" | "desc">("asc");
+
+  // Filtros aplicados (los que realmente filtran la lista)
+  const [appliedCat, setAppliedCat] = useState<string>("all");
+  const [appliedOrden, setAppliedOrden] = useState<"asc" | "desc">("asc");
+
+  // Mobile filters drawer
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/productos/`)
-      .then(res => res.json())
-      .then(data => setProductos(data))
-      .catch(err => console.error('Error al cargar productos:', err));
+    setLoading(true);
+    Promise.all([
+      fetch(`${API_BASE_URL}/productos/`).then((r) => r.json()),
+      fetch(`${API_BASE_URL}/categorias/`).then((r) => r.json()),
+    ])
+      .then(([prodData, catData]: any) => {
+        setProductos(Array.isArray(prodData) ? prodData : []);
+        setCategorias(Array.isArray(catData) ? catData : []);
+      })
+      .catch((err) => console.error("Error cargando catálogo:", err))
+      .finally(() => setLoading(false));
   }, []);
 
+  // Aplica filtros cuando el usuario pulsa 'Aplicar filtros'
+  const handleApplyFilters = () => {
+    setAppliedCat(selectedCat);
+    setAppliedOrden(selectedOrden);
+    setMobileOpen(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-  useEffect(() => {
-    fetch(`${API_BASE_URL}/categorias/`)
-      .then(res => res.json())
-      .then(data => setCategorias(data))
-      .catch(err => console.error('Error al cargar categorías:', err));
-  }, []);
+  // Limpia filtros
+  const handleResetFilters = () => {
+    setSelectedCat("all");
+    setSelectedOrden("asc");
+    setAppliedCat("all");
+    setAppliedOrden("asc");
+  };
 
-  const productosFiltrados = productos
-    .filter(p => categoria === 'todos' || p.categoria.trim().toLowerCase() === categoria.trim().toLowerCase())
-    .sort((a, b) => orden === 'asc' ? a.precio - b.precio : b.precio - a.precio);
+  // Map de categorías por id para mostrar nombre
+  const categoriaMap = useMemo(() => {
+    const m: Record<number, CategoriaType> = {};
+    categorias.forEach((c) => (m[c.id] = c));
+    return m;
+  }, [categorias]);
+
+  // Productos filtrados/aplicados (por appliedCat / appliedOrden)
+  const productosFiltrados = useMemo(() => {
+    let list = [...productos];
+
+    if (appliedCat !== "all") {
+      const catId = Number(appliedCat);
+      list = list.filter((p) => Number(p.categoria) === catId);
+    }
+
+    list.sort((a, b) => {
+      const pa = Number(a.precio ?? 0);
+      const pb = Number(b.precio ?? 0);
+      return appliedOrden === "asc" ? pa - pb : pb - pa;
+    });
+
+    return list;
+  }, [productos, appliedCat, appliedOrden]);
+
+  // Helpers
+  const formatCurrency = (n: number | string) =>
+    new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(Number(n));
+
+  const parsePesoKg = (peso_kg: string | number | undefined) => {
+    const f = parseFloat(String(peso_kg ?? "0")) || 0;
+    return f;
+  };
+
+  const displayPeso = (peso_kg: string | number | undefined) => {
+    const kg = parsePesoKg(peso_kg);
+    if (kg >= 1) return `${kg % 1 === 0 ? kg.toFixed(0) : kg} kg`;
+    const gramos = Math.round(kg * 1000);
+    return `${gramos} g`;
+  };
+
+  const precioPorKg = (precioBolsa: number, peso_kg: string | number | undefined) => {
+    const kg = parsePesoKg(peso_kg);
+    if (!kg || kg <= 0) return null;
+    const precioKg = Math.round((precioBolsa / kg));
+    return precioKg;
+  };
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-12">
-      <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Nuestro catálogo</h2>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-10">
+      {/* Header / acciones */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
         <div>
-          <label className="font-semibold mr-2">Categoría:</label>
-          <select
-            value={categoria}
-            onChange={e => setCategoria(e.target.value)}
-            className="border rounded px-3 py-2"
-          >
-            <option value="todos">Todos</option>
-            {categorias.map(c => (
-              <option key={c.id} value={c.nombre.toLowerCase()}>
-                {c.nombre}
-              </option>
-            ))}
-          </select>
+          <h1 className="text-2xl font-bold text-gray-800">Nuestro catálogo</h1>
+          <p className="text-sm text-gray-600 mt-1">
+            Encuentra presentaciones en bolsas con peso definido. Si necesitas más cantidad, selecciona múltiples bolsas.
+          </p>
         </div>
-        <div>
-          <label className="font-semibold mr-2">Ordenar por precio:</label>
-          <select
-            value={orden}
-            onChange={e => setOrden(e.target.value as 'asc' | 'desc')}
-            className="border rounded px-3 py-2"
+
+        <div className="flex items-center gap-3">
+          {/* Mobile: abrir filtros */}
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="md:hidden inline-flex items-center gap-2 px-3 py-2 border rounded-md bg-white text-sm shadow-sm"
+            aria-label="Abrir filtros"
           >
-            <option value="asc">Menor a mayor</option>
-            <option value="desc">Mayor a menor</option>
-          </select>
+            ⚙️ Filtros
+          </button>
+
+          {/* Reset quick */}
+          <button
+            onClick={handleResetFilters}
+            className="hidden md:inline-flex items-center px-3 py-2 border rounded-md text-sm text-gray-700 hover:bg-gray-50"
+          >
+            Limpiar filtros
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-20 gap-x-10 justify-items-center">
-        {productosFiltrados.map(producto => (
-          <div key={producto.id} className="w-72 bg-white shadow-md rounded-xl duration-500 hover:scale-105 hover:shadow-xl">
-            <a href={`/producto/${producto.id}`}>
-              <img
-                src={producto.imagenes[0]?.imagen || '/img/default.jpg'}
-                alt={producto.nombre}
-                className="h-80 w-72 object-cover rounded-t-xl"
-              />
-              <div className="px-4 py-3 w-72">
-                <span className="text-gray-400 uppercase text-xs">WalunGranel</span>
-                <p className="text-lg font-bold text-black truncate block capitalize">{producto.nombre}</p>
-                <div className="flex items-center">
-                  <p className="text-lg font-semibold text-black my-3">${producto.precio}/kg</p>
-                  <div className="ml-auto text-green-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-bag-plus" viewBox="0 0 16 16">
-                      <path fillRule="evenodd" d="M8 7.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0v-1.5H6a.5.5 0 0 1 0-1h1.5V8a.5.5 0 0 1 .5-.5z" />
-                      <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z" />
-                    </svg>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* SIDEBAR - DESKTOP */}
+        <aside className="hidden md:block md:col-span-3 lg:col-span-3">
+          <div className="sticky top-24 space-y-6">
+            <div className="bg-white border rounded-lg p-4 shadow-sm">
+              <h4 className="font-semibold mb-3">Categoría</h4>
+              <select
+                value={selectedCat}
+                onChange={(e) => setSelectedCat(e.target.value)}
+                className="w-full border rounded px-3 py-2 text-sm"
+              >
+                <option value="all">Todas</option>
+                {categorias.map((c) => (
+                  <option key={c.id} value={String(c.id)}>
+                    {c.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="bg-white border rounded-lg p-4 shadow-sm">
+              <h4 className="font-semibold mb-3">Ordenar</h4>
+              <select
+                value={selectedOrden}
+                onChange={(e) => setSelectedOrden(e.target.value as "asc" | "desc")}
+                className="w-full border rounded px-3 py-2 text-sm"
+              >
+                <option value="asc">Precio: menor a mayor</option>
+                <option value="desc">Precio: mayor a menor</option>
+              </select>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={handleApplyFilters}
+                className="flex-1 px-4 py-2 rounded-md bg-green-600 text-white font-medium hover:bg-green-700"
+              >
+                Aplicar filtros
+              </button>
+              <button
+                onClick={handleResetFilters}
+                className="px-4 py-2 rounded-md border text-sm hover:bg-gray-50"
+              >
+                Limpiar
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        {/* PRODUCTS GRID */}
+        <div className="md:col-span-9 lg:col-span-9">
+          {/* Small filter bar on top for desktop and mobile */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-sm text-gray-600">
+              {loading ? "Cargando productos..." : `${productosFiltrados.length} resultado(s)`}
+            </div>
+            <div className="hidden md:flex items-center gap-3">
+              <label className="text-sm text-gray-600">Orden:</label>
+              <select
+                value={selectedOrden}
+                onChange={(e) => setSelectedOrden(e.target.value as "asc" | "desc")}
+                className="border rounded px-3 py-1 text-sm"
+              >
+                <option value="asc">Menor a mayor</option>
+                <option value="desc">Mayor a menor</option>
+              </select>
+              <button onClick={handleApplyFilters} className="px-3 py-1 bg-green-600 text-white rounded-md text-sm">Aplicar</button>
+            </div>
+          </div>
+
+          {/* GRID */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {productosFiltrados.map((producto) => {
+              const stock = Number(producto.stock ?? 0);
+              const kg = parsePesoKg(producto.peso_kg);
+              const gramos = Math.round(kg * 1000);
+              const pKg = precioPorKg(Number(producto.precio ?? 0), producto.peso_kg);
+              const isOut = stock <= 0;
+              const lowStock = stock > 0 && stock <= 5;
+
+              return (
+                <div
+                  key={producto.id}
+                  className="w-full bg-white rounded-xl shadow-sm hover:shadow-md hover:scale-[1.02] transition-all border border-gray-100"
+                >
+                  <a href={`/producto/${producto.id}`}>
+                    {/* Contenedor cuadrado */}
+                    <div className="relative w-full aspect-square overflow-hidden rounded-t-xl">
+                      <img
+                        src={producto.imagenes[0]?.imagen || "/img/default.jpg"}
+                        alt={producto.nombre}
+                        className="w-full h-full object-cover"
+                      />
+
+                      {/* BADGES sobre la foto (arriba-izquierda) */}
+                      <div className="absolute top-2 left-2 flex flex-col gap-1">
+                        {producto.destacado && (
+                          <span className="bg-yellow-200/90 text-yellow-900 text-xs font-semibold px-2 py-1 rounded-lg shadow">
+                            ⭐ Destacado
+                          </span>
+                        )}
+
+                        {/* Poco stock (solo si stock > 0 y <= 5) */}
+                        {producto.stock > 0 && producto.stock <= 5 && (
+                          <span className="bg-orange-200/90 text-orange-900 text-xs font-semibold px-2 py-1 rounded-lg shadow">
+                            ⚠️ Poco stock
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </a>
+
+                  {/* INFO */}
+                  <div className="p-4 flex flex-col gap-2">
+
+                    {/* Nombre */}
+                    <h3 className="text-lg font-semibold text-gray-800 truncate">
+                      {producto.nombre}
+                    </h3>
+
+                    {/* Precio + Peso */}
+                    <p className="text-green-700 font-bold">
+                      ${producto.precio.toLocaleString()}{" "}
+                      <span className="text-gray-600 text-sm font-medium">
+                        ({producto.peso_kg} kg)
+                      </span>
+                    </p>
+
+                    {/* Botón */}
+                    <button
+                      disabled={producto.stock <= 0}
+                      className={`w-full mt-2 py-2 rounded-lg text-white font-semibold transition-all ${producto.stock <= 0
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-green-600 hover:bg-green-700"
+                        }`}
+                    >
+                      {producto.stock <= 0 ? "Sin stock" : "Agregar al carrito"}
+                    </button>
                   </div>
                 </div>
-              </div>
-            </a>
+
+
+              );
+            })}
           </div>
-        ))}
+        </div>
       </div>
-    </section>
+
+      {/* MOBILE OFF-CANVAS FILTERS */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
+          <div className="absolute right-0 top-0 bottom-0 w-80 bg-white shadow-lg p-4 overflow-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-semibold">Filtros</h4>
+              <button onClick={() => setMobileOpen(false)} className="text-gray-600">Cerrar ✕</button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Categoría</label>
+                <select value={selectedCat} onChange={(e) => setSelectedCat(e.target.value)} className="w-full border rounded px-3 py-2 text-sm">
+                  <option value="all">Todas</option>
+                  {categorias.map((c) => (
+                    <option key={c.id} value={String(c.id)}>{c.nombre}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Orden</label>
+                <select value={selectedOrden} onChange={(e) => setSelectedOrden(e.target.value as "asc" | "desc")} className="w-full border rounded px-3 py-2 text-sm">
+                  <option value="asc">Precio: menor a mayor</option>
+                  <option value="desc">Precio: mayor a menor</option>
+                </select>
+              </div>
+
+              <div className="flex gap-2">
+                <button onClick={handleApplyFilters} className="flex-1 px-4 py-2 rounded-md bg-green-600 text-white">Aplicar</button>
+                <button onClick={handleResetFilters} className="px-4 py-2 rounded-md border">Limpiar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

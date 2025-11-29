@@ -9,7 +9,6 @@ export interface Categoria {
   descripcion: string;
 }
 
-
 export default function Home(): JSX.Element {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [productosDestacados, setProductosDestacados] = useState<Producto[]>([]);
@@ -33,24 +32,15 @@ export default function Home(): JSX.Element {
   }, []);
 
   return (
-    <div className="flex flex-col gap-24">
+    <div className="flex flex-col gap-16">
 
-      {/* HERO con imagen de fondo */}
-      <section
-        className="relative h-[70vh] flex items-center justify-center text-center"
-      >
-        {/* Imagen de fondo */}
+      {/* HERO */}
+      <section className="relative h-[70vh] flex items-center justify-center text-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url(${HeroImg})`, // <-- aquí pones tu imagen
-          }}
+          style={{ backgroundImage: `url(${HeroImg})` }}
         />
-
-        {/* Capa de degradado */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/20" />
-
-        {/* Contenido */}
         <div className="relative z-10 text-white px-6 max-w-3xl">
           <h1 className="text-5xl font-bold mb-4 drop-shadow-lg">
             Alimentación Natural, Simple y Consciente
@@ -68,63 +58,47 @@ export default function Home(): JSX.Element {
         </div>
       </section>
 
-      {/* ---------------------------------- */}
-      {/*  SECCIÓN: SOBRE WALUNGRANEL        */}
-      {/* ---------------------------------- */}
-
-      <section className="py-20 bg-white">
+      {/* SOBRE WALUNGRANEL */}
+      <section className="py-14 bg-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
 
           <h3 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
             Conoce WalunGranel
           </h3>
 
-          <p className="text-gray-600 max-w-2xl mx-auto mb-16 leading-relaxed">
+          <p className="text-gray-600 max-w-2xl mx-auto mb-12 leading-relaxed">
             <strong>WalunGranel</strong> nace con el propósito de hacer accesible un consumo más consciente,
             natural y sustentable. Nuestro nombre proviene de la palabra mapuche
-            <strong>“Walüng”</strong>, que significa <em>“abundancia, cosecha y bienestar”</em>,
-            reflejando la conexión con la tierra y el valor de los alimentos naturales.
+            <strong> “Walüng” </strong>, que significa <em>“abundancia, cosecha y bienestar”</em>.
             <br /><br />
-            Desde este significado construimos nuestra esencia: alimentos reales, de calidad,
+            Desde ese significado construimos nuestra esencia: alimentos reales, de calidad,
             a granel y sin exceso de envases.
           </p>
 
-          {/* Grid de valores */}
+          {/* Valores */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 
-            {/* Card 1 */}
-            <div className="group bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 
-        rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 
-        transition-all duration-300">
+            <div className="group bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
               <div className="text-4xl mb-3">🌱</div>
               <h4 className="text-xl font-semibold text-green-900 mb-2">Comer Natural</h4>
               <p className="text-gray-700 text-sm leading-relaxed">
-                Productos seleccionados sin procesar, sin aditivos y en su estado más puro—
-                tal como deberían ser.
+                Productos sin procesar, sin aditivos y en su estado más puro.
               </p>
             </div>
 
-            {/* Card 2 */}
-            <div className="group bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 
-        rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 
-        transition-all duration-300">
+            <div className="group bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
               <div className="text-4xl mb-3">♻️</div>
               <h4 className="text-xl font-semibold text-green-900 mb-2">Consumo Responsable</h4>
               <p className="text-gray-700 text-sm leading-relaxed">
-                Promovemos un estilo de compra consciente, reduciendo envases y eligiendo
-                solo lo que realmente necesitas.
+                Promovemos compras conscientes y reducción de envases.
               </p>
             </div>
 
-            {/* Card 3 */}
-            <div className="group bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 
-        rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 
-        transition-all duration-300">
+            <div className="group bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
               <div className="text-4xl mb-3">🌾</div>
               <h4 className="text-xl font-semibold text-green-900 mb-2">Calidad y Variedad</h4>
               <p className="text-gray-700 text-sm leading-relaxed">
-                Una selección amplia de frutos secos, semillas, legumbres y granos
-                para acompañar cualquier estilo de vida.
+                Frutos secos, semillas, legumbres y granos para tu día a día.
               </p>
             </div>
 
@@ -132,19 +106,60 @@ export default function Home(): JSX.Element {
         </div>
       </section>
 
-      {/* BENEFICIOS */}
-      <section className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-8 text-center">
-        <div className="p-6 bg-white shadow rounded-xl">
-          <h3 className="text-xl font-semibold mb-2">Productos Naturales</h3>
-          <p className="text-gray-600">Seleccionamos ingredientes puros y de calidad para una vida más saludable.</p>
-        </div>
-        <div className="p-6 bg-white shadow rounded-xl">
-          <h3 className="text-xl font-semibold mb-2">A Granel</h3>
-          <p className="text-gray-600">Compra solo lo que necesitas y reduce el desperdicio.</p>
-        </div>
-        <div className="p-6 bg-white shadow rounded-xl">
-          <h3 className="text-xl font-semibold mb-2">Precios Justos</h3>
-          <p className="text-gray-600">Accesible y transparente para que tu alimentación sea sostenible.</p>
+      {/* TESTIMONIOS */}
+      <section className="py-14 bg-white">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+
+          <h3 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+            Lo que dicen nuestros clientes
+          </h3>
+
+          <p className="text-gray-600 max-w-2xl mx-auto mb-12">
+            La calidad y frescura de nuestros productos hablan por sí solas.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-7 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-left">
+              <p className="text-gray-700 italic mb-4">
+                “Los frutos secos son fresquísimos. Nada que ver con lo del súper.”
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center text-xl">😊</div>
+                <div>
+                  <h4 className="font-semibold text-green-900">María P.</h4>
+                  <p className="text-sm text-gray-600">Compradora frecuente</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-7 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-left">
+              <p className="text-gray-700 italic mb-4">
+                “Me encanta comprar solo lo necesario. Envío rápido y todo impecable.”
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center text-xl">🌿</div>
+                <div>
+                  <h4 className="font-semibold text-green-900">Diego A.</h4>
+                  <p className="text-sm text-gray-600">Cliente desde 2023</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-7 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-left">
+              <p className="text-gray-700 italic mb-4">
+                “Los superalimentos de aquí son de excelente calidad.”
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center text-xl">⭐</div>
+                <div>
+                  <h4 className="font-semibold text-green-900">Constanza R.</h4>
+                  <p className="text-sm text-gray-600">Fan de los superalimentos</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
       </section>
 
@@ -152,7 +167,7 @@ export default function Home(): JSX.Element {
       <section className="max-w-6xl mx-auto px-6">
         <h2 className="text-3xl font-bold mb-6">Productos Destacados</h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {productosDestacados.map((p) => (
             <a
               key={p.id}
@@ -175,7 +190,7 @@ export default function Home(): JSX.Element {
       <section className="max-w-6xl mx-auto px-6">
         <h2 className="text-3xl font-bold mb-6">Últimos Productos</h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {ultimosProductos.map((p) => (
             <a
               key={p.id}
@@ -194,20 +209,16 @@ export default function Home(): JSX.Element {
         </div>
       </section>
 
-      {/* ---------------------------------- */}
-      {/*   CATEGORÍAS   */}
-      {/* ---------------------------------- */}
-
-      <section className="py-20 bg-white">
+      {/* CATEGORÍAS */}
+      <section className="py-14 bg-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <h3 className="text-3xl md:text-4xl font-bold mb-3 text-gray-800">
             Categorías Destacadas
           </h3>
-          <p className="text-gray-600 max-w-2xl mx-auto mb-12">
-            Explora nuestra selección de productos, organizados para que encuentres exactamente lo que buscas.
+          <p className="text-gray-600 max-w-2xl mx-auto mb-10">
+            Encuentra tus productos favoritos organizados por categoría.
           </p>
 
-          {/* Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {categorias.slice(0, 6).map((cat) => (
               <a
@@ -219,24 +230,19 @@ export default function Home(): JSX.Element {
                   <h4 className="text-2xl font-semibold text-green-900">
                     {cat.nombre}
                   </h4>
-
                   <span className="text-green-700 opacity-0 group-hover:opacity-100 transition-all text-2xl">
                     →
                   </span>
                 </div>
 
-
                 <p className="text-gray-700 text-sm leading-relaxed">
-                  {cat.descripcion?.length > 0
-                    ? cat.descripcion
-                    : "Explora nuestra selección de esta categoría."}
+                  {cat.descripcion || "Explora los productos de esta categoría."}
                 </p>
               </a>
             ))}
           </div>
 
-          {/* Botón Ver todas */}
-          <div className="mt-12">
+          <div className="mt-10">
             <a
               href="/catalogo"
               className="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-md transition"
@@ -247,10 +253,9 @@ export default function Home(): JSX.Element {
         </div>
       </section>
 
-
-      {/* CTA FINAL */}
-      <section className="text-center py-16 bg-green-50">
-        <h2 className="text-3xl font-bold mb-4 text-gray-800">
+      {/* CTA */}
+      <section className="text-center py-14 bg-green-50">
+        <h2 className="text-3xl font-bold mb-3 text-gray-800">
           Vive mejor, come mejor.
         </h2>
         <p className="text-gray-600 mb-6">
