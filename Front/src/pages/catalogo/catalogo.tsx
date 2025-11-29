@@ -5,13 +5,13 @@ import type { Categoria as CategoriaType } from "../../interfaces/categoria";
 import { Toaster } from "react-hot-toast";
 import { agregarAlCarrito } from "../carrito/carritoUtils";
 import { toastError, toastSuccess } from "../../interfaces/toast";
+import { Link } from "react-router-dom";
 
 export default function Catalogo(): JSX.Element {
   const [productos, setProductos] = useState<ProductoType[]>([]);
   const [categorias, setCategorias] = useState<CategoriaType[]>([]);
   const [loading, setLoading] = useState(true);
 
-  
   const [selectedCat, setSelectedCat] = useState<string>("all");
   const [selectedOrden, setSelectedOrden] = useState<"asc" | "desc">("asc");
   const [appliedCat, setAppliedCat] = useState<string>("all");
@@ -103,6 +103,7 @@ export default function Catalogo(): JSX.Element {
 
       {!loading && (
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          {/* Sidebar desktop */}
           <aside className="hidden md:block md:col-span-3">
             <div className="sticky top-24 space-y-6">
               <div className="bg-white border rounded-lg p-4 shadow-sm">
@@ -144,6 +145,7 @@ export default function Catalogo(): JSX.Element {
             </div>
           </aside>
 
+          {/* Productos */}
           <div className="md:col-span-9">
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {productosFiltrados.map((producto) => {
@@ -176,59 +178,66 @@ export default function Catalogo(): JSX.Element {
                 };
 
                 return (
-                  <div
-                    key={producto.id}
-                    className="group flex flex-col bg-white rounded-xl shadow-sm border hover:shadow-md transition p-3 h-full"
-                  >
-                    <div className="relative w-full aspect-square overflow-hidden rounded-lg bg-gray-100">
-                      {producto.destacado && (
-                        <span className="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded-lg shadow z-10">
-                          ⭐ Destacado
-                        </span>
-                      )}
+                  <div key={producto.id} className="flex flex-col">
+                    {/* CARD CLICKEABLE */}
+                    <Link
+                      to={`/producto/${producto.id}`}
+                      className="group flex flex-col bg-white rounded-xl shadow-sm border hover:shadow-md transition p-3 h-full cursor-pointer"
+                    >
+                      <div className="relative w-full aspect-square overflow-hidden rounded-lg bg-gray-100">
+                        {producto.destacado && (
+                          <span className="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded-lg shadow z-10">
+                            ⭐ Destacado
+                          </span>
+                        )}
 
-                      {producto.stock > 0 && producto.stock <= 5 && (
-                        <span
-                          className={`absolute ${
-                            producto.destacado ? "top-10" : "top-2"
-                          } left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-lg shadow z-10`}
-                        >
-                          ⚠️ Poco stock
-                        </span>
-                      )}
+                        {producto.stock > 0 && producto.stock <= 5 && (
+                          <span
+                            className={`absolute ${
+                              producto.destacado ? "top-10" : "top-2"
+                            } left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-lg shadow z-10`}
+                          >
+                            ⚠️ Poco stock
+                          </span>
+                        )}
 
-                      <img
-                        src={getImage(producto)}
-                        alt={producto.nombre}
-                        className="w-full h-full object-cover group-hover:scale-105 transition"
-                      />
-                    </div>
+                        <img
+                          src={getImage(producto)}
+                          alt={producto.nombre}
+                          className="w-full h-full object-cover group-hover:scale-105 transition"
+                        />
+                      </div>
 
-                    <div className="flex flex-col flex-grow mt-3">
-                      <h3 className="text-lg font-semibold text-gray-800 leading-tight line-clamp-1">
-                        {producto.nombre}
-                      </h3>
+                      <div className="flex flex-col flex-grow mt-3">
+                        <h3 className="text-lg font-semibold text-gray-800 leading-tight line-clamp-1">
+                          {producto.nombre}
+                        </h3>
 
-                      <p className="text-sm text-gray-500 mt-1">
-                        Bolsa de {Number(producto.peso_kg)} kg
-                      </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Bolsa de {Number(producto.peso_kg)} kg
+                        </p>
 
-                      <p className="text-xl font-bold text-green-700 mt-2">
-                        ${producto.precio.toLocaleString("es-CL")}
-                      </p>
+                        <p className="text-xl font-bold text-green-700 mt-2">
+                          ${producto.precio.toLocaleString("es-CL")}
+                        </p>
+                      </div>
+                    </Link>
 
-                      <button
-                        onClick={addToCart}
-                        disabled={isOut}
-                        className={`mt-auto w-full py-2 rounded-lg font-semibold text-white transition ${
-                          isOut
-                            ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-green-600 hover:bg-green-700"
-                        }`}
-                      >
-                        {isOut ? "Sin stock" : "Agregar al carrito"}
-                      </button>
-                    </div>
+                    {/* BOTÓN FUERA DEL LINK */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToCart();
+                      }}
+                      disabled={isOut}
+                      className={`mt-2 w-full py-2 rounded-lg font-semibold text-white transition ${
+                        isOut
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-green-600 hover:bg-green-700"
+                      }`}
+                    >
+                      {isOut ? "Sin stock" : "Agregar al carrito"}
+                    </button>
                   </div>
                 );
               })}
@@ -237,6 +246,7 @@ export default function Catalogo(): JSX.Element {
         </div>
       )}
 
+      {/* Filtros mobile */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50">
           <div
@@ -274,9 +284,7 @@ export default function Catalogo(): JSX.Element {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Orden
-                </label>
+                <label className="block text-sm font-medium mb-1">Orden</label>
                 <select
                   value={selectedOrden}
                   onChange={(e) =>

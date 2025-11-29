@@ -149,48 +149,79 @@ export default function Home(): JSX.Element {
       <section className="max-w-6xl mx-auto px-6">
         <h2 className="text-3xl font-bold mb-6">Productos Destacados</h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {productosDestacados.map((p) => (
-            <a
-              key={p.id}
-              href={`/producto/${p.id}`}
-              className="bg-white rounded-xl shadow hover:shadow-lg transition p-4"
-            >
-              <img
-                src={p.imagenes[0]?.imagen || "/img/default.jpg"}
-                alt={p.nombre}
-                className="w-full h-48 object-cover rounded-lg"
-              />
-              <h3 className="text-lg font-semibold mt-3">{p.nombre}</h3>
-              <p className="text-green-700 font-bold">${p.precio} / kg</p>
-            </a>
-          ))}
+        {/* Ahora: 2 columnas en celular, 3 en tablets, 4 en desktop */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {productosDestacados.map((p) => {
+            const imagen = p.imagenes?.[0]?.imagen || "/img/default.jpg";
+
+            return (
+              <a
+                key={p.id}
+                href={`/producto/${p.id}`}
+                className="bg-white rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col"
+              >
+                <img
+                  src={imagen}
+                  alt={p.nombre}
+                  className="w-full h-48 object-cover rounded-lg"
+                />
+
+                <h3 className="text-lg font-semibold mt-3 line-clamp-1">
+                  {p.nombre}
+                </h3>
+
+                <p className="text-xl font-bold text-green-700 mt-2">
+                  ${p.precio.toLocaleString("es-CL")}
+                </p>
+
+                <p className="text-sm text-gray-500">
+                  Bolsa de {Number(p.peso_kg)} kg
+                </p>
+              </a>
+            );
+          })}
         </div>
       </section>
 
       <section className="max-w-6xl mx-auto px-6">
         <h2 className="text-3xl font-bold mb-6">Últimos Productos</h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {ultimosProductos.map((p) => (
-            <a
-              key={p.id}
-              href={`/producto/${p.id}`}
-              className="bg-white rounded-xl shadow hover:shadow-lg transition p-4"
-            >
-              <img
-                src={p.imagenes[0]?.imagen || "/img/default.jpg"}
-                alt={p.nombre}
-                className="w-full h-48 object-cover rounded-lg"
-              />
-              <h3 className="text-lg font-semibold mt-3">{p.nombre}</h3>
-              <p className="text-green-700 font-bold">${p.precio} / kg</p>
-            </a>
-          ))}
+        {/* Ahora también 2 por fila en celular */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {ultimosProductos.map((p) => {
+            const imagen = p.imagenes?.[0]?.imagen || "/img/default.jpg";
+
+            return (
+              <a
+                key={p.id}
+                href={`/producto/${p.id}`}
+                className="bg-white rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col"
+              >
+                <img
+                  src={imagen}
+                  alt={p.nombre}
+                  className="w-full h-48 object-cover rounded-lg"
+                />
+
+                <h3 className="text-lg font-semibold mt-3 line-clamp-1">
+                  {p.nombre}
+                </h3>
+
+                <p className="text-xl font-bold text-green-700 mt-2">
+                  ${p.precio.toLocaleString("es-CL")}
+                </p>
+
+                <p className="text-sm text-gray-500">
+                  Bolsa de {Number(p.peso_kg)} kg
+                </p>
+              </a>
+            );
+          })}
         </div>
       </section>
 
-      
+
+
       <section className="py-8 bg-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
 
