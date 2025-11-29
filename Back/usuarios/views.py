@@ -91,7 +91,7 @@ class SendResetCodeView(APIView):
                     <br>
 
                     <p style="font-size: 14px; color:#999; text-align:center;">
-                        — Equipo de Soporte de WalunHub 💚
+                        — Equipo de Soporte de WalunGranel 💚
                     </p>
                 </div>
             """
@@ -192,7 +192,7 @@ class RegistroView(generics.CreateAPIView):
                 <br>
 
                 <p style="font-size: 14px; color:#999; text-align:center;">
-                    — Equipo de Soporte de WalunHub 💚
+                    — Equipo de Soporte de WalunGranel 💚
                 </p>
             </div>
         """

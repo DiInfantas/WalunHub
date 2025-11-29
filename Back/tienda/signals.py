@@ -83,7 +83,7 @@ def enviar_email_cuando_blue_code_cambie(sender, instance, **kwargs):
                 <br>
 
                 <p style="font-size: 14px; color:#999; text-align:center;">
-                    — Gracias por comprar con <b>WalunHub</b> 💚
+                    — Gracias por comprar con <b>WalunGranel</b> 💚
                 </p>
             </div>
         """
@@ -195,7 +195,7 @@ def enviar_email_cuando_este_listo_para_retiro(sender, instance, **kwargs):
                 <br>
 
                 <p style="font-size: 14px; color:#999; text-align:center;">
-                    — Gracias por comprar con <b>WalunHub</b> 💚
+                    — Gracias por comprar con <b>WalunGranel</b> 💚
                 </p>
             </div>
         """

@@ -71,7 +71,6 @@ def correopedido(pedido):
                 </td>
             </tr>
         """
-
     html_content = f"""
         <div style="font-family: Arial, sans-serif; max-width: 650px; margin: auto;
                     padding: 24px; background: #ffffff; border-radius: 12px; 
@@ -113,7 +112,18 @@ def correopedido(pedido):
             <p style="font-size: 15px; margin: 8px 0;">
                 <b>Método de pago:</b> {pedido.metodo_pago}
             </p>
-
+    """
+    if pedido.ticket_url:
+        html_content += f"""
+            <div style="text-align:center; margin: 25px 0;">
+                <a href="{pedido.ticket_url}"
+                   style="background:#1a73e8; color:white; padding:12px 25px;
+                          text-decoration:none; border-radius:8px; font-size:16px;">
+                   Ver comprobante de pago
+                </a>
+            </div>
+        """
+    html_content += f"""
             <h3 style="color:#0e8a4f; margin-top: 30px;">📍 Datos de entrega</h3>
 
             <div style="background:#fafafa; padding: 15px; border-radius: 8px; 
@@ -142,11 +152,10 @@ def correopedido(pedido):
             </p>
 
             <p style="font-size: 14px; color:#999; text-align:center; margin-top: 30px;">
-                — Gracias por confiar en <b>WalunHub</b> 💚
+                — Gracias por confiar en <b>WalunGranel</b> 💚
             </p>
         </div>
     """
-
     msg = EmailMultiAlternatives(subject, "", from_email, to)
     msg.attach_alternative(html_content, "text/html")
     msg.send()
@@ -265,6 +274,10 @@ def mp_webhook(request):
 
 
     if status_mp == "approved":
+
+        if pedido.estado == pedido_pagado:
+            return Response({"message": "pedido ya marcado como pagado"}, status=200)
+        
         pedido.estado_pago = pago_pagado
         pedido.estado = pedido_pagado
 
@@ -273,6 +286,9 @@ def mp_webhook(request):
             info_pago.get("transaction_details", {}).get("external_resource_url")
             or info_pago.get("receipt_url")
         )
+
+        pedido.save()
+
         correopedido(pedido)
         # for item in pedido.items.all():
         #     producto = item.producto
