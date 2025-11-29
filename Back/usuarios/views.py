@@ -5,7 +5,7 @@ from rest_framework.authtoken.models import Token
 from .permissions import EsVendedor
 from django.contrib.auth import authenticate
 from .models import CustomUser
-from .serializers import RegistroUsuarioSerializer, UsuarioSerializer
+from .serializers import RegistroUsuarioSerializer, UsuarioAdminSerializer, UsuarioSerializer
 import random
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
@@ -239,6 +239,6 @@ class ActualizarPerfilView(generics.UpdateAPIView):
         return self.request.user
 
 class UsuarioAdminViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by("username")
-    serializer_class = UsuarioSerializer
+    queryset = User.objects.all().order_by("id")
+    serializer_class = UsuarioAdminSerializer
     permission_classes = [permissions.IsAuthenticated]

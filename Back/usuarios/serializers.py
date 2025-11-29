@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
+from django.contrib.auth.hashers import make_password
 
 User = get_user_model()
 
@@ -31,7 +32,29 @@ class UsuarioSerializer(serializers.ModelSerializer):
         )
 
 
-from django.contrib.auth.hashers import make_password
+class UsuarioAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "email",
+            "telefono",
+            "direccion",
+            "comuna",
+            "ciudad",
+            "codigo_postal",
+            "es_vendedor",
+        ]
+        read_only_fields = ["id"]
+
+
+    def validate_email(self, value):
+        user_id = self.instance.id if self.instance else None
+        if User.objects.exclude(id=user_id).filter(email=value).exists():
+            raise serializers.ValidationError("Este correo ya está en uso.")
+        return value
+
 
 
 class PasswordResetRequestSerializer(serializers.Serializer):

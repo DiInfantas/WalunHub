@@ -99,3 +99,13 @@ export const updateContacto = async (id: number, datos: any) => {
   const res = await api.patch(`/contactos/${id}/`, datos);
   return res.data;
 };
+
+export const editarUsuarioAdmin = async (id: number, data: any) => {
+  const res = await api.patch(`/usuarios/usuarios-admin/${id}/`, data);
+  return res.data;
+};
+
+export const eliminarUsuarioAdmin = async (id: number) => {
+  const res = await api.delete(`/usuarios/usuarios-admin/${id}/`);
+  return res.data;
+};

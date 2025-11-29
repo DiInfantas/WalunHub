@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "../../config/api";
+import { api, editarUsuarioAdmin, eliminarUsuarioAdmin } from "../../config/api";
 import { Toaster } from "react-hot-toast";
 import { toastError, toastSuccess } from "../../interfaces/toast";
 
@@ -15,15 +15,7 @@ interface Usuario {
   es_vendedor: boolean;
 }
 
-interface ModalProps {
-  open: boolean;
-  title: string;
-  message: string;
-  onConfirm: () => void;
-  onClose: () => void;
-}
-
-function ConfirmModal({ open, title, message, onConfirm, onClose }: ModalProps) {
+function ConfirmModal({ open, title, message, onConfirm, onClose }: any) {
   if (!open) return null;
 
   return (
@@ -53,13 +45,73 @@ function ConfirmModal({ open, title, message, onConfirm, onClose }: ModalProps) 
   );
 }
 
+function EditUsuarioModal({ open, usuario, onClose, onSave }: any) {
+  if (!open || !usuario) return null;
+
+  const [form, setForm] = useState({ ...usuario });
+
+  const handleChange = (e: any) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const campos = [
+    "username",
+    "email",
+    "telefono",
+    "direccion",
+    "comuna",
+    "ciudad",
+    "codigo_postal",
+  ];
+
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full">
+        <h2 className="text-xl font-bold mb-4">Editar Usuario</h2>
+
+        <div className="flex flex-col gap-3">
+          {campos.map((field) => (
+            <input
+              key={field}
+              name={field}
+              value={(form as any)[field] || ""}
+              onChange={handleChange}
+              placeholder={field}
+              className="border p-2 rounded"
+            />
+          ))}
+        </div>
+
+        <div className="flex gap-3 mt-4">
+          <button
+            onClick={() => onSave(form)}
+            className="flex-1 bg-green-600 text-white py-2 rounded"
+          >
+            Guardar
+          </button>
+
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-500 text-white py-2 rounded"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CuentasPanel() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Modales
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
+  const [confirmAction, setConfirmAction] = useState(() => {});
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [usuarioEdit, setUsuarioEdit] = useState<Usuario | null>(null);
 
   useEffect(() => {
     cargarUsuarios();
@@ -74,13 +126,12 @@ export default function CuentasPanel() {
   };
 
   const actualizarVendedor = (id: number, es_vendedor: boolean) => {
-    const nombre =
-      usuarios.find((u) => u.id === id)?.username || "este usuario";
+    const nombre = usuarios.find((u) => u.id === id)?.username || "este usuario";
 
     setModalMessage(
       `¿Estás seguro de que quieres ${
-        es_vendedor ? "dar acceso a" : "revocar acceso de"
-      } ${nombre}?`
+        es_vendedor ? "otorgar" : "revocar"
+      } acceso de vendedor a ${nombre}?`
     );
 
     setConfirmAction(() => async () => {
@@ -90,12 +141,48 @@ export default function CuentasPanel() {
         toastSuccess(
           es_vendedor
             ? `Acceso otorgado a ${nombre}`
-            : `Acceso revocado de ${nombre}`
+            : `Acceso revocado a ${nombre}`
         );
 
         cargarUsuarios();
       } catch {
         toastError("Error al actualizar permiso");
+      }
+
+      setOpenConfirmModal(false);
+    });
+
+    setOpenConfirmModal(true);
+  };
+
+  const abrirEditarUsuario = (u: Usuario) => {
+    setUsuarioEdit(u);
+    setOpenEditModal(true);
+  };
+
+  const guardarUsuario = async (data: any) => {
+    try {
+      await editarUsuarioAdmin(usuarioEdit!.id, data);
+
+      toastSuccess("Usuario actualizado correctamente");
+      setOpenEditModal(false);
+      cargarUsuarios();
+    } catch {
+      toastError("Error al actualizar usuario");
+    }
+  };
+
+  const borrarUsuario = (id: number) => {
+    setModalMessage("¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.");
+
+    setConfirmAction(() => async () => {
+      try {
+        await eliminarUsuarioAdmin(id);
+        toastSuccess("Usuario eliminado");
+
+        cargarUsuarios();
+      } catch {
+        toastError("Error al eliminar usuario");
       }
 
       setOpenConfirmModal(false);
@@ -124,6 +211,7 @@ export default function CuentasPanel() {
               <th className="px-4 py-2 text-left">Acciones</th>
             </tr>
           </thead>
+
           <tbody>
             {usuarios.map((u) => (
               <tr key={u.id} className="border-b">
@@ -131,6 +219,7 @@ export default function CuentasPanel() {
                 <td className="px-4 py-2">{u.email}</td>
                 <td className="px-4 py-2">{u.telefono || "—"}</td>
                 <td className="px-4 py-2">{u.ciudad || "—"}</td>
+
                 <td className="px-4 py-2">
                   <span
                     className={`px-2 py-1 rounded text-sm font-semibold ${
@@ -142,7 +231,8 @@ export default function CuentasPanel() {
                     {u.es_vendedor ? "Sí" : "No"}
                   </span>
                 </td>
-                <td className="px-4 py-2">
+
+                <td className="px-4 py-2 flex gap-2">
                   <button
                     onClick={() => actualizarVendedor(u.id, !u.es_vendedor)}
                     className={`px-3 py-1 rounded text-white ${
@@ -151,7 +241,21 @@ export default function CuentasPanel() {
                         : "bg-green-600 hover:bg-green-700"
                     }`}
                   >
-                    {u.es_vendedor ? "Revocar acceso" : "Dar acceso"}
+                    {u.es_vendedor ? "Revocar" : "Dar acceso"}
+                  </button>
+
+                  <button
+                    onClick={() => abrirEditarUsuario(u)}
+                    className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    onClick={() => borrarUsuario(u.id)}
+                    className="px-3 py-1 rounded bg-gray-600 text-white hover:bg-gray-700"
+                  >
+                    Borrar
                   </button>
                 </td>
               </tr>
@@ -169,6 +273,14 @@ export default function CuentasPanel() {
         onConfirm={confirmAction}
         onClose={() => setOpenConfirmModal(false)}
       />
+
+      <EditUsuarioModal
+        open={openEditModal}
+        usuario={usuarioEdit}
+        onClose={() => setOpenEditModal(false)}
+        onSave={guardarUsuario}
+      />
     </div>
   );
 }
+
