@@ -26,7 +26,7 @@ export default function Home(): JSX.Element {
       .then((res) => res.json())
       .then((data) => {
         setProductosDestacados(data.filter((p: Producto) => p.destacado));
-        setUltimosProductos(data.slice(-6));
+        setUltimosProductos(data.slice(-8));
       })
       .catch(() => console.error("Error cargando productos"));
   }, []);
@@ -105,9 +105,100 @@ export default function Home(): JSX.Element {
           </div>
         </div>
       </section>
-
-      {/* TESTIMONIOS */}
+      {/* CATEGORÍAS */}
       <section className="py-14 bg-white">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <h3 className="text-3xl md:text-4xl font-bold mb-3 text-gray-800">
+            Categorías Destacadas
+          </h3>
+          <p className="text-gray-600 max-w-2xl mx-auto mb-10">
+            Encuentra tus productos favoritos organizados por categoría.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {categorias.slice(0, 6).map((cat) => (
+              <a
+                key={cat.id}
+                href={`/catalogo?categoria=${encodeURIComponent(cat.nombre)}`}
+                className="group bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-2xl font-semibold text-green-900">
+                    {cat.nombre}
+                  </h4>
+                  <span className="text-green-700 opacity-0 group-hover:opacity-100 transition-all text-2xl">
+                    →
+                  </span>
+                </div>
+
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  {cat.descripcion || "Explora los productos de esta categoría."}
+                </p>
+              </a>
+            ))}
+          </div>
+
+          <div className="mt-10">
+            <a
+              href="/catalogo"
+              className="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-md transition"
+            >
+              Ver todas las categorías
+            </a>
+          </div>
+        </div>
+      </section>
+
+
+      {/* DESTACADOS */}
+      <section className="max-w-6xl mx-auto px-6">
+        <h2 className="text-3xl font-bold mb-6">Productos Destacados</h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          {productosDestacados.map((p) => (
+            <a
+              key={p.id}
+              href={`/producto/${p.id}`}
+              className="bg-white rounded-xl shadow hover:shadow-lg transition p-4"
+            >
+              <img
+                src={p.imagenes[0]?.imagen || "/img/default.jpg"}
+                alt={p.nombre}
+                className="w-full h-48 object-cover rounded-lg"
+              />
+              <h3 className="text-lg font-semibold mt-3">{p.nombre}</h3>
+              <p className="text-green-700 font-bold">${p.precio} / kg</p>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* ÚLTIMOS PRODUCTOS */}
+      <section className="max-w-6xl mx-auto px-6">
+        <h2 className="text-3xl font-bold mb-6">Últimos Productos</h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          {ultimosProductos.map((p) => (
+            <a
+              key={p.id}
+              href={`/producto/${p.id}`}
+              className="bg-white rounded-xl shadow hover:shadow-lg transition p-4"
+            >
+              <img
+                src={p.imagenes[0]?.imagen || "/img/default.jpg"}
+                alt={p.nombre}
+                className="w-full h-48 object-cover rounded-lg"
+              />
+              <h3 className="text-lg font-semibold mt-3">{p.nombre}</h3>
+              <p className="text-green-700 font-bold">${p.precio} / kg</p>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      
+      {/* TESTIMONIOS */}
+      <section className="py-8 bg-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
 
           <h3 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
@@ -162,97 +253,6 @@ export default function Home(): JSX.Element {
           </div>
         </div>
       </section>
-
-      {/* DESTACADOS */}
-      <section className="max-w-6xl mx-auto px-6">
-        <h2 className="text-3xl font-bold mb-6">Productos Destacados</h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {productosDestacados.map((p) => (
-            <a
-              key={p.id}
-              href={`/producto/${p.id}`}
-              className="bg-white rounded-xl shadow hover:shadow-lg transition p-4"
-            >
-              <img
-                src={p.imagenes[0]?.imagen || "/img/default.jpg"}
-                alt={p.nombre}
-                className="w-full h-48 object-cover rounded-lg"
-              />
-              <h3 className="text-lg font-semibold mt-3">{p.nombre}</h3>
-              <p className="text-green-700 font-bold">${p.precio} / kg</p>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      {/* ÚLTIMOS PRODUCTOS */}
-      <section className="max-w-6xl mx-auto px-6">
-        <h2 className="text-3xl font-bold mb-6">Últimos Productos</h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {ultimosProductos.map((p) => (
-            <a
-              key={p.id}
-              href={`/producto/${p.id}`}
-              className="bg-white rounded-xl shadow hover:shadow-lg transition p-4"
-            >
-              <img
-                src={p.imagenes[0]?.imagen || "/img/default.jpg"}
-                alt={p.nombre}
-                className="w-full h-48 object-cover rounded-lg"
-              />
-              <h3 className="text-lg font-semibold mt-3">{p.nombre}</h3>
-              <p className="text-green-700 font-bold">${p.precio} / kg</p>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      {/* CATEGORÍAS */}
-      <section className="py-14 bg-white">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h3 className="text-3xl md:text-4xl font-bold mb-3 text-gray-800">
-            Categorías Destacadas
-          </h3>
-          <p className="text-gray-600 max-w-2xl mx-auto mb-10">
-            Encuentra tus productos favoritos organizados por categoría.
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {categorias.slice(0, 6).map((cat) => (
-              <a
-                key={cat.id}
-                href={`/catalogo?categoria=${encodeURIComponent(cat.nombre)}`}
-                className="group bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-2xl font-semibold text-green-900">
-                    {cat.nombre}
-                  </h4>
-                  <span className="text-green-700 opacity-0 group-hover:opacity-100 transition-all text-2xl">
-                    →
-                  </span>
-                </div>
-
-                <p className="text-gray-700 text-sm leading-relaxed">
-                  {cat.descripcion || "Explora los productos de esta categoría."}
-                </p>
-              </a>
-            ))}
-          </div>
-
-          <div className="mt-10">
-            <a
-              href="/catalogo"
-              className="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-md transition"
-            >
-              Ver todas las categorías
-            </a>
-          </div>
-        </div>
-      </section>
-
       {/* CTA */}
       <section className="text-center py-14 bg-green-50">
         <h2 className="text-3xl font-bold mb-3 text-gray-800">
