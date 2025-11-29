@@ -8,13 +8,6 @@ import CuentasPanel from "./cuentaspanel";
 import ContactosPanel from "./contactospanel";
 import { toastError } from "../../interfaces/toast";
 
-/**
- * DashboardDueña.tsx
- * - Sidebar desktop fijo
- * - Sidebar móvil deslizable (off-canvas) que aparece al pulsar un botón dentro del contenido
- * - Comprueba autorización (api)
- * - Mantiene los panels que tenías
- */
 
 const menuItems = [
   { id: "productos", label: "Productos" },
@@ -26,7 +19,7 @@ const menuItems = [
 
 type MenuId = "productos" | "pedidos" | "categorias" | "cuentas" | "contactos";
 
-// Sidebar deslizante (móvil)
+
 const SidebarSlide: React.FC<{
   active: MenuId;
   setActive: (s: MenuId) => void;
@@ -35,7 +28,6 @@ const SidebarSlide: React.FC<{
 }> = ({ active, setActive, open, close }) => {
   return (
     <>
-      {/* Overlay */}
       <div
         className={`fixed inset-0 z-40 bg-black bg-opacity-40 transition-opacity duration-200 ${
           open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -44,7 +36,6 @@ const SidebarSlide: React.FC<{
         aria-hidden={!open}
       />
 
-      {/* Panel */}
       <aside
         className={`fixed top-0 left-0 z-50 h-full w-72 bg-green-700 text-white shadow-lg p-5 transform transition-transform duration-300 sm:hidden ${
           open ? "translate-x-0" : "-translate-x-full"
@@ -85,7 +76,6 @@ const SidebarSlide: React.FC<{
   );
 };
 
-// Sidebar para desktop
 const SidebarDesktop: React.FC<{
   active: MenuId;
   setActive: (s: MenuId) => void;
@@ -160,7 +150,6 @@ const DashboardDueña: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar slide (móvil) */}
       <SidebarSlide
         active={active}
         setActive={setActive}
@@ -168,12 +157,9 @@ const DashboardDueña: React.FC = () => {
         close={() => setOpenSidebar(false)}
       />
 
-      {/* Sidebar desktop */}
       <SidebarDesktop active={active} setActive={setActive} />
 
-      {/* MAIN CONTENT */}
       <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
-        {/* Botón + mini topbar para móvil */}
         <div className="sm:hidden flex items-center justify-between mb-4">
           <button
             onClick={() => setOpenSidebar(true)}
@@ -187,12 +173,10 @@ const DashboardDueña: React.FC = () => {
           <span className="font-bold text-green-700">Panel de gestión</span>
         </div>
 
-        {/* Título (desktop) */}
         <h1 className="hidden sm:block text-3xl font-bold text-green-700 mb-6">
           Panel de gestión de WalunGranel
         </h1>
 
-        {/* Contenedor principal del panel */}
         <div className="min-h-[200px]">{renderContent()}</div>
       </main>
     </div>

@@ -34,7 +34,6 @@ export default function Home(): JSX.Element {
   return (
     <div className="flex flex-col gap-16">
 
-      {/* HERO */}
       <section className="relative h-[70vh] flex items-center justify-center text-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -58,7 +57,6 @@ export default function Home(): JSX.Element {
         </div>
       </section>
 
-      {/* SOBRE WALUNGRANEL */}
       <section className="py-14 bg-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
 
@@ -75,7 +73,6 @@ export default function Home(): JSX.Element {
             a granel y sin exceso de envases.
           </p>
 
-          {/* Valores */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 
             <div className="group bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
@@ -105,7 +102,6 @@ export default function Home(): JSX.Element {
           </div>
         </div>
       </section>
-      {/* CATEGORÍAS */}
       <section className="py-14 bg-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <h3 className="text-3xl md:text-4xl font-bold mb-3 text-gray-800">
@@ -150,7 +146,6 @@ export default function Home(): JSX.Element {
       </section>
 
 
-      {/* DESTACADOS */}
       <section className="max-w-6xl mx-auto px-6">
         <h2 className="text-3xl font-bold mb-6">Productos Destacados</h2>
 
@@ -173,7 +168,6 @@ export default function Home(): JSX.Element {
         </div>
       </section>
 
-      {/* ÚLTIMOS PRODUCTOS */}
       <section className="max-w-6xl mx-auto px-6">
         <h2 className="text-3xl font-bold mb-6">Últimos Productos</h2>
 
@@ -197,7 +191,6 @@ export default function Home(): JSX.Element {
       </section>
 
       
-      {/* TESTIMONIOS */}
       <section className="py-8 bg-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
 
@@ -253,7 +246,6 @@ export default function Home(): JSX.Element {
           </div>
         </div>
       </section>
-      {/* CTA */}
       <section className="text-center py-14 bg-green-50">
         <h2 className="text-3xl font-bold mb-3 text-gray-800">
           Vive mejor, come mejor.

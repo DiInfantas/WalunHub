@@ -6,7 +6,6 @@ import { agregarAlCarrito } from "../carrito/carritoUtils";
 import { Toaster } from "react-hot-toast";
 import { toastError, toastSuccess } from "../../interfaces/toast";
 
-// 🟢 Formato de peso bonito
 const formatPeso = (peso: string | number) => {
   const num = Number(peso);
   if (num < 1) return `${num * 1000} g`;
@@ -20,7 +19,6 @@ function ProductoDetalle() {
   const [cantidad, setCantidad] = useState(1);
   const [productosRelacionados, setProductosRelacionados] = useState<Producto[]>([]);
 
-  // 🟦 referencia del carrusel
   const carouselRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -32,7 +30,6 @@ function ProductoDetalle() {
           setCantidad(0);
         }
 
-        // 🟦 Cargar relacionados sin repetir producto actual
         api.get(`/productos/`).then((res2) => {
           const todos = res2.data as Producto[];
           const relacionados = todos
@@ -83,10 +80,9 @@ function ProductoDetalle() {
     toastSuccess("Producto agregado al carrito");
   };
 
-  // 🟦 Flechas del carrusel
   const scrollCarousel = (dir: "left" | "right") => {
     if (!carouselRef.current) return;
-    const amount = 260; // cuánto scrollea
+    const amount = 260;
     carouselRef.current.scrollBy({
       left: dir === "left" ? -amount : amount,
       behavior: "smooth",
@@ -98,14 +94,12 @@ function ProductoDetalle() {
       <Toaster position="top-center" />
 
       <div className="grid md:grid-cols-2 gap-10">
-        {/* Imagen */}
         <img
           src={producto.imagenes[0]?.imagen || "/img/default.jpg"}
           alt={producto.nombre}
           className="w-full h-96 object-cover rounded-xl shadow-lg"
         />
 
-        {/* Info */}
         <div>
           <h1 className="text-4xl font-bold text-green-900 mb-2">{producto.nombre}</h1>
 
@@ -121,7 +115,6 @@ function ProductoDetalle() {
             {disponible ? "Hay stock disponible" : "Sin stock disponible"}
           </p>
 
-          {/* Cantidad */}
           <div className="flex items-center gap-3 mb-6">
             <button
               onClick={() => setCantidad(Math.max(1, cantidad - 1))}
@@ -142,7 +135,6 @@ function ProductoDetalle() {
             </button>
           </div>
 
-          {/* Botón */}
           <button
             onClick={handleAddToCart}
             disabled={!disponible}
@@ -156,12 +148,10 @@ function ProductoDetalle() {
         </div>
       </div>
 
-      {/* Productos relacionados */}
       {productosRelacionados.length > 0 && (
         <section className="mt-14 relative">
           <h2 className="text-2xl font-bold text-green-900 mb-5">Te podría interesar</h2>
 
-          {/* Botones flecha */}
           <button
             onClick={() => scrollCarousel("left")}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow rounded-full p-2 hover:scale-110 transition"
@@ -176,7 +166,6 @@ function ProductoDetalle() {
             ▶
           </button>
 
-          {/* Carrusel */}
           <div
             ref={carouselRef}
             className="flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-green-300 scrollbar-track-gray-100 scroll-smooth"
@@ -185,9 +174,8 @@ function ProductoDetalle() {
               <div
                 key={p.id}
                 className="min-w-[220px] bg-white rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col"
-                style={{ height: "350px" }} // ← Altura fija del card
+                style={{ height: "350px" }}
               >
-                {/* Imagen cuadrada */}
                 <div className="w-full h-32 bg-gray-100 rounded-lg overflow-hidden">
                   <img
                     src={p.imagenes[0]?.imagen || "/img/default.jpg"}
@@ -196,30 +184,24 @@ function ProductoDetalle() {
                   />
                 </div>
 
-                {/* Contenido */}
                 <div className="flex flex-col flex-1 mt-3">
 
-                  {/* Nombre → altura fija */}
                   <h3 className="font-semibold text-gray-900 text-lg truncate h-6">
                     {p.nombre}
                   </h3>
 
-                  {/* Bolsa x kg → altura fija */}
                   <p className="text-green-700 text-sm font-medium h-5">
                     Bolsa x {formatPeso(p.peso_kg)}
                   </p>
 
-                  {/* Descripción → altura fija */}
                   <p className="text-gray-600 text-sm line-clamp-2 h-10">
                     {p.descripcion}
                   </p>
 
-                  {/* Precio → altura fija */}
                   <p className="text-green-700 font-bold text-lg mt-auto mb-2 h-6">
                     ${p.precio}
                   </p>
 
-                  {/* Botón */}
                   <a
                     href={`/producto/${p.id}`}
                     className="block text-center bg-green-600 hover:bg-green-700 text-white rounded-lg py-2 transition h-10"

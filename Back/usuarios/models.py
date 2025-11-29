@@ -18,8 +18,8 @@ class CustomUser(AbstractUser):
     key = models.IntegerField(blank=True, null=True)
 
 
-    USERNAME_FIELD = 'email'          # login con correo
-    REQUIRED_FIELDS = ['username']    # nombre completo requerido al registrar
+    USERNAME_FIELD = 'email'     
+    REQUIRED_FIELDS = ['username']    
 
     def __str__(self):
         return f"{self.username or ''} ({self.email}) ({self.es_vendedor and 'Vendedor' or 'Cliente'}) ([self.telefono or 'Sin teléfono'])"

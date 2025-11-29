@@ -11,7 +11,7 @@ export default function Catalogo(): JSX.Element {
   const [categorias, setCategorias] = useState<CategoriaType[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Filtros
+  
   const [selectedCat, setSelectedCat] = useState<string>("all");
   const [selectedOrden, setSelectedOrden] = useState<"asc" | "desc">("asc");
   const [appliedCat, setAppliedCat] = useState<string>("all");
@@ -63,7 +63,6 @@ export default function Catalogo(): JSX.Element {
     return list;
   }, [productos, appliedCat, appliedOrden]);
 
-  // Fallback de imágenes
   const getImage = (p: ProductoType) =>
     p.imagenes?.[0]?.imagen || "/img/default.jpg";
 
@@ -71,7 +70,6 @@ export default function Catalogo(): JSX.Element {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Toaster position="top-center" />
 
-      {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Nuestro catálogo</h1>
@@ -97,7 +95,6 @@ export default function Catalogo(): JSX.Element {
         </div>
       </div>
 
-      {/* SPINNER */}
       {loading && (
         <div className="flex justify-center py-20">
           <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
@@ -106,7 +103,6 @@ export default function Catalogo(): JSX.Element {
 
       {!loading && (
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          {/* SIDEBAR */}
           <aside className="hidden md:block md:col-span-3">
             <div className="sticky top-24 space-y-6">
               <div className="bg-white border rounded-lg p-4 shadow-sm">
@@ -148,7 +144,6 @@ export default function Catalogo(): JSX.Element {
             </div>
           </aside>
 
-          {/* PRODUCTS */}
           <div className="md:col-span-9">
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {productosFiltrados.map((producto) => {
@@ -185,16 +180,13 @@ export default function Catalogo(): JSX.Element {
                     key={producto.id}
                     className="group flex flex-col bg-white rounded-xl shadow-sm border hover:shadow-md transition p-3 h-full"
                   >
-                    {/* IMAGEN */}
                     <div className="relative w-full aspect-square overflow-hidden rounded-lg bg-gray-100">
-                      {/* BADGE DESTACADO */}
                       {producto.destacado && (
                         <span className="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded-lg shadow z-10">
                           ⭐ Destacado
                         </span>
                       )}
 
-                      {/* BADGE POCO STOCK */}
                       {producto.stock > 0 && producto.stock <= 5 && (
                         <span
                           className={`absolute ${
@@ -212,7 +204,6 @@ export default function Catalogo(): JSX.Element {
                       />
                     </div>
 
-                    {/* CONTENIDO */}
                     <div className="flex flex-col flex-grow mt-3">
                       <h3 className="text-lg font-semibold text-gray-800 leading-tight line-clamp-1">
                         {producto.nombre}
@@ -246,7 +237,6 @@ export default function Catalogo(): JSX.Element {
         </div>
       )}
 
-      {/* MOBILE FILTERS */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50">
           <div

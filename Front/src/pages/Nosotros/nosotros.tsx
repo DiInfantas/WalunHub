@@ -3,10 +3,8 @@ export default function Nosotros() {
         <section className="pb-20 pt-12 overflow-hidden bg-white">
             <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
 
-                {/* GRID */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
 
-                    {/* IZQUIERDA */}
                     <div className="space-y-6">
                         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
                             Nuestra historia 🌱
@@ -37,7 +35,6 @@ export default function Nosotros() {
                         </p>
                     </div>
 
-                    {/* DERECHA */}
                     <div className="flex flex-col items-center lg:items-end text-center lg:text-right">
 
                         <div className="w-24 h-1 bg-green-600 mb-4 rounded-full" />

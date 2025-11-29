@@ -69,7 +69,7 @@ export default function Checkout() {
 
   // console.log("carrito:", carrito);
   // console.log("pesoTotal calculado:", pesoTotal);
-  // console.log("🟢PEDIDO CREADO EN CHECKOUT =>", pedidoCreado);
+  // console.log("PEDIDO CREADO EN CHECKOUT =>", pedidoCreado);
 
   const calcularRangoEnvio = (kg: number) => {
     if (kg <= 0) return null;
