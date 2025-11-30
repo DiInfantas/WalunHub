@@ -21,8 +21,8 @@ function Modal({ open, title, children, onConfirm, onClose }: ModalProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+      <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-sm">
         <h2 className="text-xl font-bold mb-3">{title}</h2>
 
         <div className="mb-4">{children}</div>
@@ -119,12 +119,12 @@ export default function CategoriasPanel() {
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-green-600">
+    <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg border-2 border-green-600">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-green-700">Gestión de Categorías</h2>
         <button
           onClick={abrirModalCrear}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-600"
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
         >
           + Nueva categoría
         </button>
@@ -133,42 +133,74 @@ export default function CategoriasPanel() {
       {loading ? (
         <p className="text-gray-600">Cargando categorías...</p>
       ) : (
-        <table className="w-full table-auto border-collapse">
-          <thead>
-            <tr className="bg-white-600 text-green-700">
-              <th className="px-4 py-2 text-left">Nombre</th>
-              <th className="px-4 py-2 text-left">Descripción</th>
-              <th className="px-4 py-2 text-left">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
+        <>
+          {/* TABLE (DESKTOP) */}
+          <table className="hidden md:table w-full table-auto border-collapse">
+            <thead>
+              <tr className="bg-green-100 text-green-700">
+                <th className="px-4 py-2 text-left">Nombre</th>
+                <th className="px-4 py-2 text-left">Descripción</th>
+                <th className="px-4 py-2 text-left">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categorias.map((cat) => (
+                <tr key={cat.id} className="border-b">
+                  <td className="px-4 py-2">{cat.nombre}</td>
+                  <td className="px-4 py-2">{cat.descripcion}</td>
+                  <td className="px-4 py-2 space-x-2">
+                    <button
+                      onClick={() => abrirModalEditar(cat)}
+                      className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      onClick={() => eliminarCategoria(cat.id)}
+                      className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* CARDS (MOBILE) */}
+          <div className="grid md:hidden grid-cols-1 gap-4 mt-4">
             {categorias.map((cat) => (
-              <tr key={cat.id} className="border-b">
-                <td className="px-4 py-2">{cat.nombre}</td>
-                <td className="px-4 py-2">{cat.descripcion}</td>
-                <td className="px-4 py-2 space-x-2">
+              <div
+                key={cat.id}
+                className="border-2 border-green-600 rounded-lg p-4 shadow-sm"
+              >
+                <h3 className="text-lg font-bold text-green-700">{cat.nombre}</h3>
+                <p className="text-gray-700 mt-1">{cat.descripcion}</p>
+
+                <div className="flex gap-2 mt-4">
                   <button
                     onClick={() => abrirModalEditar(cat)}
-                    className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    className="flex-1 bg-blue-600 text-white py-2 rounded"
                   >
                     Editar
                   </button>
-
                   <button
                     onClick={() => eliminarCategoria(cat.id)}
-                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                    className="flex-1 bg-red-600 text-white py-2 rounded"
                   >
                     Eliminar
                   </button>
-                </td>
-              </tr>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </>
       )}
 
+      {/* MODAL CREAR/EDITAR */}
       {mostrarModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
           <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
             <h3 className="text-xl font-bold text-green-700 mb-4">
               {modoEdicion ? "Editar categoría" : "Nueva categoría"}
