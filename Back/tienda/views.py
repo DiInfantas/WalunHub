@@ -378,12 +378,15 @@ class PedidoAdminListView(generics.ListAPIView):
     def get_queryset(self):
         queryset = Pedido.objects.all().order_by("-id")
 
+        id = self.request.query_params.get("id")
         estado = self.request.query_params.get("estado")
         estado_pago = self.request.query_params.get("estado_pago")
         email = self.request.query_params.get("email")
         nombre = self.request.query_params.get("nombre")
         tipo_entrega = self.request.query_params.get("tipo_entrega")
 
+        if id:
+            queryset = queryset.filter(id=id)
         if estado:
             queryset = queryset.filter(estado__nombre__icontains=estado)
         if estado_pago:
@@ -396,6 +399,7 @@ class PedidoAdminListView(generics.ListAPIView):
             queryset = queryset.filter(tipo_entrega__iexact=tipo_entrega)
 
         return queryset
+
 
 
 class PedidoRetrieveUpdateView(generics.RetrieveUpdateAPIView):
