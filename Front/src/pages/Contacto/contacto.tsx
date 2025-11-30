@@ -38,7 +38,7 @@ export default function Contacto() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-8">
           <div className="p-4 shadow-lg rounded-lg bg-green-100 hover:bg-green-200 transition-colors">
             <h3 className="text-xl font-bold">Teléfono</h3>
-            <p className="text-gray-700 mt-2">+56 9 1234 5678</p>
+            <p className="text-gray-700 mt-2">+56 9 8652 5272</p>
           </div>
           <div className="p-4 shadow-lg rounded-lg bg-green-100 hover:bg-green-200 transition-colors">
             <h3 className="text-xl font-bold">Correo</h3>
@@ -46,7 +46,7 @@ export default function Contacto() {
           </div>
           <div className="p-4 shadow-lg rounded-lg bg-green-100 hover:bg-green-200 transition-colors">
             <h3 className="text-xl font-bold">Dirección</h3>
-            <p className="text-gray-700 mt-2">Portugal 87, Santiago</p>
+            <p className="text-gray-700 mt-2">Francisco de villagra, 6378, La Reina</p>
           </div>
         </div>
       </section>

@@ -25,7 +25,7 @@ export default function Nosotros() {
                             <br className="block sm:hidden" />
                             Escríbenos por{" "}
                             <a
-                                href="https://wa.me/56912345678"
+                                href="https://wa.me/56986525272"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-green-600 font-semibold hover:underline"
