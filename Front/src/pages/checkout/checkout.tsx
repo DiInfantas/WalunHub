@@ -6,7 +6,6 @@ import { Toaster } from "react-hot-toast";
 import { toastError } from "../../interfaces/toast";
 import { getPerfil } from "../../config/api";
 
-
 export default function Checkout() {
   const [carrito, setCarrito] = useState<ItemCarrito[]>([]);
   const [pedidoCreado, setPedidoCreado] = useState<any | null>(null);
@@ -27,7 +26,6 @@ export default function Checkout() {
   useEffect(() => {
     setCarrito(obtenerCarrito());
   }, []);
-
 
   useEffect(() => {
     const cargarPerfil = async () => {
@@ -51,7 +49,6 @@ export default function Checkout() {
     cargarPerfil();
   }, []);
 
-  
   const total = carrito.reduce(
     (acc, item) => acc + item.precio * item.cantidad,
     0
@@ -67,10 +64,6 @@ export default function Checkout() {
     return acc + peso * item.cantidad;
   }, 0);
 
-  // console.log("carrito:", carrito);
-  // console.log("pesoTotal calculado:", pesoTotal);
-  // console.log("PEDIDO CREADO EN CHECKOUT =>", pedidoCreado);
-
   const calcularRangoEnvio = (kg: number) => {
     if (kg <= 0) return null;
     if (kg <= 0.5) return { min: 3100, max: 4200 };
@@ -85,6 +78,13 @@ export default function Checkout() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
+    // Validación teléfono: solo dígitos, máximo 9 caracteres
+    if (e.target.name === "telefono") {
+      const soloNumeros = e.target.value.replace(/\D/g, "").slice(0, 9);
+      setForm({ ...form, telefono: soloNumeros });
+      return;
+    }
+
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -160,7 +160,6 @@ export default function Checkout() {
     );
   };
 
-
   const ejecutarPago = async () => {
     try {
       const pedido = await crearPedido({
@@ -190,8 +189,6 @@ export default function Checkout() {
           unit_price: item.precio,
         }))
       );
-
-      console.log("Preferencia generada por MP:", pref);
 
       if (!pref.init_point) {
         toastError("Error al generar el pago.");
@@ -228,7 +225,6 @@ export default function Checkout() {
     setOnResult(() => ejecutarPago);
   };
 
-
   return (
     <>
       <EnvioModal />
@@ -260,6 +256,7 @@ export default function Checkout() {
               value={form.telefono}
               onChange={handleChange}
               className="w-full border-2 border-green-600 p-3 rounded"
+              placeholder="Solo 9 dígitos"
             />
           </div>
 
@@ -326,7 +323,7 @@ export default function Checkout() {
                     className="w-12 h-12 rounded object-cover"
                   />
                   <span>
-                    {item.nombre} x {item.cantidad}
+                    {item.nombre} ({item.peso_kg} kg) x {item.cantidad}
                   </span>
                 </div>
                 <span>
@@ -365,6 +362,3 @@ export default function Checkout() {
     </>
   );
 }
-
-
-
