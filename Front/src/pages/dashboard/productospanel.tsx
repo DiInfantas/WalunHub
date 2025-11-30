@@ -10,7 +10,7 @@ interface Producto {
   precio: number;
   peso_kg: number;
   stock: number;
-  categoria: string;
+  categoria: number; // ← FIX: ahora es number
   destacado: boolean;
   activo: boolean;
   imagenes: { id: number; imagen: string }[];
@@ -30,7 +30,6 @@ export default function ProductosPanel() {
   const [modoEdicion, setModoEdicion] = useState(false);
   const [productoEditando, setProductoEditando] = useState<number | null>(null);
   const [imagen, setImagen] = useState<File | null>(null);
-
 
   const [mostrarModalEliminar, setMostrarModalEliminar] = useState(false);
   const [productoEliminar, setProductoEliminar] = useState<number | null>(null);
@@ -90,7 +89,7 @@ export default function ProductosPanel() {
       precio: String(producto.precio),
       peso_kg: String(producto.peso_kg),
       stock: String(producto.stock),
-      categoria: producto.categoria,
+      categoria: String(producto.categoria),
       destacado: producto.destacado,
       activo: producto.activo,
     });
@@ -107,7 +106,7 @@ export default function ProductosPanel() {
       precio: parseFloat(formulario.precio),
       peso_kg: parseFloat(formulario.peso_kg),
       stock: parseInt(formulario.stock),
-      categoria: formulario.categoria,
+      categoria: Number(formulario.categoria), // ← FIX
       destacado: formulario.destacado,
       activo: formulario.activo,
     };
@@ -162,7 +161,9 @@ export default function ProductosPanel() {
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-green-600">
+    <div className="bg-white p-6 rounded-lg shadow-lg border-2 border-green-600">
+
+      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-green-700">Gestión de Productos</h2>
         <button
@@ -173,58 +174,82 @@ export default function ProductosPanel() {
         </button>
       </div>
 
+      {/* Contenido */}
       {loading ? (
         <p className="text-gray-600">Cargando productos...</p>
       ) : (
-        <table className="w-full table-auto border-collapse">
-          <thead>
-            <tr className="bg-green-100 text-green-700">
-              <th className="px-4 py-2 text-left">Imagen</th>
-              <th className="px-4 py-2 text-left">Nombre</th>
-              <th className="px-4 py-2 text-left">Precio</th>
-              <th className="px-4 py-2 text-left">Stock</th>
-              <th className="px-4 py-2 text-left">Categoría</th>
-              <th className="px-4 py-2 text-left">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {productos.map((producto) => (
-              <tr key={producto.id} className="border-b">
-                <td className="px-4 py-2">
-                  {producto.imagenes?.[0]?.imagen ? (
-                    <img
-                      src={producto.imagenes[0].imagen}
-                      alt="Producto"
-                      className="h-12 w-12 object-cover rounded"
-                    />
-                  ) : (
-                    <span className="text-gray-400 italic">Sin imagen</span>
-                  )}
-                </td>
-                <td className="px-4 py-2">{producto.nombre}</td>
-                <td className="px-4 py-2">${producto.precio.toLocaleString()}</td>
-                <td className="px-4 py-2">{producto.stock}</td>
-                <td className="px-4 py-2">{producto.categoria}</td>
-                <td className="px-4 py-2 space-x-2">
-                  <button
-                    onClick={() => abrirModalEditar(producto)}
-                    className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => abrirModalEliminarProducto(producto.id)}
-                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                  >
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="space-y-10">
+          {categorias.map((categoria) => {
+            const productosCategoria = productos.filter(
+              (p) => p.categoria === categoria.id
+            );
+
+            if (productosCategoria.length === 0) return null;
+
+            return (
+              <div key={categoria.id}>
+                <h3 className="text-xl font-bold text-green-700 mb-4">
+                  {categoria.nombre}
+                </h3>
+
+                {/* GRID → 2 columnas en móvil, 4 en desktop */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+                  {productosCategoria.map((producto) => (
+                    <div
+                      key={producto.id}
+                      className="border border-green-300 rounded-xl shadow-sm p-3 bg-white hover:shadow-md transition"
+                    >
+                      {/* Imagen */}
+                      {producto.imagenes?.[0]?.imagen ? (
+                        <img
+                          src={producto.imagenes[0].imagen}
+                          alt={producto.nombre}
+                          className="w-full h-28 object-cover rounded-md"
+                        />
+                      ) : (
+                        <div className="w-full h-28 bg-gray-200 rounded-md flex items-center justify-center text-gray-500 text-sm">
+                          Sin imagen
+                        </div>
+                      )}
+
+                      {/* Info */}
+                      <h4 className="font-semibold mt-2 text-sm">
+                        {producto.nombre}
+                      </h4>
+
+                      <p className="text-green-700 font-bold text-sm">
+                        ${producto.precio.toLocaleString()}
+                      </p>
+
+                      <p className="text-xs text-gray-500">Stock: {producto.stock}</p>
+
+                      {/* Botones */}
+                      <div className="mt-3 flex gap-2">
+                        <button
+                          onClick={() => abrirModalEditar(producto)}
+                          className="flex-1 bg-blue-600 text-white py-1 rounded text-xs"
+                        >
+                          Editar
+                        </button>
+
+                        <button
+                          onClick={() => abrirModalEliminarProducto(producto.id)}
+                          className="flex-1 bg-red-600 text-white py-1 rounded text-xs"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       )}
 
+      {/* MODAL CREAR/EDITAR */}
       {mostrarModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg overflow-y-auto max-h-screen">
@@ -348,6 +373,7 @@ export default function ProductosPanel() {
         </div>
       )}
 
+      {/* MODAL ELIMINAR */}
       {mostrarModalEliminar && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
