@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "../../config/api";
 import { Toaster } from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { toastError} from "../../interfaces/toast";
+import { toastError } from "../../interfaces/toast";
 
 interface Pedido {
   id: number;
@@ -15,7 +15,6 @@ interface Pedido {
   metodo_pago: string;
   tipo_entrega: string;
   total: number;
-  blue_code?: number;
 }
 
 export default function PedidosPanel() {
@@ -23,15 +22,15 @@ export default function PedidosPanel() {
   const [loading, setLoading] = useState(true);
   const [estadosDisponibles, setEstadosDisponibles] = useState<{ id: number; nombre: string }[]>([]);
   const [estadosPago, setEstadosPago] = useState<{ id: number; nombre: string }[]>([]);
-  
+
   const [filtros, setFiltros] = useState({
+    id: "",
     email: "",
-    nombre: "",
     estado: "",
     estado_pago: "",
     tipo_entrega: "",
   });
- 
+
   useEffect(() => {
     cargarPedidos();
     cargarEstados();
@@ -41,8 +40,8 @@ export default function PedidosPanel() {
   const cargarPedidos = () => {
     setLoading(true);
     const params = new URLSearchParams();
+    if (filtros.id) params.append("id", filtros.id);
     if (filtros.email) params.append("email", filtros.email);
-    if (filtros.nombre) params.append("nombre", filtros.nombre);
     if (filtros.estado) params.append("estado", filtros.estado);
     if (filtros.estado_pago) params.append("estado_pago", filtros.estado_pago);
     if (filtros.tipo_entrega) params.append("tipo_entrega", filtros.tipo_entrega);
@@ -68,6 +67,7 @@ export default function PedidosPanel() {
       .catch(() => toastError("Error al cargar estados de pago"));
   };
 
+  // Agrupar pedidos por estado del pedido
   const pedidosPorEstado: { [estado: string]: Pedido[] } = {};
   pedidos.forEach((p) => {
     const estadoAgrupado = p.estado || "Sin estado";
@@ -91,10 +91,10 @@ export default function PedidosPanel() {
       <div className="mb-6 flex flex-wrap gap-4">
         <input
           type="text"
-          placeholder="Buscar por nombre"
-          value={filtros.nombre}
-          onChange={(e) => setFiltros({ ...filtros, nombre: e.target.value })}
-          className="border px-3 py-2 rounded w-60"
+          placeholder="Buscar por ID"
+          value={filtros.id}
+          onChange={(e) => setFiltros({ ...filtros, id: e.target.value })}
+          className="border px-3 py-2 rounded w-40"
         />
         <input
           type="text"
@@ -147,91 +147,59 @@ export default function PedidosPanel() {
       {loading ? (
         <p className="text-gray-600">Cargando pedidos...</p>
       ) : (
-        <table className="w-full table-auto border-collapse">
-          <thead>
-            <tr className="bg-green-100 text-green-700">
-              <th className="px-4 py-2 text-left">ID</th>
-              <th className="px-4 py-2 text-left">Cliente</th>
-              <th className="px-4 py-2 text-left">Teléfono</th>
-              <th className="px-4 py-2 text-left">Total</th>
-              <th className="px-4 py-2 text-left">Pago</th>
-              <th className="px-4 py-2 text-left">Estado de pago</th>
-              <th className="px-4 py-2 text-left">Tipo</th>
-              <th className="px-4 py-2 text-left">Blue Code</th>
-              <th className="px-4 py-2 text-left">Acciones</th>
-            </tr>
-          </thead>
-
-          {Object.entries(pedidosPorEstado).map(([estado, grupo]) => {
-            const colorClass = colorMap[estado] || "bg-gray-100 text-gray-800";
-
-            return (
-              <tbody key={estado}>
-                <tr>
-                  <td colSpan={8} className={`font-bold text-lg text-black px-4 py-1 ${colorClass}`}>
-                    Estado: {estado}
-                  </td>
-                </tr>
-
+        <div className="space-y-6">
+          {Object.entries(pedidosPorEstado).map(([estado, grupo]) => (
+            <div key={estado}>
+              <h3
+                className={`text-lg font-bold mb-2 px-2 py-1 rounded ${
+                  colorMap[estado] || "bg-gray-100 text-gray-800"
+                }`}
+              >
+                Estado: {estado}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {grupo.map((p) => (
-                  <tr key={p.id} className="border-b">
-                    <td className="px-4 py-2">{p.id}</td>
-                    <td className="px-4 py-2">{p.nombre}</td>
-                    <td className="px-4 py-2">{p.telefono}</td>
-                    <td className="px-4 py-2">${p.total}</td>
-                    <td className="px-4 py-2">{p.metodo_pago}</td>
-
-                    <td className="px-4 py-2">
-                      <input
-                        type="text"
-                        value={p.estado_pago}
-                        readOnly
-                        className="border px-2 py-1 rounded w-full bg-gray-100 cursor-not-allowed"
-                      />
-                    </td>
-
-                    <td className="px-4 py-2 capitalize">{p.tipo_entrega}</td>
-
-                    <td className="px-4 py-2">
-                      {p.tipo_entrega === "delivery" ? (
-                        <input
-                          type="text"
-                          value={p.blue_code || ""}
-                          readOnly
-                          className="border px-2 py-1 rounded w-full bg-gray-100 cursor-not-allowed"
-                        />
-                      ) : (
-                        <input
-                          type="text"
-                          value="No aplica"
-                          disabled
-                          className="border px-2 py-1 rounded w-full bg-gray-100 text-gray-500 cursor-not-allowed"
-                        />
-                      )}
-                    </td>
-
-                    <td className="px-4 py-2 space-y-2">
-
-                      <input
-                        type="text"
-                        value={p.estado}
-                        readOnly
-                        className="border px-2 py-1 rounded w-full bg-gray-100 cursor-not-allowed"
-                      />
-
-                      <Link
-                        to={`/admin/pedidos/${p.id}`}
-                        className="block text-green-600 hover:underline text-sm mt-1"
+                  <div key={p.id} className="bg-white border rounded-lg p-4 shadow-sm">
+                    <div className="flex justify-between mb-2">
+                      <span className="font-semibold">ID: {p.id}</span>
+                      <span
+                        className={`px-2 py-1 rounded text-sm ${
+                          colorMap[estado] || "bg-gray-100 text-gray-800"
+                        }`}
                       >
-                        Ver detalle
-                      </Link>
-                    </td>
-                  </tr>
+                        {p.estado}
+                      </span>
+                    </div>
+                    <p className="text-sm">
+                      <strong>Cliente:</strong> {p.nombre}
+                    </p>
+                    <p className="text-sm">
+                      <strong>Email:</strong> {p.email}
+                    </p>
+                    <p className="text-sm">
+                      <strong>Tel:</strong> {p.telefono}
+                    </p>
+                    <p className="text-sm">
+                      <strong>Total:</strong> ${p.total}
+                    </p>
+                    <p className="text-sm">
+                      <strong>Pago:</strong> {p.metodo_pago} ({p.estado_pago})
+                    </p>
+                    <p className="text-sm">
+                      <strong>Tipo:</strong> {p.tipo_entrega}
+                    </p>
+                    <Link
+                      to={`/admin/pedidos/${p.id}`}
+                      className="block mt-2 text-green-600 hover:underline text-sm"
+                    >
+                      Ver detalle
+                    </Link>
+                  </div>
                 ))}
-              </tbody>
-            );
-          })}
-        </table>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       <Toaster position="top-center" />
