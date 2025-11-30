@@ -3,7 +3,6 @@ import { api } from "../../config/api";
 import { Toaster } from "react-hot-toast";
 import { toastError, toastSuccess } from "../../interfaces/toast";
 
-
 interface ModalProps {
   open: boolean;
   title: string;
@@ -11,7 +10,6 @@ interface ModalProps {
   onConfirm: () => void;
   onClose: () => void;
 }
-
 
 function Modal({ open, title, children, onConfirm, onClose }: ModalProps) {
   if (!open) return null;
@@ -47,15 +45,28 @@ export default function Registro() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [modalOpen, setModalOpen] = useState(false);
+
+  // Validación de contraseña
+  const validarFormulario = () => {
+    if (password.length < 8) {
+      toastError("La contraseña debe tener al menos 8 caracteres.");
+      return false;
+    }
+    if (password !== confirmPassword) {
+      toastError("Las contraseñas no coinciden.");
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmitFinal = async () => {
     try {
       await api.post("/usuarios/registro/", { username, email, password });
-
       toastSuccess("Cuenta creada con éxito");
 
       setTimeout(() => {
@@ -70,6 +81,8 @@ export default function Registro() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validarFormulario()) return;
 
     setModalOpen(true);
   };
@@ -104,6 +117,7 @@ export default function Registro() {
               <input
                 type="text"
                 value={username}
+                placeholder="Ingresa tu nombre aquí"
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full p-4 border-2 border-green-600 rounded"
                 required
@@ -117,6 +131,7 @@ export default function Registro() {
               <input
                 type="email"
                 value={email}
+                placeholder="correo@mail.com"
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full p-4 border-2 border-green-600 rounded"
                 required
@@ -127,22 +142,46 @@ export default function Registro() {
               <label className="block mb-2 font-semibold text-gray-700">
                 Contraseña
               </label>
-
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full p-4 border-2 border-green-600 rounded pr-12"
+                  placeholder="Mínimo 8 caracteres"
                   required
                 />
-
                 <button
                   type="button"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? "👁️" : "👁️‍🗨️"}
+                </button>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="block mb-2 font-semibold text-gray-700">
+                Confirmar contraseña
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full p-4 border-2 border-green-600 rounded pr-12"
+                  placeholder="Repite la contraseña"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600"
+                  onClick={() =>
+                    setShowConfirmPassword(!showConfirmPassword)
+                  }
+                >
+                  {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
                 </button>
               </div>
             </div>
