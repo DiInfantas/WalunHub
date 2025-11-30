@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { api, editarUsuarioAdmin, eliminarUsuarioAdmin } from "../../config/api";
+import {
+  api,
+  editarUsuarioAdmin,
+  eliminarUsuarioAdmin,
+} from "../../config/api";
 import { Toaster } from "react-hot-toast";
 import { toastError, toastSuccess } from "../../interfaces/toast";
 
@@ -106,7 +110,6 @@ export default function CuentasPanel() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Modales
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [confirmAction, setConfirmAction] = useState(() => {});
@@ -173,7 +176,9 @@ export default function CuentasPanel() {
   };
 
   const borrarUsuario = (id: number) => {
-    setModalMessage("¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.");
+    setModalMessage(
+      "¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer."
+    );
 
     setConfirmAction(() => async () => {
       try {
@@ -192,7 +197,7 @@ export default function CuentasPanel() {
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-green-600">
+    <div className="bg-white p-6 rounded-lg shadow-lg border-2 border-green-600">
       <h2 className="text-2xl font-bold text-green-700 mb-6">
         Gestión de Cuentas
       </h2>
@@ -200,68 +205,72 @@ export default function CuentasPanel() {
       {loading ? (
         <p className="text-gray-600">Cargando usuarios...</p>
       ) : (
-        <table className="w-full table-auto border-collapse">
-          <thead>
-            <tr className="bg-green-100 text-green-700">
-              <th className="px-4 py-2 text-left">Nombre</th>
-              <th className="px-4 py-2 text-left">Email</th>
-              <th className="px-4 py-2 text-left">Teléfono</th>
-              <th className="px-4 py-2 text-left">Ciudad</th>
-              <th className="px-4 py-2 text-left">¿Vendedor?</th>
-              <th className="px-4 py-2 text-left">Acciones</th>
-            </tr>
-          </thead>
+        <div
+          className="
+            grid gap-4 
+            grid-cols-1 
+            sm:grid-cols-2 
+            lg:grid-cols-3
+          "
+        >
+          {usuarios.map((u) => (
+            <div
+              key={u.id}
+              className="border rounded-lg p-4 shadow-md bg-green-50 border-green-300"
+            >
+              <h3 className="text-lg font-semibold text-green-700 flex justify-between">
+                {u.username}
+                <span
+                  className={`text-sm px-2 py-1 rounded ${
+                    u.es_vendedor
+                      ? "bg-green-200 text-green-700"
+                      : "bg-red-200 text-red-700"
+                  }`}
+                >
+                  {u.es_vendedor ? "Vendedor" : "Cliente"}
+                </span>
+              </h3>
 
-          <tbody>
-            {usuarios.map((u) => (
-              <tr key={u.id} className="border-b">
-                <td className="px-4 py-2">{u.username}</td>
-                <td className="px-4 py-2">{u.email}</td>
-                <td className="px-4 py-2">{u.telefono || "—"}</td>
-                <td className="px-4 py-2">{u.ciudad || "—"}</td>
+              <p className="text-gray-700 text-sm">{u.email}</p>
 
-                <td className="px-4 py-2">
-                  <span
-                    className={`px-2 py-1 rounded text-sm font-semibold ${
-                      u.es_vendedor
-                        ? "bg-green-200 text-green-700"
-                        : "bg-red-200 text-red-700"
-                    }`}
-                  >
-                    {u.es_vendedor ? "Sí" : "No"}
-                  </span>
-                </td>
+              <div className="mt-2 text-sm text-gray-700">
+                <p>
+                  <span className="font-semibold">Teléfono: </span>
+                  {u.telefono || "—"}
+                </p>
+                <p>
+                  <span className="font-semibold">Ciudad: </span>
+                  {u.ciudad || "—"}
+                </p>
+              </div>
 
-                <td className="px-4 py-2 flex gap-2">
-                  <button
-                    onClick={() => actualizarVendedor(u.id, !u.es_vendedor)}
-                    className={`px-3 py-1 rounded text-white ${
-                      u.es_vendedor
-                        ? "bg-red-600 hover:bg-red-700"
-                        : "bg-green-600 hover:bg-green-700"
-                    }`}
-                  >
-                    {u.es_vendedor ? "Revocar" : "Dar acceso"}
-                  </button>
+              <div className="mt-4 flex flex-col gap-2">
+                <button
+                  onClick={() => actualizarVendedor(u.id, !u.es_vendedor)}
+                  className={`py-2 rounded text-white text-sm ${
+                    u.es_vendedor ? "bg-red-600" : "bg-green-600"
+                  }`}
+                >
+                  {u.es_vendedor ? "Revocar acceso" : "Dar acceso"}
+                </button>
 
-                  <button
-                    onClick={() => abrirEditarUsuario(u)}
-                    className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
-                  >
-                    Editar
-                  </button>
+                <button
+                  onClick={() => abrirEditarUsuario(u)}
+                  className="py-2 rounded bg-blue-600 text-white text-sm"
+                >
+                  Editar
+                </button>
 
-                  <button
-                    onClick={() => borrarUsuario(u.id)}
-                    className="px-3 py-1 rounded bg-gray-600 text-white hover:bg-gray-700"
-                  >
-                    Borrar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                <button
+                  onClick={() => borrarUsuario(u.id)}
+                  className="py-2 rounded bg-gray-600 text-white text-sm"
+                >
+                  Borrar
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       <Toaster position="top-center" />
@@ -283,4 +292,3 @@ export default function CuentasPanel() {
     </div>
   );
 }
-
