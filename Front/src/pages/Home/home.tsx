@@ -242,7 +242,7 @@ export default function Home(): JSX.Element {
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center text-xl">😊</div>
                 <div>
-                  <h4 className="font-semibold text-green-900">María P.</h4>
+                  <h4 className="font-semibold text-green-900">Mariela Bogadi</h4>
                   <p className="text-sm text-gray-600">Compradora frecuente</p>
                 </div>
               </div>
@@ -250,12 +250,12 @@ export default function Home(): JSX.Element {
 
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-7 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-left">
               <p className="text-gray-700 italic mb-4">
-                “Me encanta comprar solo lo necesario. Envío rápido y todo impecable.”
+                “Me encanta comprar aquí, los productos siempre son frescos.”
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center text-xl">🌿</div>
                 <div>
-                  <h4 className="font-semibold text-green-900">Diego A.</h4>
+                  <h4 className="font-semibold text-green-900">Mila Serrano</h4>
                   <p className="text-sm text-gray-600">Cliente desde 2023</p>
                 </div>
               </div>
@@ -263,13 +263,13 @@ export default function Home(): JSX.Element {
 
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-7 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-left">
               <p className="text-gray-700 italic mb-4">
-                “Los superalimentos de aquí son de excelente calidad.”
+                “Compro aquí por su relacion precio calidad.”
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center text-xl">⭐</div>
                 <div>
-                  <h4 className="font-semibold text-green-900">Constanza R.</h4>
-                  <p className="text-sm text-gray-600">Fan de los superalimentos</p>
+                  <h4 className="font-semibold text-green-900">Nora Smith</h4>
+                  <p className="text-sm text-gray-600">Cliente reciente</p>
                 </div>
               </div>
             </div>
