@@ -77,7 +77,7 @@ class SendResetCodeView(APIView):
                     </p>
 
                     <div style="text-align:center; margin: 25px 0;">
-                        <a href="http://localhost:5173/recuperarpass2"
+                        <a href="https://26jw2jkc-5173.brs.devtunnels.ms/recuperarpass2"
                            style="background:#0e8a4f; color:white; padding:12px 25px; 
                                   text-decoration:none; border-radius:8px; font-size:16px;">
                            Recuperar contraseña
@@ -177,7 +177,7 @@ class RegistroView(generics.CreateAPIView):
                 </div>
 
                 <div style="text-align:center; margin: 25px 0;">
-                    <a href="http://localhost:5173/login"
+                    <a href="https://26jw2jkc-5173.brs.devtunnels.ms/login"
                        style="background:#0e8a4f; color:white; padding:12px 25px; 
                               text-decoration:none; border-radius:8px; 
                               font-size:16px; display:inline-block;">

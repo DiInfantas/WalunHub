@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 
 export default function Carrito() {
   const [carrito, setCarrito] = useState<ItemCarrito[]>([]);
+  const [productoAEliminar, setProductoAEliminar] = useState<ItemCarrito | null>(null);
 
   useEffect(() => {
     setCarrito(obtenerCarrito());
@@ -34,6 +35,13 @@ export default function Carrito() {
   const eliminarProducto = (id: number) => {
     eliminarDelCarrito(id);
     setCarrito(obtenerCarrito());
+  };
+
+  const confirmarEliminacion = () => {
+    if (productoAEliminar) {
+      eliminarProducto(productoAEliminar.id);
+      setProductoAEliminar(null);
+    }
   };
 
   const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
@@ -101,7 +109,7 @@ export default function Carrito() {
               </div>
 
               <button
-                onClick={() => eliminarProducto(item.id)}
+                onClick={() => setProductoAEliminar(item)}
                 className="mt-3 w-full py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600"
               >
                 Eliminar
@@ -133,6 +141,37 @@ export default function Carrito() {
           Ir al checkout
         </Link>
       </div>
+
+      {productoAEliminar && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">
+              ¿Eliminar producto?
+            </h2>
+
+            <p className="text-gray-600 mb-6">
+              ¿Estás seguro de que deseas eliminar <strong>{productoAEliminar.nombre}</strong> del carrito?
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setProductoAEliminar(null)}
+                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={confirmarEliminacion}
+                className="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white font-semibold"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
+
