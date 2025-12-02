@@ -77,16 +77,10 @@ class ItemPedidoCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         producto = validated_data["producto"]
-
         validated_data["peso_unitario"] = producto.peso_kg
         validated_data["peso_total_item"] = producto.peso_kg * validated_data["cantidad"]
-
         return ItemPedido.objects.create(**validated_data)
 
-
-    class Meta:
-        model = ItemPedido
-        fields = ["producto", "cantidad", "precio_unitario"]
 
 class PedidoCreateSerializer(serializers.ModelSerializer):
     items = ItemPedidoCreateSerializer(many=True)
